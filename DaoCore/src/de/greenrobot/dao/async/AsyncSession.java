@@ -303,7 +303,7 @@ public class AsyncSession {
     }
 
     private AsyncOperation enqueueDatabaseOperation(OperationType type, Object param, int flags) {
-        AsyncOperation operation = new AsyncOperation(type, daoSession.getDatabase(), param, flags);
+        AsyncOperation operation = new AsyncOperation(type, daoSession.getConnection(), param, flags);
         executor.enqueue(operation);
         return operation;
     }

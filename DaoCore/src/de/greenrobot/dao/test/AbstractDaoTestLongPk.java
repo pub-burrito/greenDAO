@@ -16,6 +16,8 @@
 
 package de.greenrobot.dao.test;
 
+import java.sql.SQLException;
+
 import de.greenrobot.dao.AbstractDao;
 import de.greenrobot.dao.DaoLog;
 
@@ -40,7 +42,7 @@ public abstract class AbstractDaoTestLongPk<D extends AbstractDao<T, Long>, T> e
         return random.nextLong();
     }
     
-    public void testAssignPk() {
+    public void testAssignPk() throws SQLException {
         if (daoAccess.isEntityUpdateable()) {
             T entity1 = createEntity(null);
             if (entity1 != null) {

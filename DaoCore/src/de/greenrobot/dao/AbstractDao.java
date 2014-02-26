@@ -16,21 +16,18 @@
 
 package de.greenrobot.dao;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import android.database.CrossProcessCursor;
-import android.database.Cursor;
-import android.database.CursorWindow;
-import android.database.DatabaseUtils;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteStatement;
 import de.greenrobot.dao.identityscope.IdentityScope;
 import de.greenrobot.dao.identityscope.IdentityScopeLong;
 import de.greenrobot.dao.internal.DaoConfig;
-import de.greenrobot.dao.internal.FastCursor;
 import de.greenrobot.dao.internal.TableStatements;
 import de.greenrobot.dao.query.Query;
 import de.greenrobot.dao.query.QueryBuilder;
@@ -57,7 +54,7 @@ import de.greenrobot.dao.query.QueryBuilder;
  * 3.) identityScope
  */
 public abstract class AbstractDao<T, K> {
-    protected final SQLiteDatabase db;
+    protected final Connection connection;
     protected final DaoConfig config;
     protected IdentityScope<K, T> identityScope;
     protected IdentityScopeLong<T> identityScopeLong;
@@ -74,7 +71,7 @@ public abstract class AbstractDao<T, K> {
     public AbstractDao(DaoConfig config, AbstractDaoSession daoSession) {
         this.config = config;
         this.session = daoSession;
-        db = config.db;
+        connection = config.connection;
         identityScope = (IdentityScope<K, T>) config.getIdentityScope();
         if (identityScope instanceof IdentityScopeLong) {
             identityScopeLong = (IdentityScopeLong<T>) identityScope;
@@ -121,8 +118,9 @@ public abstract class AbstractDao<T, K> {
      * @param key
      *            a PK value or null
      * @return The entity or null, if no entity matched the PK value
+     * @throws SQLException 
      */
-    public T load(K key) {
+    public T load(K key) throws SQLException {
         assertSinglePk();
         if (key == null) {
             return null;
@@ -134,39 +132,45 @@ public abstract class AbstractDao<T, K> {
             }
         }
         String sql = statements.getSelectByKey();
-        String[] keyArray = new String[] { key.toString() };
-        Cursor cursor = db.rawQuery(sql, keyArray);
-        return loadUniqueAndCloseCursor(cursor);
+        PreparedStatement statement = connection.prepareStatement( sql );
+        statement.setString( 0, key.toString() );
+        ResultSet resultSet = statement.executeQuery();
+        return loadUniqueAndCloseCursor(resultSet);
     }
 
-    public T loadByRowId(long rowId) {
-        String[] idArray = new String[] { Long.toString(rowId) };
-        Cursor cursor = db.rawQuery(statements.getSelectByRowId(), idArray);
-        return loadUniqueAndCloseCursor(cursor);
+    public T loadByRowId(long rowId) throws SQLException {
+        String sql = statements.getSelectByRowId();
+        PreparedStatement statement = connection.prepareStatement( sql );
+        statement.setString( 0, Long.toString(rowId) );
+        ResultSet resultSet = statement.executeQuery();
+        return loadUniqueAndCloseCursor(resultSet);
     }
 
-    protected T loadUniqueAndCloseCursor(Cursor cursor) {
+    protected T loadUniqueAndCloseCursor(ResultSet resultSet) throws SQLException {
         try {
-            return loadUnique(cursor);
+            return loadUnique(resultSet);
         } finally {
-            cursor.close();
+            resultSet.close();
         }
     }
 
-    protected T loadUnique(Cursor cursor) {
-        boolean available = cursor.moveToFirst();
+    protected T loadUnique(ResultSet resultSet) throws SQLException {
+        boolean available = resultSet.next();
         if (!available) {
             return null;
-        } else if (!cursor.isLast()) {
-            throw new DaoException("Expected unique result, but count was " + cursor.getCount());
+        } else if (!resultSet.isLast()) {
+            throw new DaoException("Expected unique result, but count was " + resultSet.getFetchSize());
         }
-        return loadCurrent(cursor, 0, true);
+        return loadCurrent(resultSet, 0, true);
     }
 
-    /** Loads all available entities from the database. */
-    public List<T> loadAll() {
-        Cursor cursor = db.rawQuery(statements.getSelectAll(), null);
-        return loadAllAndCloseCursor(cursor);
+    /** Loads all available entities from the database. 
+     * @throws SQLException */
+    public List<T> loadAll() throws SQLException {
+        String sql = statements.getSelectAll();
+        PreparedStatement statement = connection.prepareStatement( sql );
+        ResultSet resultSet = statement.executeQuery();
+        return loadAllAndCloseCursor(resultSet);
     }
 
     /** Detaches an entity from the identity scope (session). Subsequent query results won't return this object. */
@@ -179,11 +183,11 @@ public abstract class AbstractDao<T, K> {
         }
     }
 
-    protected List<T> loadAllAndCloseCursor(Cursor cursor) {
+    protected List<T> loadAllAndCloseCursor(ResultSet resultSet) throws SQLException {
         try {
-            return loadAllFromCursor(cursor);
+            return loadAllFromCursor(resultSet);
         } finally {
-            cursor.close();
+            resultSet.close();
         }
     }
 
@@ -192,8 +196,9 @@ public abstract class AbstractDao<T, K> {
      * 
      * @param entities
      *            The entities to insert.
+     * @throws SQLException 
      */
-    public void insertInTx(Iterable<T> entities) {
+    public void insertInTx(Iterable<T> entities) throws SQLException {
         insertInTx(entities, isEntityUpdateable());
     }
 
@@ -202,8 +207,9 @@ public abstract class AbstractDao<T, K> {
      * 
      * @param entities
      *            The entities to insert.
+     * @throws SQLException 
      */
-    public void insertInTx(T... entities) {
+    public void insertInTx(T... entities) throws SQLException {
         insertInTx(Arrays.asList(entities), isEntityUpdateable());
     }
 
@@ -215,9 +221,10 @@ public abstract class AbstractDao<T, K> {
      *            The entities to insert.
      * @param setPrimaryKey
      *            if true, the PKs of the given will be set after the insert; pass false to improve performance.
+     * @throws SQLException 
      */
-    public void insertInTx(Iterable<T> entities, boolean setPrimaryKey) {
-        SQLiteStatement stmt = statements.getInsertStatement();
+    public void insertInTx(Iterable<T> entities, boolean setPrimaryKey) throws SQLException {
+        PreparedStatement stmt = statements.getInsertStatement();
         executeInsertInTx(stmt, entities, setPrimaryKey);
     }
 
@@ -229,9 +236,10 @@ public abstract class AbstractDao<T, K> {
      *            The entities to insert.
      * @param setPrimaryKey
      *            if true, the PKs of the given will be set after the insert; pass false to improve performance.
+     * @throws SQLException 
      */
-    public void insertOrReplaceInTx(Iterable<T> entities, boolean setPrimaryKey) {
-        SQLiteStatement stmt = statements.getInsertOrReplaceStatement();
+    public void insertOrReplaceInTx(Iterable<T> entities, boolean setPrimaryKey) throws SQLException {
+    	PreparedStatement stmt = statements.getInsertOrReplaceStatement();
         executeInsertInTx(stmt, entities, setPrimaryKey);
     }
 
@@ -240,8 +248,9 @@ public abstract class AbstractDao<T, K> {
      * 
      * @param entities
      *            The entities to insert.
+     * @throws SQLException 
      */
-    public void insertOrReplaceInTx(Iterable<T> entities) {
+    public void insertOrReplaceInTx(Iterable<T> entities) throws SQLException {
         insertOrReplaceInTx(entities, isEntityUpdateable());
     }
 
@@ -250,13 +259,15 @@ public abstract class AbstractDao<T, K> {
      * 
      * @param entities
      *            The entities to insert.
+     * @throws SQLException 
      */
-    public void insertOrReplaceInTx(T... entities) {
+    public void insertOrReplaceInTx(T... entities) throws SQLException {
         insertOrReplaceInTx(Arrays.asList(entities), isEntityUpdateable());
     }
 
-    private void executeInsertInTx(SQLiteStatement stmt, Iterable<T> entities, boolean setPrimaryKey) {
-        db.beginTransaction();
+//	TODO transaction
+    private void executeInsertInTx(PreparedStatement stmt, Iterable<T> entities, boolean setPrimaryKey) {
+//    	connection.beginTransaction();
         try {
             synchronized (stmt) {
                 if (identityScope != null) {
@@ -266,21 +277,26 @@ public abstract class AbstractDao<T, K> {
                     for (T entity : entities) {
                         bindValues(stmt, entity);
                         if (setPrimaryKey) {
-                            long rowId = stmt.executeInsert();
+                            long rowId = stmt.executeUpdate();
                             updateKeyAfterInsertAndAttach(entity, rowId, false);
                         } else {
                             stmt.execute();
                         }
                     }
-                } finally {
+                }
+				catch ( SQLException e )
+				{
+					e.printStackTrace();
+					// rollback?!
+				} finally {
                     if (identityScope != null) {
                         identityScope.unlock();
                     }
                 }
             }
-            db.setTransactionSuccessful();
+//            db.setTransactionSuccessful();
         } finally {
-            db.endTransaction();
+//            db.endTransaction();
         }
     }
 
@@ -288,8 +304,9 @@ public abstract class AbstractDao<T, K> {
      * Insert an entity into the table associated with a concrete DAO.
      * 
      * @return row ID of newly inserted entity
+     * @throws SQLException 
      */
-    public long insert(T entity) {
+    public long insert(T entity) throws SQLException {
         return executeInsert(entity, statements.getInsertStatement());
     }
 
@@ -298,26 +315,30 @@ public abstract class AbstractDao<T, K> {
      * may be faster, but the entity should not be used anymore. The entity also won't be attached to identy scope.
      * 
      * @return row ID of newly inserted entity
+     * @throws SQLException 
      */
-    public long insertWithoutSettingPk(T entity) {
-        SQLiteStatement stmt = statements.getInsertStatement();
+    public long insertWithoutSettingPk(T entity) throws SQLException {
+    	PreparedStatement stmt = statements.getInsertStatement();
         long rowId;
-        if (db.isDbLockedByCurrentThread()) {
+        // FIXME not sure what to do here...
+//        if (db.isDbLockedByCurrentThread()) {
+        if (!connection.isClosed()) {
             synchronized (stmt) {
                 bindValues(stmt, entity);
-                rowId = stmt.executeInsert();
+                rowId = stmt.executeUpdate();
             }
         } else {
             // Do TX to acquire a connection before locking the stmt to avoid deadlocks
-            db.beginTransaction();
+// TODO transaction        	
+//            db.beginTransaction();
             try {
                 synchronized (stmt) {
                     bindValues(stmt, entity);
-                    rowId = stmt.executeInsert();
+                    rowId = stmt.executeUpdate();
                 }
-                db.setTransactionSuccessful();
+//                db.setTransactionSuccessful();
             } finally {
-                db.endTransaction();
+//                db.endTransaction();
             }
         }
         return rowId;
@@ -327,29 +348,33 @@ public abstract class AbstractDao<T, K> {
      * Insert an entity into the table associated with a concrete DAO.
      * 
      * @return row ID of newly inserted entity
+     * @throws SQLException 
      */
-    public long insertOrReplace(T entity) {
+    public long insertOrReplace(T entity) throws SQLException {
         return executeInsert(entity, statements.getInsertOrReplaceStatement());
     }
 
-    private long executeInsert(T entity, SQLiteStatement stmt) {
+    private long executeInsert(T entity, PreparedStatement stmt) throws SQLException {
         long rowId;
-        if (db.isDbLockedByCurrentThread()) {
+        // FIXME not sure what to do here...
+//        if (connection.isDbLockedByCurrentThread()) {
+        if (!connection.isClosed()) {
             synchronized (stmt) {
                 bindValues(stmt, entity);
-                rowId = stmt.executeInsert();
+                rowId = stmt.executeUpdate();
             }
         } else {
             // Do TX to acquire a connection before locking the stmt to avoid deadlocks
-            db.beginTransaction();
+// TODO transaction
+//            db.beginTransaction();
             try {
                 synchronized (stmt) {
                     bindValues(stmt, entity);
-                    rowId = stmt.executeInsert();
+                    rowId = stmt.executeUpdate();
                 }
-                db.setTransactionSuccessful();
+//                db.setTransactionSuccessful();
             } finally {
-                db.endTransaction();
+//                db.endTransaction();
             }
         }
         updateKeyAfterInsertAndAttach(entity, rowId, true);
@@ -366,30 +391,21 @@ public abstract class AbstractDao<T, K> {
         }
     }
 
-    /** Reads all available rows from the given cursor and returns a list of entities. */
-    protected List<T> loadAllFromCursor(Cursor cursor) {
-        int count = cursor.getCount();
+    /** Reads all available rows from the given cursor and returns a list of entities. 
+     * @throws SQLException */
+    protected List<T> loadAllFromCursor(ResultSet resultSet) throws SQLException {
+        int count = resultSet.getFetchSize();
         List<T> list = new ArrayList<T>(count);
-        if (cursor instanceof CrossProcessCursor) {
-            CursorWindow window = ((CrossProcessCursor) cursor).getWindow();
-            if (window != null) { // E.g. Roboelectric has no Window at this point
-                if (window.getNumRows() == count) {
-                    cursor = new FastCursor(window);
-                } else {
-                    DaoLog.d("Window vs. result size: " + window.getNumRows() + "/" + count);
-                }
-            }
-        }
-
-        if (cursor.moveToFirst()) {
+        
+        if (resultSet.next()) {
             if (identityScope != null) {
                 identityScope.lock();
                 identityScope.reserveRoom(count);
             }
             try {
                 do {
-                    list.add(loadCurrent(cursor, 0, false));
-                } while (cursor.moveToNext());
+                    list.add(loadCurrent(resultSet, 0, false));
+                } while (resultSet.next());
             } finally {
                 if (identityScope != null) {
                     identityScope.unlock();
@@ -399,22 +415,23 @@ public abstract class AbstractDao<T, K> {
         return list;
     }
 
-    /** Internal use only. Considers identity scope. */
-    final protected T loadCurrent(Cursor cursor, int offset, boolean lock) {
+    /** Internal use only. Considers identity scope. 
+     * @throws SQLException */
+    final protected T loadCurrent(ResultSet resultSet, int offset, boolean lock) throws SQLException {
         if (identityScopeLong != null) {
             if (offset != 0) {
                 // Occurs with deep loads (left outer joins)
-                if (cursor.isNull(pkOrdinal + offset)) {
+                if (resultSet.getObject(pkOrdinal + offset) == null) {
                     return null;
                 }
             }
 
-            long key = cursor.getLong(pkOrdinal + offset);
+            long key = resultSet.getLong(pkOrdinal + offset);
             T entity = lock ? identityScopeLong.get2(key) : identityScopeLong.get2NoLock(key);
             if (entity != null) {
                 return entity;
             } else {
-                entity = readEntity(cursor, offset);
+                entity = readEntity(resultSet, offset);
                 attachEntity(entity);
                 if (lock) {
                     identityScopeLong.put2(key, entity);
@@ -424,7 +441,7 @@ public abstract class AbstractDao<T, K> {
                 return entity;
             }
         } else if (identityScope != null) {
-            K key = readKey(cursor, offset);
+            K key = readKey(resultSet, offset);
             if (offset != 0 && key == null) {
                 // Occurs with deep loads (left outer joins)
                 return null;
@@ -433,34 +450,42 @@ public abstract class AbstractDao<T, K> {
             if (entity != null) {
                 return entity;
             } else {
-                entity = readEntity(cursor, offset);
+                entity = readEntity(resultSet, offset);
                 attachEntity(key, entity, lock);
                 return entity;
             }
         } else {
             // Check offset, assume a value !=0 indicating a potential outer join, so check PK
             if (offset != 0) {
-                K key = readKey(cursor, offset);
+                K key = readKey(resultSet, offset);
                 if (key == null) {
                     // Occurs with deep loads (left outer joins)
                     return null;
                 }
             }
-            T entity = readEntity(cursor, offset);
+            T entity = readEntity(resultSet, offset);
             attachEntity(entity);
             return entity;
         }
     }
 
-    /** Internal use only. Considers identity scope. */
-    final protected <O> O loadCurrentOther(AbstractDao<O, ?> dao, Cursor cursor, int offset) {
-        return dao.loadCurrent(cursor, offset, /* TODO check this */true);
+    /** Internal use only. Considers identity scope. 
+     * @throws SQLException */
+    final protected <O> O loadCurrentOther(AbstractDao<O, ?> dao, ResultSet resultSet, int offset) throws SQLException {
+        return dao.loadCurrent(resultSet, offset, /* TODO check this */true);
     }
 
-    /** A raw-style query where you can pass any WHERE clause and arguments. */
-    public List<T> queryRaw(String where, String... selectionArg) {
-        Cursor cursor = db.rawQuery(statements.getSelectAll() + where, selectionArg);
-        return loadAllAndCloseCursor(cursor);
+    /** A raw-style query where you can pass any WHERE clause and arguments. 
+     * @throws SQLException */
+    public List<T> queryRaw(String where, String... selectionArg) throws SQLException {
+		String sql = statements.getSelectAll() + where;
+		PreparedStatement statement = connection.prepareStatement( sql );
+		for ( int i = 0; i < selectionArg.length; i++ )
+		{
+			statement.setString( i, selectionArg[i] );
+		}
+		ResultSet resultSet = statement.executeQuery();
+		return loadAllAndCloseCursor(resultSet);
     }
 
     /**
@@ -480,41 +505,46 @@ public abstract class AbstractDao<T, K> {
         return Query.internalCreate(this, statements.getSelectAll() + where, selectionArg.toArray());
     }
 
-    public void deleteAll() {
+    public void deleteAll() throws SQLException {
         // String sql = SqlUtils.createSqlDelete(config.tablename, null);
         // db.execSQL(sql);
 
-        db.execSQL("DELETE FROM '" + config.tablename + "'");
+    	connection.createStatement().execute( "DELETE FROM '" + config.tablename + "'" );
         if (identityScope != null) {
             identityScope.clear();
         }
     }
 
-    /** Deletes the given entity from the database. Currently, only single value PK entities are supported. */
-    public void delete(T entity) {
+    /** Deletes the given entity from the database. Currently, only single value PK entities are supported. 
+     * @throws SQLException */
+    public void delete(T entity) throws SQLException {
         assertSinglePk();
         K key = getKeyVerified(entity);
         deleteByKey(key);
     }
 
-    /** Deletes an entity with the given PK from the database. Currently, only single value PK entities are supported. */
-    public void deleteByKey(K key) {
+    /** Deletes an entity with the given PK from the database. Currently, only single value PK entities are supported. 
+     * @throws SQLException */
+    public void deleteByKey(K key) throws SQLException {
         assertSinglePk();
-        SQLiteStatement stmt = statements.getDeleteStatement();
-        if (db.isDbLockedByCurrentThread()) {
+        PreparedStatement stmt = statements.getDeleteStatement();
+        // FIXME not sure what to do here...
+//        if (db.isDbLockedByCurrentThread()) {
+        if (!connection.isClosed()) {
             synchronized (stmt) {
                 deleteByKeyInsideSynchronized(key, stmt);
             }
         } else {
             // Do TX to acquire a connection before locking the stmt to avoid deadlocks
-            db.beginTransaction();
+// TODO transaction
+//            db.beginTransaction();
             try {
                 synchronized (stmt) {
                     deleteByKeyInsideSynchronized(key, stmt);
                 }
-                db.setTransactionSuccessful();
+//                db.setTransactionSuccessful();
             } finally {
-                db.endTransaction();
+//                db.endTransaction();
             }
         }
         if (identityScope != null) {
@@ -522,22 +552,23 @@ public abstract class AbstractDao<T, K> {
         }
     }
 
-    private void deleteByKeyInsideSynchronized(K key, SQLiteStatement stmt) {
+    private void deleteByKeyInsideSynchronized(K key, PreparedStatement stmt) throws SQLException {
         if (key instanceof Long) {
-            stmt.bindLong(1, (Long) key);
+            stmt.setLong(1, (Long) key);
         } else if (key == null) {
             throw new DaoException("Cannot delete entity, key is null");
         } else {
-            stmt.bindString(1, key.toString());
+            stmt.setString(1, key.toString());
         }
         stmt.execute();
     }
 
-    private void deleteInTxInternal(Iterable<T> entities, Iterable<K> keys) {
+    private void deleteInTxInternal(Iterable<T> entities, Iterable<K> keys) throws SQLException {
         assertSinglePk();
-        SQLiteStatement stmt = statements.getDeleteStatement();
+        PreparedStatement stmt = statements.getDeleteStatement();
         List<K> keysToRemoveFromIdentityScope = null;
-        db.beginTransaction();
+// TODO transaction
+//        db.beginTransaction();
         try {
             synchronized (stmt) {
                 if (identityScope != null) {
@@ -568,12 +599,12 @@ public abstract class AbstractDao<T, K> {
                     }
                 }
             }
-            db.setTransactionSuccessful();
+//            db.setTransactionSuccessful();
             if (keysToRemoveFromIdentityScope != null && identityScope != null) {
                 identityScope.remove(keysToRemoveFromIdentityScope);
             }
         } finally {
-            db.endTransaction();
+//            db.endTransaction();
         }
     }
 
@@ -582,8 +613,9 @@ public abstract class AbstractDao<T, K> {
      * 
      * @param entities
      *            The entities to delete.
+     * @throws SQLException 
      */
-    public void deleteInTx(Iterable<T> entities) {
+    public void deleteInTx(Iterable<T> entities) throws SQLException {
         deleteInTxInternal(entities, null);
     }
 
@@ -592,8 +624,9 @@ public abstract class AbstractDao<T, K> {
      * 
      * @param entities
      *            The entities to delete.
+     * @throws SQLException 
      */
-    public void deleteInTx(T... entities) {
+    public void deleteInTx(T... entities) throws SQLException {
         deleteInTxInternal(Arrays.asList(entities), null);
     }
 
@@ -602,8 +635,9 @@ public abstract class AbstractDao<T, K> {
      * 
      * @param keys
      *            Keys of the entities to delete.
+     * @throws SQLException 
      */
-    public void deleteByKeyInTx(Iterable<K> keys) {
+    public void deleteByKeyInTx(Iterable<K> keys) throws SQLException {
         deleteInTxInternal(null, keys);
     }
 
@@ -612,50 +646,56 @@ public abstract class AbstractDao<T, K> {
      * 
      * @param keys
      *            Keys of the entities to delete.
+     * @throws SQLException 
      */
-    public void deleteByKeyInTx(K... keys) {
+    public void deleteByKeyInTx(K... keys) throws SQLException {
         deleteInTxInternal(null, Arrays.asList(keys));
     }
 
-    /** Resets all locally changed properties of the entity by reloading the values from the database. */
-    public void refresh(T entity) {
+    /** Resets all locally changed properties of the entity by reloading the values from the database. 
+     * @throws SQLException */
+    public void refresh(T entity) throws SQLException {
         assertSinglePk();
         K key = getKeyVerified(entity);
         String sql = statements.getSelectByKey();
-        String[] keyArray = new String[] { key.toString() };
-        Cursor cursor = db.rawQuery(sql, keyArray);
+        PreparedStatement statement = connection.prepareStatement( sql );
+        statement.setString( 0, key.toString() );
+        ResultSet resultSet = statement.executeQuery();
         try {
-            boolean available = cursor.moveToFirst();
+            boolean available = resultSet.next();
             if (!available) {
                 throw new DaoException("Entity does not exist in the database anymore: " + entity.getClass()
                         + " with key " + key);
-            } else if (!cursor.isLast()) {
-                throw new DaoException("Expected unique result, but count was " + cursor.getCount());
+            } else if (!resultSet.isLast()) {
+                throw new DaoException("Expected unique result, but count was " + resultSet.getFetchSize());
             }
-            readEntity(cursor, entity, 0);
+            readEntity(resultSet, entity, 0);
             attachEntity(key, entity, true);
         } finally {
-            cursor.close();
+            resultSet.close();
         }
     }
 
-    public void update(T entity) {
+    public void update(T entity) throws SQLException {
         assertSinglePk();
-        SQLiteStatement stmt = statements.getUpdateStatement();
-        if (db.isDbLockedByCurrentThread()) {
+        PreparedStatement stmt = statements.getUpdateStatement();
+// FIXME not sure what to do here...        
+//        if (db.isDbLockedByCurrentThread()) {
+        if (!connection.isClosed()) {
             synchronized (stmt) {
                 updateInsideSynchronized(entity, stmt, true);
             }
         } else {
             // Do TX to acquire a connection before locking the stmt to avoid deadlocks
-            db.beginTransaction();
+// TODO transaction        	
+//            db.beginTransaction();
             try {
                 synchronized (stmt) {
                     updateInsideSynchronized(entity, stmt, true);
                 }
-                db.setTransactionSuccessful();
+//                db.setTransactionSuccessful();
             } finally {
-                db.endTransaction();
+//                db.endTransaction();
             }
         }
     }
@@ -664,17 +704,17 @@ public abstract class AbstractDao<T, K> {
         return QueryBuilder.internalCreate(this);
     }
 
-    protected void updateInsideSynchronized(T entity, SQLiteStatement stmt, boolean lock) {
+    protected void updateInsideSynchronized(T entity, PreparedStatement stmt, boolean lock) throws SQLException {
         // To do? Check if it's worth not to bind PKs here (performance).
         bindValues(stmt, entity);
         int index = config.allColumns.length + 1;
         K key = getKey(entity);
         if (key instanceof Long) {
-            stmt.bindLong(index, (Long) key);
+            stmt.setLong(index, (Long) key);
         } else if (key == null) {
             throw new DaoException("Cannot update entity without key - was it inserted before?");
         } else {
-            stmt.bindString(index, key.toString());
+            stmt.setString(index, key.toString());
         }
         stmt.execute();
         attachEntity(key, entity, lock);
@@ -714,10 +754,12 @@ public abstract class AbstractDao<T, K> {
      * 
      * @param entities
      *            The entities to insert.
+     * @throws SQLException 
      */
-    public void updateInTx(Iterable<T> entities) {
-        SQLiteStatement stmt = statements.getUpdateStatement();
-        db.beginTransaction();
+    public void updateInTx(Iterable<T> entities) throws SQLException {
+        PreparedStatement stmt = statements.getUpdateStatement();
+// TODO transaction        
+//        db.beginTransaction();
         try {
             synchronized (stmt) {
                 if (identityScope != null) {
@@ -733,9 +775,9 @@ public abstract class AbstractDao<T, K> {
                     }
                 }
             }
-            db.setTransactionSuccessful();
+//            db.setTransactionSuccessful();
         } finally {
-            db.endTransaction();
+//            db.endTransaction();
         }
     }
 
@@ -744,8 +786,9 @@ public abstract class AbstractDao<T, K> {
      * 
      * @param entities
      *            The entities to update.
+     * @throws SQLException 
      */
-    public void updateInTx(T... entities) {
+    public void updateInTx(T... entities) throws SQLException {
         updateInTx(Arrays.asList(entities));
     }
 
@@ -755,8 +798,20 @@ public abstract class AbstractDao<T, K> {
         }
     }
 
-    public long count() {
-        return DatabaseUtils.queryNumEntries(db, '\'' + config.tablename + '\'');
+    public long count() throws SQLException {
+    	long result = 0L;
+    	try {
+    		PreparedStatement statement = connection.prepareStatement( "SELECT count(*) as counter FROM " + config.tablename );
+    		ResultSet resultSet = statement.executeQuery();
+    		if (resultSet.next())
+    		{
+    			result = resultSet.getLong( "counter" );
+    		}
+    	} catch (SQLException e) {
+    		e.printStackTrace();
+    	}
+    	return result;
+//        return DatabaseUtils.queryNumEntries(db, '\'' + config.tablename + '\'');
     }
 
     /** See {@link #getKey(Object)}, but guarantees that the returned key is never null (throws if null). */
@@ -774,21 +829,21 @@ public abstract class AbstractDao<T, K> {
     }
 
     /** Gets the SQLiteDatabase for custom database access. Not needed for greenDAO entities. */
-    public SQLiteDatabase getDatabase() {
-        return db;
+    public Connection getConnection() {
+        return connection;
     }
 
     /** Reads the values from the current position of the given cursor and returns a new entity. */
-    abstract protected T readEntity(Cursor cursor, int offset);
+    abstract protected T readEntity(ResultSet resultSet, int offset);
 
     /** Reads the key from the current position of the given cursor, or returns null if there's no single-value key. */
-    abstract protected K readKey(Cursor cursor, int offset);
+    abstract protected K readKey(ResultSet resultSet, int offset);
 
     /** Reads the values from the current position of the given cursor into an existing entity. */
-    abstract protected void readEntity(Cursor cursor, T entity, int offset);
+    abstract protected void readEntity(ResultSet resultSet, T entity, int offset);
 
     /** Binds the entity's values to the statement. Make sure to synchronize the statement outside of the method. */
-    abstract protected void bindValues(SQLiteStatement stmt, T entity);
+    abstract protected void bindValues(PreparedStatement stmt, T entity);
 
     /**
      * Updates the entity's key if possible (only for Long PKs currently). This method must always return the entity's

@@ -17,9 +17,9 @@
 package de.greenrobot.dao;
 
 import java.lang.reflect.Constructor;
+import java.sql.Connection;
+import java.sql.ResultSet;
 
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import de.greenrobot.dao.identityscope.IdentityScope;
 import de.greenrobot.dao.internal.DaoConfig;
 
@@ -27,9 +27,9 @@ import de.greenrobot.dao.internal.DaoConfig;
 public class InternalUnitTestDaoAccess<T, K> {
     private final AbstractDao<T, K> dao;
 
-    public InternalUnitTestDaoAccess(SQLiteDatabase db, Class<AbstractDao<T, K>> daoClass, IdentityScope<?, ?> identityScope)
+    public InternalUnitTestDaoAccess(Connection connection, Class<AbstractDao<T, K>> daoClass, IdentityScope<?, ?> identityScope)
             throws Exception {
-        DaoConfig daoConfig = new DaoConfig(db, daoClass);
+        DaoConfig daoConfig = new DaoConfig(connection, daoClass);
         daoConfig.setIdentityScope(identityScope);
         Constructor<AbstractDao<T, K>> constructor = daoClass.getConstructor(DaoConfig.class);
         dao = constructor.newInstance(daoConfig);
@@ -47,12 +47,12 @@ public class InternalUnitTestDaoAccess<T, K> {
         return dao.isEntityUpdateable();
     }
 
-    public T readEntity(Cursor cursor, int offset) {
-        return dao.readEntity(cursor, offset);
+    public T readEntity(ResultSet resultSet, int offset) {
+        return dao.readEntity(resultSet, offset);
     }
 
-    public K readKey(Cursor cursor, int offset) {
-        return dao.readKey(cursor, offset);
+    public K readKey(ResultSet resultSet, int offset) {
+        return dao.readKey(resultSet, offset);
     }
 
     public AbstractDao<T, K> getDao() {

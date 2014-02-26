@@ -15,6 +15,7 @@
  */
 package de.greenrobot.dao.query;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -369,8 +370,9 @@ public class QueryBuilder<T> {
      * Shorthand for {@link QueryBuilder#build() build()}.{@link Query#list() list()}; see {@link Query#list()} for
      * details. To execute a query more than once, you should build the query and keep the {@link Query} object for
      * efficiency reasons.
+     * @throws SQLException 
      */
-    public List<T> list() {
+    public List<T> list() throws SQLException {
         return build().list();
     }
 
@@ -378,8 +380,9 @@ public class QueryBuilder<T> {
      * Shorthand for {@link QueryBuilder#build() build()}.{@link Query#listLazy() listLazy()}; see
      * {@link Query#listLazy()} for details. To execute a query more than once, you should build the query and keep the
      * {@link Query} object for efficiency reasons.
+     * @throws SQLException 
      */
-    public LazyList<T> listLazy() {
+    public LazyList<T> listLazy() throws SQLException {
         return build().listLazy();
     }
 
@@ -387,8 +390,9 @@ public class QueryBuilder<T> {
      * Shorthand for {@link QueryBuilder#build() build()}.{@link Query#listLazyUncached() listLazyUncached()}; see
      * {@link Query#listLazyUncached()} for details. To execute a query more than once, you should build the query and
      * keep the {@link Query} object for efficiency reasons.
+     * @throws SQLException 
      */
-    public LazyList<T> listLazyUncached() {
+    public LazyList<T> listLazyUncached() throws SQLException {
         return build().listLazyUncached();
     }
 
@@ -396,8 +400,9 @@ public class QueryBuilder<T> {
      * Shorthand for {@link QueryBuilder#build() build()}.{@link Query#listIterator() listIterator()}; see
      * {@link Query#listIterator()} for details. To execute a query more than once, you should build the query and keep
      * the {@link Query} object for efficiency reasons.
+     * @throws SQLException 
      */
-    public CloseableListIterator<T> listIterator() {
+    public CloseableListIterator<T> listIterator() throws SQLException {
         return build().listIterator();
     }
 
@@ -405,8 +410,9 @@ public class QueryBuilder<T> {
      * Shorthand for {@link QueryBuilder#build() build()}.{@link Query#unique() unique()}; see {@link Query#unique()}
      * for details. To execute a query more than once, you should build the query and keep the {@link Query} object for
      * efficiency reasons.
+     * @throws SQLException 
      */
-    public T unique() {
+    public T unique() throws SQLException {
         return build().unique();
     }
 
@@ -414,8 +420,9 @@ public class QueryBuilder<T> {
      * Shorthand for {@link QueryBuilder#build() build()}.{@link Query#uniqueOrThrow() uniqueOrThrow()}; see
      * {@link Query#uniqueOrThrow()} for details. To execute a query more than once, you should build the query and keep
      * the {@link Query} object for efficiency reasons.
+     * @throws SQLException 
      */
-    public T uniqueOrThrow() {
+    public T uniqueOrThrow() throws SQLException {
         return build().uniqueOrThrow();
     }
 
@@ -423,8 +430,9 @@ public class QueryBuilder<T> {
      * Shorthand for {@link QueryBuilder#buildCount() buildCount()}.{@link CountQuery#count() count()}; see
      * {@link CountQuery#count()} for details. To execute a query more than once, you should build the query and keep
      * the {@link CountQuery} object for efficiency reasons.
+     * @throws SQLException 
      */
-    public long count() {
+    public long count() throws SQLException {
         return buildCount().count();
     }
 

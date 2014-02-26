@@ -15,12 +15,13 @@
  */
 package de.greenrobot.dao;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import android.database.sqlite.SQLiteDatabase;
 import de.greenrobot.dao.async.AsyncSession;
 import de.greenrobot.dao.query.QueryBuilder;
 
@@ -44,11 +45,11 @@ import de.greenrobot.dao.query.QueryBuilder;
  * 
  */
 public class AbstractDaoSession {
-    private final SQLiteDatabase db;
+    private final Connection connection;
     private final Map<Class<?>, AbstractDao<?, ?>> entityToDao;
 
-    public AbstractDaoSession(SQLiteDatabase db) {
-        this.db = db;
+    public AbstractDaoSession(Connection connection) {
+        this.connection = connection;
         this.entityToDao = new HashMap<Class<?>, AbstractDao<?, ?>>();
     }
 
@@ -56,64 +57,73 @@ public class AbstractDaoSession {
         entityToDao.put(entityClass, dao);
     }
 
-    /** Convenient call for {@link AbstractDao#insert(Object)}. */
-    public <T> long insert(T entity) {
+    /** Convenient call for {@link AbstractDao#insert(Object)}. 
+     * @throws SQLException */
+    public <T> long insert(T entity) throws SQLException {
         @SuppressWarnings("unchecked")
         AbstractDao<T, ?> dao = (AbstractDao<T, ?>) getDao(entity.getClass());
         return dao.insert(entity);
     }
 
-    /** Convenient call for {@link AbstractDao#insertOrReplace(Object)}. */
-    public <T> long insertOrReplace(T entity) {
+    /** Convenient call for {@link AbstractDao#insertOrReplace(Object)}. 
+     * @throws SQLException */
+    public <T> long insertOrReplace(T entity) throws SQLException {
         @SuppressWarnings("unchecked")
         AbstractDao<T, ?> dao = (AbstractDao<T, ?>) getDao(entity.getClass());
         return dao.insertOrReplace(entity);
     }
 
-    /** Convenient call for {@link AbstractDao#refresh(Object)}. */
-    public <T> void refresh(T entity) {
+    /** Convenient call for {@link AbstractDao#refresh(Object)}. 
+     * @throws SQLException */
+    public <T> void refresh(T entity) throws SQLException {
         @SuppressWarnings("unchecked")
         AbstractDao<T, ?> dao = (AbstractDao<T, ?>) getDao(entity.getClass());
         dao.refresh(entity);
     }
 
-    /** Convenient call for {@link AbstractDao#update(Object)}. */
-    public <T> void update(T entity) {
+    /** Convenient call for {@link AbstractDao#update(Object)}. 
+     * @throws SQLException */
+    public <T> void update(T entity) throws SQLException {
         @SuppressWarnings("unchecked")
         AbstractDao<T, ?> dao = (AbstractDao<T, ?>) getDao(entity.getClass());
         dao.update(entity);
     }
 
-    /** Convenient call for {@link AbstractDao#delete(Object)}. */
-    public <T> void delete(T entity) {
+    /** Convenient call for {@link AbstractDao#delete(Object)}. 
+     * @throws SQLException */
+    public <T> void delete(T entity) throws SQLException {
         @SuppressWarnings("unchecked")
         AbstractDao<T, ?> dao = (AbstractDao<T, ?>) getDao(entity.getClass());
         dao.delete(entity);
     }
 
-    /** Convenient call for {@link AbstractDao#deleteAll()}. */
-    public <T> void deleteAll(Class<T> entityClass) {
+    /** Convenient call for {@link AbstractDao#deleteAll()}. 
+     * @throws SQLException */
+    public <T> void deleteAll(Class<T> entityClass) throws SQLException {
         @SuppressWarnings("unchecked")
         AbstractDao<T, ?> dao = (AbstractDao<T, ?>) getDao(entityClass);
         dao.deleteAll();
     }
 
-    /** Convenient call for {@link AbstractDao#load(Object)}. */
-    public <T, K> T load(Class<T> entityClass, K key) {
+    /** Convenient call for {@link AbstractDao#load(Object)}. 
+     * @throws SQLException */
+    public <T, K> T load(Class<T> entityClass, K key) throws SQLException {
         @SuppressWarnings("unchecked")
         AbstractDao<T, K> dao = (AbstractDao<T, K>) getDao(entityClass);
         return dao.load(key);
     }
 
-    /** Convenient call for {@link AbstractDao#loadAll()}. */
-    public <T, K> List<T> loadAll(Class<T> entityClass) {
+    /** Convenient call for {@link AbstractDao#loadAll()}. 
+     * @throws SQLException */
+    public <T, K> List<T> loadAll(Class<T> entityClass) throws SQLException {
         @SuppressWarnings("unchecked")
         AbstractDao<T, K> dao = (AbstractDao<T, K>) getDao(entityClass);
         return dao.loadAll();
     }
 
-    /** Convenient call for {@link AbstractDao#queryRaw(String, String...)}. */
-    public <T, K> List<T> queryRaw(Class<T> entityClass, String where, String... selectionArgs) {
+    /** Convenient call for {@link AbstractDao#queryRaw(String, String...)}. 
+     * @throws SQLException */
+    public <T, K> List<T> queryRaw(Class<T> entityClass, String where, String... selectionArgs) throws SQLException {
         @SuppressWarnings("unchecked")
         AbstractDao<T, K> dao = (AbstractDao<T, K>) getDao(entityClass);
         return dao.queryRaw(where, selectionArgs);
@@ -138,12 +148,13 @@ public class AbstractDaoSession {
      * Run the given Runnable inside a database transaction. If you except a result, consider callInTx.
      */
     public void runInTx(Runnable runnable) {
-        db.beginTransaction();
+    	// TODO transaction
+//        connection.beginTransaction();
         try {
             runnable.run();
-            db.setTransactionSuccessful();
+//            connection.setTransactionSuccessful();
         } finally {
-            db.endTransaction();
+//            connection.endTransaction();
         }
     }
 
@@ -152,13 +163,14 @@ public class AbstractDaoSession {
      * except a result, consider runInTx.
      */
     public <V> V callInTx(Callable<V> callable) throws Exception {
-        db.beginTransaction();
+// TODO transaction
+//    	connection.beginTransaction();
         try {
             V result = callable.call();
-            db.setTransactionSuccessful();
+//            connection.setTransactionSuccessful();
             return result;
         } finally {
-            db.endTransaction();
+//            connection.endTransaction();
         }
     }
 
@@ -167,7 +179,8 @@ public class AbstractDaoSession {
      * DaoException).
      */
     public <V> V callInTxNoException(Callable<V> callable) {
-        db.beginTransaction();
+// TODO transaction
+//    	connection.beginTransaction();
         try {
             V result;
             try {
@@ -175,16 +188,16 @@ public class AbstractDaoSession {
             } catch (Exception e) {
                 throw new DaoException("Callable failed", e);
             }
-            db.setTransactionSuccessful();
+//            connection.setTransactionSuccessful();
             return result;
         } finally {
-            db.endTransaction();
+//            connection.endTransaction();
         }
     }
 
     /** Gets the SQLiteDatabase for custom database access. Not needed for greenDAO entities. */
-    public SQLiteDatabase getDatabase() {
-        return db;
+    public Connection getConnection() {
+        return connection;
     }
 
     /**

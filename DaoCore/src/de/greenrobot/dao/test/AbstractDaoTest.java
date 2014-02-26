@@ -64,7 +64,7 @@ public abstract class AbstractDaoTest<D extends AbstractDao<T, K>, T, K> extends
         super.setUp();
         try {
             setUpTableForDao();
-            daoAccess = new InternalUnitTestDaoAccess<T, K>(db, (Class<AbstractDao<T, K>>) daoClass, identityScopeForDao);
+            daoAccess = new InternalUnitTestDaoAccess<T, K>(connection, (Class<AbstractDao<T, K>>) daoClass, identityScopeForDao);
             dao = (D) daoAccess.getDao();
         } catch (Exception e) {
             throw new RuntimeException("Could not prepare DAO Test", e);
@@ -74,7 +74,7 @@ public abstract class AbstractDaoTest<D extends AbstractDao<T, K>, T, K> extends
     protected void setUpTableForDao() throws Exception {
         try {
             Method createTableMethod = daoClass.getMethod("createTable", SQLiteDatabase.class, boolean.class);
-            createTableMethod.invoke(null, db, false);
+            createTableMethod.invoke(null, connection, false);
         } catch (NoSuchMethodException e) {
             DaoLog.i("No createTable method");
         }

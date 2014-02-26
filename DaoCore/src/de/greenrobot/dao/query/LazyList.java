@@ -16,6 +16,8 @@
 package de.greenrobot.dao.query;
 
 import java.io.Closeable;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -24,7 +26,6 @@ import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.locks.ReentrantLock;
 
-import android.database.Cursor;
 import de.greenrobot.dao.DaoException;
 import de.greenrobot.dao.InternalQueryDaoAccess;
 
@@ -123,16 +124,16 @@ public class LazyList<E> implements List<E>, Closeable {
     }
 
     private final InternalQueryDaoAccess<E> daoAccess;
-    private final Cursor cursor;
+    private final ResultSet resultSet;
     private final List<E> entities;
     private final int size;
     private final ReentrantLock lock;
     private volatile int loadedCount;
 
-    LazyList(InternalQueryDaoAccess<E> daoAccess, Cursor cursor, boolean cacheEntities) {
-        this.cursor = cursor;
+    LazyList(InternalQueryDaoAccess<E> daoAccess, ResultSet resultSet, boolean cacheEntities) throws SQLException {
+        this.resultSet = resultSet;
         this.daoAccess = daoAccess;
-        size = cursor.getCount();
+        size = resultSet.getFetchSize();
         if (cacheEntities) {
             entities = new ArrayList<E>(size);
             for (int i = 0; i < size; i++) {
@@ -142,7 +143,7 @@ public class LazyList<E> implements List<E>, Closeable {
             entities = null;
         }
         if (size == 0) {
-            cursor.close();
+            resultSet.close();
         }
 
         lock = new ReentrantLock();
@@ -175,11 +176,19 @@ public class LazyList<E> implements List<E>, Closeable {
     @Override
     /** Closes the underlying cursor: do not try to get entities not loaded (using get) before. */
     public void close() {
-        cursor.close();
+        try
+		{
+			resultSet.close();
+		}
+		catch ( SQLException e )
+		{
+			e.printStackTrace();
+		}
     }
 
     public boolean isClosed() {
-        return cursor.isClosed();
+//        return resultSet.isClosed();
+    	return false; // result set is always open
     }
 
     public int getLoadedCount() {
@@ -241,22 +250,34 @@ public class LazyList<E> implements List<E>, Closeable {
                         // Ignore FindBugs: increment of volatile is fine here because we use a lock
                         loadedCount++;
                         if (loadedCount == size) {
-                            cursor.close();
+                            resultSet.close();
                         }
                     }
-                } finally {
+                }
+				catch ( SQLException e )
+				{
+					e.printStackTrace();
+				} finally {
                     lock.unlock();
                 }
             }
             return entity;
         } else {
-            return loadEntity(location);
+            try
+			{
+				return loadEntity(location);
+			}
+			catch ( SQLException e )
+			{
+				e.printStackTrace();
+				return null;
+			}
         }
     }
 
-    protected E loadEntity(int location) {
-        cursor.moveToPosition(location);
-        E entity = daoAccess.loadCurrent(cursor, 0, true);
+    protected E loadEntity(int location) throws SQLException {
+        resultSet.absolute(location);
+        E entity = daoAccess.loadCurrent(resultSet, 0, true);
         if (entity == null) {
             throw new DaoException("Loading of entity failed (null) at position " + location);
         }

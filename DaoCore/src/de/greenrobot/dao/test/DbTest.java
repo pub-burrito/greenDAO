@@ -16,13 +16,17 @@
 
 package de.greenrobot.dao.test;
 
+import java.io.File;
+import java.sql.Connection;
+import java.sql.Driver;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.Random;
+
 import android.app.Application;
 import android.app.Instrumentation;
-import android.database.sqlite.SQLiteDatabase;
 import android.test.AndroidTestCase;
 import de.greenrobot.dao.DbUtils;
-
-import java.util.Random;
 
 /**
  * Base class for database related testing, which prepares an in-memory or an file-based DB (using the test {@link
@@ -41,7 +45,7 @@ public abstract class DbTest extends AndroidTestCase {
 
     protected final Random random;
     protected final boolean inMemory;
-    protected SQLiteDatabase db;
+    protected Connection connection;
 
     private Application application;
 
@@ -57,7 +61,7 @@ public abstract class DbTest extends AndroidTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        db = createDatabase();
+        connection = createConnection();
     }
 
     /** Returns a prepared application with the onCreate method already called. */
@@ -87,14 +91,48 @@ public abstract class DbTest extends AndroidTestCase {
         return (T) application;
     }
 
-    /** May be overriden by sub classes to set up a different db. */
-    protected SQLiteDatabase createDatabase() {
-        if (inMemory) {
-            return SQLiteDatabase.create(null);
-        } else {
-            getContext().deleteDatabase(DB_NAME);
-            return getContext().openOrCreateDatabase(DB_NAME, 0, null);
-        }
+    /** May be overriden by sub classes to set up a different db. 
+     * @throws SQLException */
+    protected Connection createConnection() throws SQLException {
+//        if (inMemory) {
+//            return SQLiteDatabase.create(null);
+//        } else {
+//            getContext().deleteDatabase(DB_NAME);
+//            return getContext().openOrCreateDatabase(DB_NAME, 0, null);
+//        }
+        
+     // setup
+		File f = new File(DB_NAME);
+		 if ( f.exists() ) {
+		   f.delete();
+		 } else {
+			 if (null != f.getParent()) {
+		       f.getParentFile().mkdirs();
+			 }
+		 }    
+		 // Loads and registers the JDBC driver
+		try
+		{
+			DriverManager.registerDriver((Driver)(Class.forName("org.sqldroid.SQLDroidDriver", true, getClass().getClassLoader()).newInstance()));
+		}
+		catch ( SQLException e )
+		{
+			e.printStackTrace();
+		}
+		catch ( IllegalAccessException e )
+		{
+			e.printStackTrace();
+		}
+		catch ( InstantiationException e )
+		{
+			e.printStackTrace();
+		}
+		catch ( ClassNotFoundException e )
+		{
+			e.printStackTrace();
+		}
+		
+		return DriverManager.getConnection("jdbc:sqlite:" + DB_NAME);
     }
 
     @Override
@@ -103,7 +141,7 @@ public abstract class DbTest extends AndroidTestCase {
         if (application != null) {
             terminateApplication();
         }
-        db.close();
+        connection.close();
         if (!inMemory) {
             getContext().deleteDatabase(DB_NAME);
         }
@@ -111,7 +149,7 @@ public abstract class DbTest extends AndroidTestCase {
     }
 
     protected void logTableDump(String tablename) {
-        DbUtils.logTableDump(db, tablename);
+        DbUtils.logTableDump(connection, tablename);
     }
 
 }

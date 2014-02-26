@@ -1,8 +1,9 @@
 package de.greenrobot.dao;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
-import android.database.Cursor;
 import de.greenrobot.dao.internal.TableStatements;
 
 /** For internal use by greenDAO only. */
@@ -13,16 +14,16 @@ public final class InternalQueryDaoAccess<T> {
         dao = abstractDao;
     }
 
-    public T loadCurrent(Cursor cursor, int offset, boolean lock) {
-        return dao.loadCurrent(cursor, offset, lock);
+    public T loadCurrent(ResultSet resultSet, int offset, boolean lock) throws SQLException {
+        return dao.loadCurrent(resultSet, offset, lock);
     }
 
-    public List<T> loadAllAndCloseCursor(Cursor cursor) {
-        return dao.loadAllAndCloseCursor(cursor);
+    public List<T> loadAllAndCloseCursor(ResultSet resultSet) throws SQLException {
+        return dao.loadAllAndCloseCursor(resultSet);
     }
 
-    public T loadUniqueAndCloseCursor(Cursor cursor) {
-        return dao.loadUniqueAndCloseCursor(cursor);
+    public T loadUniqueAndCloseCursor(ResultSet resultSet) throws SQLException {
+        return dao.loadUniqueAndCloseCursor(resultSet);
     }
 
     public TableStatements getStatements() {

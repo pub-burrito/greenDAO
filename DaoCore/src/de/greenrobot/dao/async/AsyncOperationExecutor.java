@@ -23,7 +23,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -178,8 +177,9 @@ class AsyncOperationExecutor implements Runnable, Handler.Callback {
         mergedOps.add(operation1);
         mergedOps.add(operation2);
 
-        SQLiteDatabase db = operation1.getDatabase();
-        db.beginTransaction();
+// TODO transaction
+//        Connection connection = operation1.getConnection();
+//        connection.beginTransaction();
         boolean failed = false;
         try {
             for (int i = 0; i < mergedOps.size(); i++) {
@@ -201,12 +201,12 @@ class AsyncOperationExecutor implements Runnable, Handler.Callback {
                         mergedOps.add(removedOp);
                     } else {
                         // No more ops in the queue to merge, finish it
-                        db.setTransactionSuccessful();
+//                        connection.setTransactionSuccessful();
                     }
                 }
             }
         } finally {
-            db.endTransaction();
+//            connection.endTransaction();
         }
         if (failed) {
             DaoLog.i("Revered merged transaction because one of the operations failed. Executing operations one by one instead...");
@@ -332,25 +332,27 @@ class AsyncOperationExecutor implements Runnable, Handler.Callback {
     }
 
     private void executeTransactionRunnable(AsyncOperation operation) {
-        SQLiteDatabase db = operation.getDatabase();
-        db.beginTransaction();
+// TODO transaction
+//    	Connection connection = operation.getConnection();
+//      connection.beginTransaction();
         try {
             ((Runnable) operation.parameter).run();
-            db.setTransactionSuccessful();
+//            connection.setTransactionSuccessful();
         } finally {
-            db.endTransaction();
+//            connection.endTransaction();
         }
     }
 
     @SuppressWarnings("unchecked")
     private void executeTransactionCallable(AsyncOperation operation) throws Exception {
-        SQLiteDatabase db = operation.getDatabase();
-        db.beginTransaction();
+// TODO transaction
+//        Connection connection = operation.getConnection();
+//        connection.beginTransaction();
         try {
             operation.result = ((Callable<Object>) operation.parameter).call();
-            db.setTransactionSuccessful();
+//            connection.setTransactionSuccessful();
         } finally {
-            db.endTransaction();
+//            connection.endTransaction();
         }
     }
 

@@ -16,17 +16,18 @@
 
 package de.greenrobot.dao.test;
 
-import android.database.Cursor;
-import android.database.DatabaseUtils;
-import android.database.SQLException;
-import de.greenrobot.dao.AbstractDao;
-import de.greenrobot.dao.Property;
-import de.greenrobot.dao.internal.SqlUtils;
-
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import android.database.DatabaseUtils;
+import de.greenrobot.dao.AbstractDao;
+import de.greenrobot.dao.Property;
+import de.greenrobot.dao.internal.SqlUtils;
 
 /**
  * Default tests for single-PK entities.
@@ -63,7 +64,7 @@ public abstract class AbstractDaoTestSinglePk<D extends AbstractDao<T, K>, T, K>
         }
     }
 
-    public void testInsertAndLoad() {
+    public void testInsertAndLoad() throws SQLException {
         K pk = nextPk();
         T entity = createEntity(pk);
         dao.insert(entity);
@@ -73,7 +74,7 @@ public abstract class AbstractDaoTestSinglePk<D extends AbstractDao<T, K>, T, K>
         assertEquals(daoAccess.getKey(entity), daoAccess.getKey(entity2));
     }
 
-    public void testInsertInTx() {
+    public void testInsertInTx() throws SQLException {
         dao.deleteAll();
         List<T> list = new ArrayList<T>();
         for (int i = 0; i < 20; i++) {
@@ -83,7 +84,7 @@ public abstract class AbstractDaoTestSinglePk<D extends AbstractDao<T, K>, T, K>
         assertEquals(list.size(), dao.count());
     }
 
-    public void testCount() {
+    public void testCount() throws SQLException {
         dao.deleteAll();
         assertEquals(0, dao.count());
         dao.insert(createEntityWithRandomPk());
@@ -92,7 +93,7 @@ public abstract class AbstractDaoTestSinglePk<D extends AbstractDao<T, K>, T, K>
         assertEquals(2, dao.count());
     }
 
-    public void testInsertTwice() {
+    public void testInsertTwice() throws SQLException {
         K pk = nextPk();
         T entity = createEntity(pk);
         dao.insert(entity);
@@ -104,7 +105,7 @@ public abstract class AbstractDaoTestSinglePk<D extends AbstractDao<T, K>, T, K>
         }
     }
 
-    public void testInsertOrReplaceTwice() {
+    public void testInsertOrReplaceTwice() throws SQLException {
         T entity = createEntityWithRandomPk();
         long rowId1 = dao.insert(entity);
         long rowId2 = dao.insertOrReplace(entity);
@@ -113,7 +114,7 @@ public abstract class AbstractDaoTestSinglePk<D extends AbstractDao<T, K>, T, K>
         }
     }
 
-    public void testInsertOrReplaceInTx() {
+    public void testInsertOrReplaceInTx() throws SQLException {
         dao.deleteAll();
         List<T> listPartial = new ArrayList<T>();
         List<T> listAll = new ArrayList<T>();
@@ -129,7 +130,7 @@ public abstract class AbstractDaoTestSinglePk<D extends AbstractDao<T, K>, T, K>
         assertEquals(listAll.size(), dao.count());
     }
 
-    public void testDelete() {
+    public void testDelete() throws SQLException {
         K pk = nextPk();
         dao.deleteByKey(pk);
         T entity = createEntity(pk);
@@ -139,7 +140,7 @@ public abstract class AbstractDaoTestSinglePk<D extends AbstractDao<T, K>, T, K>
         assertNull(dao.load(pk));
     }
 
-    public void testDeleteAll() {
+    public void testDeleteAll() throws SQLException {
         List<T> entityList = new ArrayList<T>();
         for (int i = 0; i < 10; i++) {
             T entity = createEntityWithRandomPk();
@@ -155,7 +156,7 @@ public abstract class AbstractDaoTestSinglePk<D extends AbstractDao<T, K>, T, K>
         }
     }
 
-    public void testDeleteInTx() {
+    public void testDeleteInTx() throws SQLException {
         List<T> entityList = new ArrayList<T>();
         for (int i = 0; i < 10; i++) {
             T entity = createEntityWithRandomPk();
@@ -176,7 +177,7 @@ public abstract class AbstractDaoTestSinglePk<D extends AbstractDao<T, K>, T, K>
         }
     }
 
-    public void testDeleteByKeyInTx() {
+    public void testDeleteByKeyInTx() throws SQLException {
         List<T> entityList = new ArrayList<T>();
         for (int i = 0; i < 10; i++) {
             T entity = createEntityWithRandomPk();
@@ -196,7 +197,7 @@ public abstract class AbstractDaoTestSinglePk<D extends AbstractDao<T, K>, T, K>
         }
     }
 
-    public void testRowId() {
+    public void testRowId() throws SQLException {
         T entity1 = createEntityWithRandomPk();
         T entity2 = createEntityWithRandomPk();
         long rowId1 = dao.insert(entity1);
@@ -204,7 +205,7 @@ public abstract class AbstractDaoTestSinglePk<D extends AbstractDao<T, K>, T, K>
         assertTrue(rowId1 != rowId2);
     }
 
-    public void testLoadAll() {
+    public void testLoadAll() throws SQLException {
         dao.deleteAll();
         List<T> list = new ArrayList<T>();
         for (int i = 0; i < 15; i++) {
@@ -216,7 +217,7 @@ public abstract class AbstractDaoTestSinglePk<D extends AbstractDao<T, K>, T, K>
         assertEquals(list.size(), loaded.size());
     }
 
-    public void testQuery() {
+    public void testQuery() throws SQLException {
         dao.insert(createEntityWithRandomPk());
         K pkForQuery = nextPk();
         dao.insert(createEntity(pkForQuery));
@@ -228,7 +229,7 @@ public abstract class AbstractDaoTestSinglePk<D extends AbstractDao<T, K>, T, K>
         assertEquals(pkForQuery, daoAccess.getKey(list.get(0)));
     }
 
-    public void testUpdate() {
+    public void testUpdate() throws SQLException {
         dao.deleteAll();
         T entity = createEntityWithRandomPk();
         dao.insert(entity);
@@ -236,43 +237,43 @@ public abstract class AbstractDaoTestSinglePk<D extends AbstractDao<T, K>, T, K>
         assertEquals(1, dao.count());
     }
 
-    public void testReadWithOffset() {
+    public void testReadWithOffset() throws SQLException {
         K pk = nextPk();
         T entity = createEntity(pk);
         dao.insert(entity);
 
-        Cursor cursor = queryWithDummyColumnsInFront(5, "42", pk);
+        ResultSet resultSet = queryWithDummyColumnsInFront(5, "42", pk);
         try {
-            T entity2 = daoAccess.readEntity(cursor, 5);
+            T entity2 = daoAccess.readEntity(resultSet, 5);
             assertEquals(pk, daoAccess.getKey(entity2));
         } finally {
-            cursor.close();
+            resultSet.close();
         }
     }
 
-    public void testLoadPkWithOffset() {
+    public void testLoadPkWithOffset() throws SQLException {
         runLoadPkTest(10);
     }
 
-    public void testLoadPk() {
+    public void testLoadPk() throws SQLException {
         runLoadPkTest(0);
     }
 
-    protected void runLoadPkTest(int offset) {
+    protected void runLoadPkTest(int offset) throws SQLException {
         K pk = nextPk();
         T entity = createEntity(pk);
         dao.insert(entity);
 
-        Cursor cursor = queryWithDummyColumnsInFront(offset, "42", pk);
+        ResultSet resultSet = queryWithDummyColumnsInFront(offset, "42", pk);
         try {
-            K pk2 = daoAccess.readKey(cursor, offset);
+            K pk2 = daoAccess.readKey(resultSet, offset);
             assertEquals(pk, pk2);
         } finally {
-            cursor.close();
+            resultSet.close();
         }
     }
 
-    protected Cursor queryWithDummyColumnsInFront(int dummyCount, String valueForColumn, K pk) {
+    protected ResultSet queryWithDummyColumnsInFront(int dummyCount, String valueForColumn, K pk) throws SQLException {
         StringBuilder builder = new StringBuilder("SELECT ");
         for (int i = 0; i < dummyCount; i++) {
             builder.append(valueForColumn).append(",");
@@ -288,20 +289,21 @@ public abstract class AbstractDaoTestSinglePk<D extends AbstractDao<T, K>, T, K>
         }
 
         String select = builder.toString();
-        Cursor cursor = db.rawQuery(select, null);
-        assertTrue(cursor.moveToFirst());
+        PreparedStatement statement = connection.prepareStatement( select );
+        ResultSet resultSet = statement.executeQuery();
+        assertTrue(resultSet.next());
         try {
             for (int i = 0; i < dummyCount; i++) {
-                assertEquals(valueForColumn, cursor.getString(i));
+                assertEquals(valueForColumn, resultSet.getString(i));
             }
             if (pk != null) {
-                assertEquals(1, cursor.getCount());
+                assertEquals(1, resultSet.getFetchSize());
             }
         } catch (RuntimeException ex) {
-            cursor.close();
+            resultSet.close();
             throw ex;
         }
-        return cursor;
+        return resultSet;
     }
 
     /** Provides a collision free PK () not returned before in the current test. */

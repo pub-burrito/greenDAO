@@ -16,7 +16,8 @@
 
 package de.greenrobot.dao.async;
 
-import android.database.sqlite.SQLiteDatabase;
+import java.sql.Connection;
+
 import de.greenrobot.dao.AbstractDao;
 import de.greenrobot.dao.DaoException;
 
@@ -48,7 +49,7 @@ public class AsyncOperation {
 
     final OperationType type;
     final AbstractDao<Object, Object> dao;
-    private final SQLiteDatabase database;
+    private final Connection connection;
     /** Entity, Iterable<Entity>, Entity[], or Runnable. */
     final Object parameter;
     final int flags;
@@ -67,13 +68,13 @@ public class AsyncOperation {
         this.type = type;
         this.flags = flags;
         this.dao = (AbstractDao<Object, Object>) dao;
-        this.database = null;
+        this.connection = null;
         this.parameter = parameter;
     }
 
-    AsyncOperation(OperationType type, SQLiteDatabase database, Object parameter, int flags) {
+    AsyncOperation(OperationType type, Connection connection, Object parameter, int flags) {
         this.type = type;
-        this.database = database;
+        this.connection = connection;
         this.flags = flags;
         this.dao = null;
         this.parameter = parameter;
@@ -117,8 +118,8 @@ public class AsyncOperation {
         return (flags & FLAG_MERGE_TX) != 0;
     }
 
-    SQLiteDatabase getDatabase() {
-        return database != null ? database : dao.getDatabase();
+    Connection getConnection() {
+        return connection != null ? connection : dao.getConnection();
     }
 
     /**
@@ -126,7 +127,7 @@ public class AsyncOperation {
      *         and if the database instances match.
      */
     boolean isMergeableWith(AsyncOperation other) {
-        return other != null && isMergeTx() && other.isMergeTx() && getDatabase() == other.getDatabase();
+        return other != null && isMergeTx() && other.isMergeTx() && getConnection() == other.getConnection();
     }
 
     public long getTimeStarted() {

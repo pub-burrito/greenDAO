@@ -15,10 +15,12 @@
  */
 package de.greenrobot.dao.query;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
-import android.database.Cursor;
-import android.os.Process;
 import de.greenrobot.dao.AbstractDao;
 import de.greenrobot.dao.DaoException;
 
@@ -114,39 +116,61 @@ public class Query<T> extends AbstractQuery<T> {
         parameters[offsetPosition] = Integer.toString(offset);
     }
 
-    /** Executes the query and returns the result as a list containing all entities loaded into memory. */
-    public List<T> list() {
+    /** Executes the query and returns the result as a list containing all entities loaded into memory. 
+     * @throws SQLException */
+    public List<T> list() throws SQLException {
         checkThread();
-        Cursor cursor = dao.getDatabase().rawQuery(sql, parameters);
-        return daoAccess.loadAllAndCloseCursor(cursor);
+        Connection connection = dao.getConnection();
+        PreparedStatement statement = connection.prepareStatement( sql );
+        for ( int i = 0; i < parameters.length; i++ )
+		{
+			statement.setString( i, parameters[i] );
+		}
+        ResultSet resultSet = statement.executeQuery();
+        return daoAccess.loadAllAndCloseCursor(resultSet);
     }
 
     /**
      * Executes the query and returns the result as a list that lazy loads the entities on first access. Entities are
      * cached, so accessing the same entity more than once will not result in loading an entity from the underlying
      * cursor again.Make sure to close it to close the underlying cursor.
+     * @throws SQLException 
      */
-    public LazyList<T> listLazy() {
+    public LazyList<T> listLazy() throws SQLException {
         checkThread();
-        Cursor cursor = dao.getDatabase().rawQuery(sql, parameters);
-        return new LazyList<T>(daoAccess, cursor, true);
+        Connection connection = dao.getConnection();
+        PreparedStatement statement = connection.prepareStatement( sql );
+        for ( int i = 0; i < parameters.length; i++ )
+		{
+			statement.setString( i, parameters[i] );
+		}
+        ResultSet resultSet = statement.executeQuery();
+        return new LazyList<T>(daoAccess, resultSet, true);
     }
 
     /**
      * Executes the query and returns the result as a list that lazy loads the entities on every access (uncached). Make
      * sure to close the list to close the underlying cursor.
+     * @throws SQLException 
      */
-    public LazyList<T> listLazyUncached() {
+    public LazyList<T> listLazyUncached() throws SQLException {
         checkThread();
-        Cursor cursor = dao.getDatabase().rawQuery(sql, parameters);
-        return new LazyList<T>(daoAccess, cursor, false);
+        Connection connection = dao.getConnection();
+        PreparedStatement statement = connection.prepareStatement( sql );
+        for ( int i = 0; i < parameters.length; i++ )
+		{
+			statement.setString( i, parameters[i] );
+		}
+        ResultSet resultSet = statement.executeQuery();
+        return new LazyList<T>(daoAccess, resultSet, false);
     }
 
     /**
      * Executes the query and returns the result as a list iterator; make sure to close it to close the underlying
      * cursor. The cursor is closed once the iterator is fully iterated through.
+     * @throws SQLException 
      */
-    public CloseableListIterator<T> listIterator() {
+    public CloseableListIterator<T> listIterator() throws SQLException {
         return listLazyUncached().listIteratorAutoClose();
     }
 
@@ -156,11 +180,18 @@ public class Query<T> extends AbstractQuery<T> {
      * @throws DaoException
      *             if the result is not unique
      * @return Entity or null if no matching entity was found
+     * @throws SQLException 
      */
-    public T unique() {
+    public T unique() throws SQLException {
         checkThread();
-        Cursor cursor = dao.getDatabase().rawQuery(sql, parameters);
-        return daoAccess.loadUniqueAndCloseCursor(cursor);
+        Connection connection = dao.getConnection();
+        PreparedStatement statement = connection.prepareStatement( sql );
+        for ( int i = 0; i < parameters.length; i++ )
+		{
+			statement.setString( i, parameters[i] );
+		}
+        ResultSet resultSet = statement.executeQuery();
+        return daoAccess.loadUniqueAndCloseCursor(resultSet);
     }
 
     /**
@@ -169,8 +200,9 @@ public class Query<T> extends AbstractQuery<T> {
      * @throws DaoException
      *             if the result is not unique or no entity was found
      * @return Entity
+     * @throws SQLException 
      */
-    public T uniqueOrThrow() {
+    public T uniqueOrThrow() throws SQLException {
         T entity = unique();
         if (entity == null) {
             throw new DaoException("No entity found for query");

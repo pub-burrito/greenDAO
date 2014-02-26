@@ -15,61 +15,62 @@
  */
 package de.greenrobot.dao.internal;
 
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteStatement;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 /** Helper class to create SQL statements for specific tables (used by greenDAO internally). */
 public class TableStatements {
-    private final SQLiteDatabase db;
+    private final Connection connection;
     private final String tablename;
     private final String[] allColumns;
     private final String[] pkColumns;
 
-    private SQLiteStatement insertStatement;
-    private SQLiteStatement insertOrReplaceStatement;
-    private SQLiteStatement updateStatement;
-    private SQLiteStatement deleteStatement;
+    private PreparedStatement insertStatement;
+    private PreparedStatement insertOrReplaceStatement;
+    private PreparedStatement updateStatement;
+    private PreparedStatement deleteStatement;
 
     private volatile String selectAll;
     private volatile String selectByKey;
     private volatile String selectByRowId;
     private volatile String selectKeys;
 
-    public TableStatements(SQLiteDatabase db, String tablename, String[] allColumns, String[] pkColumns) {
-        this.db = db;
+    public TableStatements(Connection connection, String tablename, String[] allColumns, String[] pkColumns) {
+        this.connection = connection;
         this.tablename = tablename;
         this.allColumns = allColumns;
         this.pkColumns = pkColumns;
     }
 
-    public SQLiteStatement getInsertStatement() {
+    public PreparedStatement getInsertStatement() throws SQLException {
         if (insertStatement == null) {
             String sql = SqlUtils.createSqlInsert("INSERT INTO ", tablename, allColumns);
-            insertStatement = db.compileStatement(sql);
+            insertStatement = connection.prepareStatement( sql );
         }
         return insertStatement;
     }
 
-    public SQLiteStatement getInsertOrReplaceStatement() {
+    public PreparedStatement getInsertOrReplaceStatement() throws SQLException {
         if (insertOrReplaceStatement == null) {
             String sql = SqlUtils.createSqlInsert("INSERT OR REPLACE INTO ", tablename, allColumns);
-            insertOrReplaceStatement = db.compileStatement(sql);
+            insertOrReplaceStatement = connection.prepareStatement(sql);
         }
         return insertOrReplaceStatement;
     }
 
-    public SQLiteStatement getDeleteStatement() {
+    public PreparedStatement getDeleteStatement() throws SQLException {
         if (deleteStatement == null) {
             String sql = SqlUtils.createSqlDelete(tablename, pkColumns);
-            deleteStatement = db.compileStatement(sql);
+            deleteStatement = connection.prepareStatement(sql);
         }
         return deleteStatement;
     }
 
-    public SQLiteStatement getUpdateStatement() {
+    public PreparedStatement getUpdateStatement() throws SQLException {
         if (updateStatement == null) {
             String sql = SqlUtils.createSqlUpdate(tablename, allColumns, pkColumns);
-            updateStatement = db.compileStatement(sql);
+            updateStatement = connection.prepareStatement(sql);
         }
         return updateStatement;
     }

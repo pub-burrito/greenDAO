@@ -15,7 +15,10 @@
  */
 package de.greenrobot.dao.query;
 
-import android.database.sqlite.SQLiteDatabase;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
 import de.greenrobot.dao.AbstractDao;
 
 /**
@@ -60,21 +63,35 @@ public class DeleteQuery<T> extends AbstractQuery<T> {
      * Deletes all matching entities without detaching them from the identity scope (aka session/cache). Note that this
      * method may lead to stale entity objects in the session cache. Stale entities may be returned when loaded by their
      * primary key, but not using queries.
+     * @throws SQLException 
      */
-    public void executeDeleteWithoutDetachingEntities() {
+    public void executeDeleteWithoutDetachingEntities() throws SQLException {
         checkThread();
-        SQLiteDatabase db = dao.getDatabase();
-        if (db.isDbLockedByCurrentThread()) {
-            dao.getDatabase().execSQL(sql, parameters);
+        Connection connection = dao.getConnection();
+// FIXME not sure what to do here...
+//        if (connection.isDbLockedByCurrentThread()) {
+        if (!connection.isClosed()) {
+        	PreparedStatement statement = connection.prepareStatement( sql );
+        	for ( int i = 0; i < parameters.length; i++ )
+			{
+				statement.setString( i, parameters[i] );
+			}
+            statement.executeUpdate();
         } else {
             // Do TX to acquire a connection before locking this to avoid deadlocks
             // Locking order as described in AbstractDao
-            db.beginTransaction();
+// TODO transaction (it might need to open a new connection too)
+//        	connection.beginTransaction();
             try {
-                dao.getDatabase().execSQL(sql, parameters);
-                db.setTransactionSuccessful();
+            	PreparedStatement statement = connection.prepareStatement( sql );
+            	for ( int i = 0; i < parameters.length; i++ )
+    			{
+    				statement.setString( i, parameters[i] );
+    			}
+                statement.executeUpdate();
+//                connection.setTransactionSuccessful();
             } finally {
-                db.endTransaction();
+//                connection.endTransaction();
             }
         }
     }
