@@ -18,20 +18,23 @@
 package de.greenrobot.daotest;
 
 import java.io.IOException;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
-import android.database.Cursor;
 import de.greenrobot.dao.DbUtils;
 import de.greenrobot.dao.test.DbTest;
 
 public class DbUtilsTest extends DbTest {
-    public void testExecuteSqlScript() throws IOException {
-        DbUtils.executeSqlScript(getContext(), db, "minimal-entity.sql");
-        Cursor cursor = db.rawQuery("SELECT count(*) from MINIMAL_ENTITY", null);
+    public void testExecuteSqlScript() throws IOException, SQLException {
+        DbUtils.executeSqlScript(getContext(), connection, "minimal-entity.sql");
+        PreparedStatement statement = connection.prepareStatement( "SELECT count(*) from MINIMAL_ENTITY" );
+        ResultSet resultSet = statement.executeQuery();
         try {
-            cursor.moveToFirst();
-            assertEquals(5, cursor.getInt(0));
+            resultSet.next();
+            assertEquals(5, resultSet.getInt(0));
         } finally {
-            cursor.close();
+            statement.close();
         }
     }
 

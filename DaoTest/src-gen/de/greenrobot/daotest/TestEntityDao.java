@@ -1,5 +1,9 @@
 package de.greenrobot.daotest;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
@@ -43,24 +47,34 @@ public class TestEntityDao extends AbstractDao<TestEntity, Long> {
         super(config, daoSession);
     }
 
-    /** Creates the underlying database table. */
-    public static void createTable(SQLiteDatabase db, boolean ifNotExists) {
+    /** Creates the underlying database table. 
+     * @throws SQLException */
+    public static void createTable(Connection connection, boolean ifNotExists) throws SQLException {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
-        db.execSQL("CREATE TABLE " + constraint + "'TEST_ENTITY' (" + //
-                "'_id' INTEGER PRIMARY KEY ," + // 0: id
-                "'SIMPLE_INT' INTEGER NOT NULL ," + // 1: simpleInt
-                "'SIMPLE_INTEGER' INTEGER," + // 2: simpleInteger
-                "'SIMPLE_STRING_NOT_NULL' TEXT NOT NULL ," + // 3: simpleStringNotNull
-                "'SIMPLE_STRING' TEXT," + // 4: simpleString
-                "'INDEXED_STRING' TEXT," + // 5: indexedString
-                "'INDEXED_STRING_ASC_UNIQUE' TEXT," + // 6: indexedStringAscUnique
-                "'SIMPLE_DATE' INTEGER," + // 7: simpleDate
-                "'SIMPLE_BOOLEAN' INTEGER);"); // 8: simpleBoolean
+        PreparedStatement statement = connection.prepareStatement(
+    		"CREATE TABLE " + constraint + "'TEST_ENTITY' (" + //
+            "'_id' INTEGER PRIMARY KEY ," + // 0: id
+            "'SIMPLE_INT' INTEGER NOT NULL ," + // 1: simpleInt
+            "'SIMPLE_INTEGER' INTEGER," + // 2: simpleInteger
+            "'SIMPLE_STRING_NOT_NULL' TEXT NOT NULL ," + // 3: simpleStringNotNull
+            "'SIMPLE_STRING' TEXT," + // 4: simpleString
+            "'INDEXED_STRING' TEXT," + // 5: indexedString
+            "'INDEXED_STRING_ASC_UNIQUE' TEXT," + // 6: indexedStringAscUnique
+            "'SIMPLE_DATE' INTEGER," + // 7: simpleDate
+            "'SIMPLE_BOOLEAN' INTEGER);" // 8: simpleBoolean
+        ); 
+        statement.execute();
+        statement.close();
         // Add Indexes
-        db.execSQL("CREATE INDEX " + constraint + "IDX_TEST_ENTITY_INDEXED_STRING ON TEST_ENTITY" +
+        statement = connection.prepareStatement("CREATE INDEX " + constraint + "IDX_TEST_ENTITY_INDEXED_STRING ON TEST_ENTITY" +
                 " (INDEXED_STRING);");
-        db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_TEST_ENTITY_INDEXED_STRING_ASC_UNIQUE ON TEST_ENTITY" +
+        statement.execute();
+        statement.close();
+
+        statement = connection.prepareStatement("CREATE UNIQUE INDEX " + constraint + "IDX_TEST_ENTITY_INDEXED_STRING_ASC_UNIQUE ON TEST_ENTITY" +
                 " (INDEXED_STRING_ASC_UNIQUE);");
+        statement.execute();
+        statement.close();
     }
 
     /** Drops the underlying database table. */

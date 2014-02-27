@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -29,17 +31,18 @@ import android.database.sqlite.SQLiteDatabase;
 // TODO add unit tests
 public class DbUtils {
 
-    public static void vacuum(SQLiteDatabase db) {
-        db.execSQL("VACUUM");
+    public static void vacuum(Connection connection) throws SQLException {
+        connection.prepareStatement("VACUUM").execute();
     }
 
     /**
      * Calls {@link #executeSqlScript(Context, SQLiteDatabase, String, boolean)} with transactional set to true.
      * 
      * @return number of statements executed.
+     * @throws SQLException 
      */
-    public static int executeSqlScript(Context context, SQLiteDatabase db, String assetFilename) throws IOException {
-        return executeSqlScript(context, db, assetFilename, true);
+    public static int executeSqlScript(Context context, Connection connection, String assetFilename) throws IOException, SQLException {
+        return executeSqlScript(context, connection, assetFilename, true);
     }
 
     /**
@@ -49,39 +52,43 @@ public class DbUtils {
      * yours.
      * 
      * @return number of statements executed.
+     * @throws SQLException 
      */
-    public static int executeSqlScript(Context context, SQLiteDatabase db, String assetFilename, boolean transactional)
-            throws IOException {
+    public static int executeSqlScript(Context context, Connection connection, String assetFilename, boolean transactional)
+            throws IOException, SQLException {
         byte[] bytes = readAsset(context, assetFilename);
         String sql = new String(bytes, "UTF-8");
         String[] lines = sql.split(";(\\s)*[\n\r]");
         int count;
         if (transactional) {
-            count = executeSqlStatementsInTx(db, lines);
+            count = executeSqlStatementsInTx(connection, lines);
         } else {
-            count = executeSqlStatements(db, lines);
+            count = executeSqlStatements(connection, lines);
         }
         DaoLog.i("Executed " + count + " statements from SQL script '" + assetFilename + "'");
         return count;
     }
 
-    public static int executeSqlStatementsInTx(SQLiteDatabase db, String[] statements) {
-        db.beginTransaction();
+    public static int executeSqlStatementsInTx(Connection connection, String[] statements) throws SQLException {
+// TODO transaction
+//    	connection.beginTransaction();
         try {
-            int count = executeSqlStatements(db, statements);
-            db.setTransactionSuccessful();
+            int count = executeSqlStatements(connection, statements);
+//            connection.setTransactionSuccessful();
             return count;
         } finally {
-            db.endTransaction();
+//            connection.endTransaction();
         }
     }
 
-    public static int executeSqlStatements(SQLiteDatabase db, String[] statements) {
+    public static int executeSqlStatements(Connection connection, String[] statements) throws SQLException {
         int count = 0;
         for (String line : statements) {
             line = line.trim();
             if (line.length() > 0) {
-                db.execSQL(line);
+            	PreparedStatement statement = connection.prepareStatement( line );
+            	statement.execute();
+            	statement.close();
                 count++;
             }
         }

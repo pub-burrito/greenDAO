@@ -17,6 +17,8 @@
  */
 package de.greenrobot.daotest;
 
+import java.sql.SQLException;
+
 import de.greenrobot.dao.test.AbstractDaoSessionTest;
 
 public class DaoSessionTest extends AbstractDaoSessionTest<DaoMaster, DaoSession> {
@@ -25,7 +27,7 @@ public class DaoSessionTest extends AbstractDaoSessionTest<DaoMaster, DaoSession
         super(DaoMaster.class);
     }
 
-    public void testInsertAndLoad() {
+    public void testInsertAndLoad() throws SQLException {
         SimpleEntity entity = new SimpleEntity();
         daoSession.insert(entity);
         Long id = entity.getId();
@@ -34,7 +36,7 @@ public class DaoSessionTest extends AbstractDaoSessionTest<DaoMaster, DaoSession
         assertNotNull(entity2);
     }
 
-    public void testIdentity() {
+    public void testIdentity() throws SQLException {
         SimpleEntity entity = new SimpleEntity();
         daoSession.insert(entity);
         SimpleEntity entity2 = daoSession.load(SimpleEntity.class, entity.getId());
@@ -43,7 +45,7 @@ public class DaoSessionTest extends AbstractDaoSessionTest<DaoMaster, DaoSession
         assertSame(entity, entity3);
     }
 
-    public void testIdentityPerSession() {
+    public void testIdentityPerSession() throws SQLException {
         SimpleEntity entity = new SimpleEntity();
         daoSession.insert(entity);
         DaoSession session2 = daoMaster.newSession();
@@ -51,7 +53,7 @@ public class DaoSessionTest extends AbstractDaoSessionTest<DaoMaster, DaoSession
         assertNotSame(entity, entity2);
     }
 
-    public void testSessionReset() {
+    public void testSessionReset() throws SQLException {
         SimpleEntity entity = new SimpleEntity();
         daoSession.insert(entity);
         daoSession.clear();

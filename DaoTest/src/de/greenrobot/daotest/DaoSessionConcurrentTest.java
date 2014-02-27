@@ -1,9 +1,10 @@
 package de.greenrobot.daotest;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.concurrent.CountDownLatch;
 
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteStatement;
 import android.os.SystemClock;
 import de.greenrobot.dao.DaoLog;
 import de.greenrobot.dao.query.DeleteQuery;
@@ -60,17 +61,31 @@ public class DaoSessionConcurrentTest extends AbstractDaoSessionTest<DaoMaster, 
         latchThreadsReady.await();
     }
 
-    public void testConcurrentInsertDuringTx() throws InterruptedException {
+    public void testConcurrentInsertDuringTx() throws InterruptedException, SQLException {
         Runnable runnable1 = new Runnable() {
             @Override
             public void run() {
-                dao.insert(createEntity(null));
+                try
+				{
+					dao.insert(createEntity(null));
+				}
+				catch ( SQLException e )
+				{
+					e.printStackTrace();
+				}
             }
         };
         Runnable runnable2 = new Runnable() {
             @Override
             public void run() {
-                dao.insertInTx(createEntity(null));
+                try
+				{
+					dao.insertInTx(createEntity(null));
+				}
+				catch ( SQLException e )
+				{
+					e.printStackTrace();
+				}
             }
         };
         Runnable runnable3 = new Runnable() {
@@ -79,7 +94,14 @@ public class DaoSessionConcurrentTest extends AbstractDaoSessionTest<DaoMaster, 
                 daoSession.runInTx(new Runnable() {
                     @Override
                     public void run() {
-                        dao.insert(createEntity(null));
+                        try
+						{
+							dao.insert(createEntity(null));
+						}
+						catch ( SQLException e )
+						{
+							e.printStackTrace();
+						}
                     }
                 });
             }
@@ -87,13 +109,27 @@ public class DaoSessionConcurrentTest extends AbstractDaoSessionTest<DaoMaster, 
         Runnable runnable4 = new Runnable() {
             @Override
             public void run() {
-                dao.insertWithoutSettingPk(createEntity(null));
+                try
+				{
+					dao.insertWithoutSettingPk(createEntity(null));
+				}
+				catch ( SQLException e )
+				{
+					e.printStackTrace();
+				}
             }
         };
         Runnable runnable5 = new Runnable() {
             @Override
             public void run() {
-                dao.insertOrReplace(createEntity(null));
+                try
+				{
+					dao.insertOrReplace(createEntity(null));
+				}
+				catch ( SQLException e )
+				{
+					e.printStackTrace();
+				}
             }
         };
         initThreads(runnable1, runnable2, runnable3, runnable4, runnable5);
@@ -102,26 +138,47 @@ public class DaoSessionConcurrentTest extends AbstractDaoSessionTest<DaoMaster, 
         doTx(new Runnable() {
             @Override
             public void run() {
-                dao.insert(createEntity(null));
+                try
+				{
+					dao.insert(createEntity(null));
+				}
+				catch ( SQLException e )
+				{
+					e.printStackTrace();
+				}
             }
         });
         latchThreadsDone.await();
         assertEquals(7, dao.count());
     }
 
-    public void testConcurrentUpdateDuringTx() throws InterruptedException {
+    public void testConcurrentUpdateDuringTx() throws InterruptedException, SQLException {
         final TestEntity entity = createEntity(null);
         dao.insert(entity);
         Runnable runnable1 = new Runnable() {
             @Override
             public void run() {
-                dao.update(entity);
+                try
+				{
+					dao.update(entity);
+				}
+				catch ( SQLException e )
+				{
+					e.printStackTrace();
+				}
             }
         };
         Runnable runnable2 = new Runnable() {
             @Override
             public void run() {
-                dao.updateInTx(entity);
+                try
+				{
+					dao.updateInTx(entity);
+				}
+				catch ( SQLException e )
+				{
+					e.printStackTrace();
+				}
             }
         };
         Runnable runnable3 = new Runnable() {
@@ -130,7 +187,14 @@ public class DaoSessionConcurrentTest extends AbstractDaoSessionTest<DaoMaster, 
                 daoSession.runInTx(new Runnable() {
                     @Override
                     public void run() {
-                        dao.update(entity);
+                        try
+						{
+							dao.update(entity);
+						}
+						catch ( SQLException e )
+						{
+							e.printStackTrace();
+						}
                     }
                 });
             }
@@ -141,25 +205,46 @@ public class DaoSessionConcurrentTest extends AbstractDaoSessionTest<DaoMaster, 
         doTx(new Runnable() {
             @Override
             public void run() {
-                dao.update(entity);
+                try
+				{
+					dao.update(entity);
+				}
+				catch ( SQLException e )
+				{
+					e.printStackTrace();
+				}
             }
         });
         latchThreadsDone.await();
     }
 
-    public void testConcurrentDeleteDuringTx() throws InterruptedException {
+    public void testConcurrentDeleteDuringTx() throws InterruptedException, SQLException {
         final TestEntity entity = createEntity(null);
         dao.insert(entity);
         Runnable runnable1 = new Runnable() {
             @Override
             public void run() {
-                dao.delete(entity);
+                try
+				{
+					dao.delete(entity);
+				}
+				catch ( SQLException e )
+				{
+					e.printStackTrace();
+				}
             }
         };
         Runnable runnable2 = new Runnable() {
             @Override
             public void run() {
-                dao.deleteInTx(entity);
+                try
+				{
+					dao.deleteInTx(entity);
+				}
+				catch ( SQLException e )
+				{
+					e.printStackTrace();
+				}
             }
         };
         Runnable runnable3 = new Runnable() {
@@ -168,7 +253,14 @@ public class DaoSessionConcurrentTest extends AbstractDaoSessionTest<DaoMaster, 
                 daoSession.runInTx(new Runnable() {
                     @Override
                     public void run() {
-                        dao.delete(entity);
+                        try
+						{
+							dao.delete(entity);
+						}
+						catch ( SQLException e )
+						{
+							e.printStackTrace();
+						}
                     }
                 });
             }
@@ -179,21 +271,35 @@ public class DaoSessionConcurrentTest extends AbstractDaoSessionTest<DaoMaster, 
         doTx(new Runnable() {
             @Override
             public void run() {
-                dao.delete(entity);
+                try
+				{
+					dao.delete(entity);
+				}
+				catch ( SQLException e )
+				{
+					e.printStackTrace();
+				}
             }
         });
         latchThreadsDone.await();
     }
 
     // Query doesn't involve any statement locking currently, but just to stay on the safe side...
-    public void testConcurrentQueryDuringTx() throws InterruptedException {
+    public void testConcurrentQueryDuringTx() throws InterruptedException, SQLException {
         final TestEntity entity = createEntity(null);
         dao.insert(entity);
         final Query<TestEntity> query = dao.queryBuilder().build();
         Runnable runnable1 = new Runnable() {
             @Override
             public void run() {
-                query.forCurrentThread().list();
+                try
+				{
+					query.forCurrentThread().list();
+				}
+				catch ( SQLException e )
+				{
+					e.printStackTrace();
+				}
             }
         };
 
@@ -203,14 +309,21 @@ public class DaoSessionConcurrentTest extends AbstractDaoSessionTest<DaoMaster, 
         doTx(new Runnable() {
             @Override
             public void run() {
-                query.list();
+                try
+				{
+					query.list();
+				}
+				catch ( SQLException e )
+				{
+					e.printStackTrace();
+				}
             }
         });
         latchThreadsDone.await();
     }
 
     // No connection for read can be acquired while TX is active; this will deadlock!
-    public void _testConcurrentLockAndQueryDuringTx() throws InterruptedException {
+    public void _testConcurrentLockAndQueryDuringTx() throws InterruptedException, SQLException {
         final TestEntity entity = createEntity(null);
         dao.insert(entity);
         final Query<TestEntity> query = dao.queryBuilder().build();
@@ -218,7 +331,14 @@ public class DaoSessionConcurrentTest extends AbstractDaoSessionTest<DaoMaster, 
             @Override
             public void run() {
                 synchronized (query) {
-                    query.list();
+                    try
+					{
+						query.list();
+					}
+					catch ( SQLException e )
+					{
+						e.printStackTrace();
+					}
                 }
             }
         };
@@ -230,21 +350,35 @@ public class DaoSessionConcurrentTest extends AbstractDaoSessionTest<DaoMaster, 
             @Override
             public void run() {
                 synchronized (query) {
-                    query.list();
+                    try
+					{
+						query.list();
+					}
+					catch ( SQLException e )
+					{
+						e.printStackTrace();
+					}
                 }
             }
         });
         latchThreadsDone.await();
     }
 
-    public void testConcurrentDeleteQueryDuringTx() throws InterruptedException {
+    public void testConcurrentDeleteQueryDuringTx() throws InterruptedException, SQLException {
         final TestEntity entity = createEntity(null);
         dao.insert(entity);
         final DeleteQuery<TestEntity> query = dao.queryBuilder().buildDelete();
         Runnable runnable1 = new Runnable() {
             @Override
             public void run() {
-                query.forCurrentThread().executeDeleteWithoutDetachingEntities();
+                try
+				{
+					query.forCurrentThread().executeDeleteWithoutDetachingEntities();
+				}
+				catch ( SQLException e )
+				{
+					e.printStackTrace();
+				}
             }
         };
 
@@ -254,13 +388,20 @@ public class DaoSessionConcurrentTest extends AbstractDaoSessionTest<DaoMaster, 
         doTx(new Runnable() {
             @Override
             public void run() {
-                query.executeDeleteWithoutDetachingEntities();
+                try
+				{
+					query.executeDeleteWithoutDetachingEntities();
+				}
+				catch ( SQLException e )
+				{
+					e.printStackTrace();
+				}
             }
         });
         latchThreadsDone.await();
     }
 
-    public void testConcurrentResolveToMany() throws InterruptedException {
+    public void testConcurrentResolveToMany() throws InterruptedException, SQLException {
         final ToManyEntity entity = new ToManyEntity();
         ToManyEntityDao toManyDao = daoSession.getToManyEntityDao();
         toManyDao.insert(entity);
@@ -282,7 +423,7 @@ public class DaoSessionConcurrentTest extends AbstractDaoSessionTest<DaoMaster, 
         latchThreadsDone.await();
     }
 
-    public void testConcurrentResolveToOne() throws InterruptedException {
+    public void testConcurrentResolveToOne() throws InterruptedException, SQLException {
         final TreeEntity entity = new TreeEntity();
         TreeEntityDao toOneDao = daoSession.getTreeEntityDao();
         toOneDao.insert(entity);
@@ -309,17 +450,25 @@ public class DaoSessionConcurrentTest extends AbstractDaoSessionTest<DaoMaster, 
      * threads and costs more memory.
      */
     public void _testThreadLocalSpeed() {
-        final SQLiteDatabase db = dao.getDatabase();
-        ThreadLocal<SQLiteStatement> threadLocal = new ThreadLocal<SQLiteStatement>() {
+        final Connection connection = dao.getConnection();
+        ThreadLocal<PreparedStatement> threadLocal = new ThreadLocal<PreparedStatement>() {
             @Override
-            protected SQLiteStatement initialValue() {
-                return db.compileStatement("SELECT 42");
+            protected PreparedStatement initialValue() {
+                try
+				{
+					return connection.prepareStatement("SELECT 42");
+				}
+				catch ( SQLException e )
+				{
+					e.printStackTrace();
+					return null;
+				}
             }
         };
         threadLocal.get();
         long start = SystemClock.currentThreadTimeMillis();
         for (int i = 0; i < 1000; i++) {
-            SQLiteStatement sqLiteStatement = threadLocal.get();
+        	PreparedStatement sqLiteStatement = threadLocal.get();
             assertNotNull(sqLiteStatement);
         }
         Long time = SystemClock.currentThreadTimeMillis() - start;
