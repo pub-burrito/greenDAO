@@ -17,6 +17,8 @@
  */
 package de.greenrobot.daotest.query;
 
+import java.sql.SQLException;
+
 import de.greenrobot.dao.DaoException;
 import de.greenrobot.dao.query.DeleteQuery;
 import de.greenrobot.dao.query.QueryBuilder;
@@ -32,7 +34,7 @@ public class DeleteQueryThreadLocalTest extends TestEntityTestBase {
         assertSame(query, query.forCurrentThread());
     }
 
-    public void testGetForCurrentThread_ParametersAreReset() {
+    public void testGetForCurrentThread_ParametersAreReset() throws SQLException {
         insert(3);
         int value = getSimpleInteger(1);
         DeleteQuery<TestEntity> query = dao.queryBuilder().where(Properties.SimpleInteger.eq(value)).buildDelete();
@@ -44,7 +46,7 @@ public class DeleteQueryThreadLocalTest extends TestEntityTestBase {
         assertEquals(2, dao.count());
     }
 
-    public void testGetForCurrentThread_TwoThreads() throws InterruptedException {
+    public void testGetForCurrentThread_TwoThreads() throws InterruptedException, SQLException {
         insert(3);
         createQueryFromOtherThread();
         DeleteQuery<TestEntity> query = queryFromOtherThread.forCurrentThread();
@@ -54,7 +56,7 @@ public class DeleteQueryThreadLocalTest extends TestEntityTestBase {
         assertEquals(2, dao.count());
     }
 
-    public void testThrowOutsideOwnerThread() throws InterruptedException {
+    public void testThrowOutsideOwnerThread() throws InterruptedException, SQLException {
         createQueryFromOtherThread();
         try {
             queryFromOtherThread.executeDeleteWithoutDetachingEntities();

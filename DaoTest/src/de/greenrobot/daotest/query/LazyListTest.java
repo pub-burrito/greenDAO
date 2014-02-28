@@ -17,6 +17,7 @@
  */
 package de.greenrobot.daotest.query;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
@@ -30,7 +31,7 @@ import de.greenrobot.daotest.entity.TestEntityTestBase;
 
 public class LazyListTest extends TestEntityTestBase {
 
-    public void testSizeAndGetAndPeak() {
+    public void testSizeAndGetAndPeak() throws SQLException {
         ArrayList<TestEntity> list = insert(2);
 
         LazyList<TestEntity> listLazy = dao.queryBuilder().build().listLazy();
@@ -47,14 +48,14 @@ public class LazyListTest extends TestEntityTestBase {
         assertNotNull(listLazy.peak(1));
     }
 
-    public void testGetAll100() {
+    public void testGetAll100() throws SQLException {
         ArrayList<TestEntity> list = insert(100);
         LazyList<TestEntity> listLazy = dao.queryBuilder().orderAsc(Properties.SimpleInteger).build().listLazy();
         assertIds(list, listLazy);
         assertTrue(listLazy.isClosed());
     }
 
-    public void testGetAll100Uncached() {
+    public void testGetAll100Uncached() throws SQLException {
         ArrayList<TestEntity> list = insert(100);
         LazyList<TestEntity> listLazy = dao.queryBuilder().orderAsc(Properties.SimpleInteger).build()
                 .listLazyUncached();
@@ -63,14 +64,14 @@ public class LazyListTest extends TestEntityTestBase {
         listLazy.close();
     }
 
-    public void testIterator() {
+    public void testIterator() throws SQLException {
         ArrayList<TestEntity> list = insert(100);
         LazyList<TestEntity> listLazy = dao.queryBuilder().orderAsc(Properties.SimpleInteger).build().listLazy();
         testIerator(list, listLazy, false);
         assertTrue(listLazy.isClosed());
     }
 
-    public void testIteratorUncached() {
+    public void testIteratorUncached() throws SQLException {
         ArrayList<TestEntity> list = insert(100);
         LazyList<TestEntity> listLazy = dao.queryBuilder().orderAsc(Properties.SimpleInteger).build()
                 .listLazyUncached();
@@ -119,7 +120,7 @@ public class LazyListTest extends TestEntityTestBase {
         }
     }
 
-    public void testEmpty() {
+    public void testEmpty() throws SQLException {
         insert(1);
 
         LazyList<TestEntity> listLazy = dao.queryBuilder().where(Properties.SimpleInteger.eq(-1)).build().listLazy();
@@ -134,7 +135,7 @@ public class LazyListTest extends TestEntityTestBase {
 
     }
 
-    public void testUncached() {
+    public void testUncached() throws SQLException {
         insert(1);
 
         LazyList<TestEntity> listLazy = dao.queryBuilder().build().listLazyUncached();
@@ -159,7 +160,7 @@ public class LazyListTest extends TestEntityTestBase {
         assertTrue(listLazy.isClosed());
     }
 
-    public void testClose() {
+    public void testClose() throws SQLException {
         insert(1);
 
         LazyList<TestEntity> listLazy = dao.queryBuilder().build().listLazy();
@@ -173,7 +174,7 @@ public class LazyListTest extends TestEntityTestBase {
         listLazy.close();
     }
 
-    public void testAutoClose() {
+    public void testAutoClose() throws SQLException {
         insert(10);
         LazyList<TestEntity> lazyList = dao.queryBuilder().build().listLazyUncached();
         CloseableListIterator<TestEntity> iterator = lazyList.listIteratorAutoClose();

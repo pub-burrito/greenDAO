@@ -1,5 +1,7 @@
 package de.greenrobot.daotest;
 
+import java.sql.SQLException;
+
 import de.greenrobot.daotest.DaoSession;
 import de.greenrobot.dao.DaoException;
 
@@ -53,24 +55,27 @@ public class AnActiveEntity {
         this.text = text;
     }
 
-    /** Convenient call for {@link AbstractDao#delete(Object)}. Entity must attached to an entity context. */
-    public void delete() {
+    /** Convenient call for {@link AbstractDao#delete(Object)}. Entity must attached to an entity context. 
+     * @throws SQLException */
+    public void delete() throws SQLException {
         if (myDao == null) {
             throw new DaoException("Entity is detached from DAO context");
         }    
         myDao.delete(this);
     }
 
-    /** Convenient call for {@link AbstractDao#update(Object)}. Entity must attached to an entity context. */
-    public void update() {
+    /** Convenient call for {@link AbstractDao#update(Object)}. Entity must attached to an entity context. 
+     * @throws SQLException */
+    public void update() throws SQLException {
         if (myDao == null) {
             throw new DaoException("Entity is detached from DAO context");
         }    
         myDao.update(this);
     }
 
-    /** Convenient call for {@link AbstractDao#refresh(Object)}. Entity must attached to an entity context. */
-    public void refresh() {
+    /** Convenient call for {@link AbstractDao#refresh(Object)}. Entity must attached to an entity context. 
+     * @throws SQLException */
+    public void refresh() throws SQLException {
         if (myDao == null) {
             throw new DaoException("Entity is detached from DAO context");
         }    

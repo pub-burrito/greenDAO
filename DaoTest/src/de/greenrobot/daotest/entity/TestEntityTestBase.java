@@ -17,6 +17,7 @@
  */
 package de.greenrobot.daotest.entity;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import de.greenrobot.dao.query.LazyList;
@@ -39,7 +40,7 @@ public abstract class TestEntityTestBase extends AbstractDaoTest<TestEntityDao, 
         return entity;
     }
 
-    protected ArrayList<TestEntity> insert(int count) {
+    protected ArrayList<TestEntity> insert(int count) throws SQLException {
         ArrayList<TestEntity> list = new ArrayList<TestEntity>();
         for (int i = 0; i < count; i++) {
             TestEntity entity = createEntity(getSimpleInteger(i), getSimpleString(i));

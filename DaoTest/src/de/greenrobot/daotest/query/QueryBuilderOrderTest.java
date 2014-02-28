@@ -17,6 +17,7 @@
  */
 package de.greenrobot.daotest.query;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -34,7 +35,7 @@ public class QueryBuilderOrderTest extends TestEntityTestBase {
         QueryBuilder.LOG_VALUES = true;
     }
 
-    public void testOrderAsc() {
+    public void testOrderAsc() throws SQLException {
         ArrayList<TestEntity> inserted = insert(2);
         TestEntity entity = inserted.get(0);
         List<TestEntity> result = dao.queryBuilder().orderAsc(Properties.SimpleInteger).list();
@@ -45,7 +46,7 @@ public class QueryBuilderOrderTest extends TestEntityTestBase {
         assertEquals(entity.getId(), result.get(0).getId());
     }
 
-    public void testOrderDesc() {
+    public void testOrderDesc() throws SQLException {
         ArrayList<TestEntity> inserted = insert(2);
         TestEntity entity = inserted.get(1);
         List<TestEntity> result = dao.queryBuilder().orderDesc(Properties.SimpleInteger).list();
@@ -56,7 +57,7 @@ public class QueryBuilderOrderTest extends TestEntityTestBase {
         assertEquals(entity.getId(), result.get(0).getId());
     }
 
-    public void testOrderUpperLowercase() {
+    public void testOrderUpperLowercase() throws SQLException {
         List<TestEntity> list = new ArrayList<TestEntity>();
         TestEntity entityAA = addEntity(list, "aa");
         TestEntity entityAB = addEntity(list, "Ab");
@@ -77,7 +78,7 @@ public class QueryBuilderOrderTest extends TestEntityTestBase {
         assertEquals(entityZC.getId(), result.get(5).getId());
     }
 
-    public void testOrderUmlauts() {
+    public void testOrderUmlauts() throws SQLException {
         List<TestEntity> list = new ArrayList<TestEntity>();
         TestEntity entityV = addEntity(list, "V");
         TestEntity entityB = addEntity(list, "B");
@@ -93,7 +94,7 @@ public class QueryBuilderOrderTest extends TestEntityTestBase {
         assertEquals(entityV.getId(), result.get(3).getId());
     }
 
-    public void testOrderCustom() {
+    public void testOrderCustom() throws SQLException {
         List<TestEntity> list = new ArrayList<TestEntity>();
         TestEntity entityAA = addEntity(list, "Aa");
         TestEntity entityAB = addEntity(list, "ab");
@@ -107,7 +108,7 @@ public class QueryBuilderOrderTest extends TestEntityTestBase {
         assertEquals(entityAB.getId(), result.get(2).getId());
     }
 
-    public void testOrderRaw() {
+    public void testOrderRaw() throws SQLException {
         ArrayList<TestEntity> inserted = insert(2);
         TestEntity entity = inserted.get(0);
         List<TestEntity> result = dao.queryBuilder().orderRaw(Properties.SimpleInteger.columnName + " ASC").list();

@@ -1,5 +1,7 @@
 package de.greenrobot.daotest.entity;
 
+import java.sql.SQLException;
+
 import de.greenrobot.dao.test.AbstractDaoSessionTest;
 import de.greenrobot.daotest.DaoMaster;
 import de.greenrobot.daotest.DaoSession;
@@ -20,7 +22,7 @@ public class TreeEntityTest extends AbstractDaoSessionTest<DaoMaster, DaoSession
         treeEntityDao = daoSession.getTreeEntityDao();
     }
 
-    public void testNavigateTreeFromLeaf() {
+    public void testNavigateTreeFromLeaf() throws SQLException {
         createTree();
         daoSession.clear();
 
@@ -38,7 +40,7 @@ public class TreeEntityTest extends AbstractDaoSessionTest<DaoMaster, DaoSession
         assertNull(root.getParent());
     }
 
-    public void testNavigateTreeFromMiddle() {
+    public void testNavigateTreeFromMiddle() throws SQLException {
         createTree();
         daoSession.clear();
 
@@ -54,7 +56,7 @@ public class TreeEntityTest extends AbstractDaoSessionTest<DaoMaster, DaoSession
         assertNull(root.getParent());
     }
 
-    public void testNavigateTreeFromRoot() {
+    public void testNavigateTreeFromRoot() throws SQLException {
         createTree();
         daoSession.clear();
 
@@ -79,7 +81,7 @@ public class TreeEntityTest extends AbstractDaoSessionTest<DaoMaster, DaoSession
         assertEquals(0, child2.getChildren().size());
     }
 
-    private void createTree() {
+    private void createTree() throws SQLException {
         TreeEntity root = new TreeEntity(1l);
         TreeEntity child1 = new TreeEntity(11l);
         child1.setParent(root);

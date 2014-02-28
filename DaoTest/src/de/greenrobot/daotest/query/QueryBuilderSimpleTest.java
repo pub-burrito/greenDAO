@@ -17,6 +17,7 @@
  */
 package de.greenrobot.daotest.query;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -35,7 +36,7 @@ public class QueryBuilderSimpleTest extends TestEntityTestBase {
         QueryBuilder.LOG_VALUES = true;
     }
 
-    public void testEqInteger() {
+    public void testEqInteger() throws SQLException {
         ArrayList<TestEntity> inserted = insert(3);
         int value = getSimpleInteger(1);
 
@@ -47,7 +48,7 @@ public class QueryBuilderSimpleTest extends TestEntityTestBase {
         assertEquals(inserted.get(1).getId(), resultEntity.getId());
     }
 
-    public void testEqString() {
+    public void testEqString() throws SQLException {
         ArrayList<TestEntity> inserted = insert(3);
         String value = getSimpleString(1);
 
@@ -59,7 +60,7 @@ public class QueryBuilderSimpleTest extends TestEntityTestBase {
         assertEquals(inserted.get(1).getId(), resultEntity.getId());
     }
 
-    public void testIn() {
+    public void testIn() throws SQLException {
         ArrayList<TestEntity> inserted = insert(10);
         String value1 = getSimpleString(2);
         String value2 = getSimpleString(8);
@@ -82,7 +83,7 @@ public class QueryBuilderSimpleTest extends TestEntityTestBase {
         assertEquals(inserted.get(9).getId(), resultEntity3.getId());
     }
 
-    public void testNotIn() {
+    public void testNotIn() throws SQLException {
         ArrayList<TestEntity> inserted = insert(5);
         String value1 = getSimpleString(0);
         String value2 = getSimpleString(2);
@@ -99,7 +100,7 @@ public class QueryBuilderSimpleTest extends TestEntityTestBase {
         assertEquals(inserted.get(3).getId(), resultEntity2.getId());
     }
 
-    public void testEqStringAndInteger() {
+    public void testEqStringAndInteger() throws SQLException {
         ArrayList<TestEntity> inserted = insert(3);
         String valueStr = getSimpleString(1);
         int valueInt = getSimpleInteger(1);
@@ -112,7 +113,7 @@ public class QueryBuilderSimpleTest extends TestEntityTestBase {
         assertEquals(inserted.get(1).getId(), resultEntity.getId());
     }
 
-    public void testNotEqString() {
+    public void testNotEqString() throws SQLException {
         ArrayList<TestEntity> inserted = insert(3);
         String value = getSimpleString(1);
 
@@ -127,7 +128,7 @@ public class QueryBuilderSimpleTest extends TestEntityTestBase {
         assertEquals((long) inserted.get(2).getId(), hiId);
     }
 
-    public void testEqDate() {
+    public void testEqDate() throws SQLException {
         ArrayList<TestEntity> inserted = insert(3);
         TestEntity testEntity = inserted.get(1);
 
@@ -142,7 +143,7 @@ public class QueryBuilderSimpleTest extends TestEntityTestBase {
         assertEquals(testEntity.getId(), testEntity2.getId());
     }
 
-    public void testEqBoolean() {
+    public void testEqBoolean() throws SQLException {
         ArrayList<TestEntity> inserted = insert(3);
         TestEntity testEntity = inserted.get(1);
 
@@ -162,7 +163,7 @@ public class QueryBuilderSimpleTest extends TestEntityTestBase {
         assertEquals(testEntity.getId(), testEntity2.getId());
     }
 
-    public void testIsNullIsNotNull() {
+    public void testIsNullIsNotNull() throws SQLException {
         ArrayList<TestEntity> inserted = insert(2);
         TestEntity testEntityNull = inserted.get(0);
         TestEntity testEntityNotNull = inserted.get(1);
@@ -179,7 +180,7 @@ public class QueryBuilderSimpleTest extends TestEntityTestBase {
         assertEquals(testEntityNotNull.getId(), testEntityNotNull2.getId());
     }
 
-    public void testBuildTwice() {
+    public void testBuildTwice() throws SQLException {
         insert(3);
         String value = getSimpleString(1);
 
@@ -193,7 +194,7 @@ public class QueryBuilderSimpleTest extends TestEntityTestBase {
         assertEquals(list1.get(0).getId(), list2.get(0).getId());
     }
 
-    public void testLike() {
+    public void testLike() throws SQLException {
         TestEntity entity = insert(3).get(1);
         entity.setSimpleString("greenrobot");
         dao.update(entity);

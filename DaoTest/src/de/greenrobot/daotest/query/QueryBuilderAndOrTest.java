@@ -17,6 +17,7 @@
  */
 package de.greenrobot.daotest.query;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +35,7 @@ public class QueryBuilderAndOrTest extends AbstractDaoTest<AbcdefEntityDao, Abcd
         QueryBuilder.LOG_VALUES = true;
     }
 
-    protected ArrayList<AbcdefEntity> insert(int count) {
+    protected ArrayList<AbcdefEntity> insert(int count) throws SQLException {
         ArrayList<AbcdefEntity> list = new ArrayList<AbcdefEntity>();
         for (int i = 0; i < count; i++) {
             int base = i * 100;
@@ -46,7 +47,7 @@ public class QueryBuilderAndOrTest extends AbstractDaoTest<AbcdefEntityDao, Abcd
         return list;
     }
 
-    public void testSimpleQuery() {
+    public void testSimpleQuery() throws SQLException {
         insert(3);
 
         QueryBuilder<AbcdefEntity> queryBuilder = dao.queryBuilder().where(Properties.A.eq(1)).orderAsc(Properties.A);
@@ -60,7 +61,7 @@ public class QueryBuilderAndOrTest extends AbstractDaoTest<AbcdefEntityDao, Abcd
         queryBuilder.buildDelete().executeDeleteWithoutDetachingEntities();
     }
 
-    public void testOr() {
+    public void testOr() throws SQLException {
         insert(3);
 
         QueryBuilder<AbcdefEntity> queryBuilder = dao.queryBuilder();
@@ -75,7 +76,7 @@ public class QueryBuilderAndOrTest extends AbstractDaoTest<AbcdefEntityDao, Abcd
         queryBuilder.buildDelete().executeDeleteWithoutDetachingEntities();
     }
 
-    public void testOr3() {
+    public void testOr3() throws SQLException {
         insert(5);
 
         QueryBuilder<AbcdefEntity> queryBuilder = dao.queryBuilder();
@@ -91,7 +92,7 @@ public class QueryBuilderAndOrTest extends AbstractDaoTest<AbcdefEntityDao, Abcd
         queryBuilder.buildDelete().executeDeleteWithoutDetachingEntities();
     }
 
-    public void testOrNested() {
+    public void testOrNested() throws SQLException {
         insert(10);
 
         QueryBuilder<AbcdefEntity> queryBuilder = dao.queryBuilder();
@@ -108,7 +109,7 @@ public class QueryBuilderAndOrTest extends AbstractDaoTest<AbcdefEntityDao, Abcd
         queryBuilder.buildDelete().executeDeleteWithoutDetachingEntities();
     }
 
-    public void testOrNestedNested() {
+    public void testOrNestedNested() throws SQLException {
         insert(10);
 
         QueryBuilder<AbcdefEntity> queryBuilder = dao.queryBuilder();
@@ -127,7 +128,7 @@ public class QueryBuilderAndOrTest extends AbstractDaoTest<AbcdefEntityDao, Abcd
         queryBuilder.buildDelete().executeDeleteWithoutDetachingEntities();
     }
 
-    public void testAnd() {
+    public void testAnd() throws SQLException {
         insert(5);
 
         QueryBuilder<AbcdefEntity> queryBuilder = dao.queryBuilder();
@@ -141,7 +142,7 @@ public class QueryBuilderAndOrTest extends AbstractDaoTest<AbcdefEntityDao, Abcd
         queryBuilder.buildDelete().executeDeleteWithoutDetachingEntities();
     }
 
-    public void testOrAnd() {
+    public void testOrAnd() throws SQLException {
         insert(10);
 
         QueryBuilder<AbcdefEntity> queryBuilder = dao.queryBuilder();

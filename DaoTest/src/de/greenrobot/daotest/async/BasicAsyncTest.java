@@ -1,5 +1,6 @@
 package de.greenrobot.daotest.async;
 
+import java.sql.SQLException;
 import java.util.concurrent.Callable;
 
 import android.os.Looper;
@@ -26,7 +27,7 @@ public class BasicAsyncTest extends AbstractAsyncTest {
         asyncSession.waitForCompletion();
     }
 
-    public void testAsyncInsert() {
+    public void testAsyncInsert() throws SQLException {
         SimpleEntity entity = new SimpleEntity();
         entity.setSimpleString("heho");
         AsyncOperation operation = asyncSession.insert(entity);
@@ -38,7 +39,7 @@ public class BasicAsyncTest extends AbstractAsyncTest {
         assertSingleOperationCompleted(operation);
     }
 
-    public void testAsyncUpdate() {
+    public void testAsyncUpdate() throws SQLException {
         SimpleEntity entity = new SimpleEntity();
         entity.setSimpleString("heho");
         daoSession.insert(entity);
@@ -53,7 +54,7 @@ public class BasicAsyncTest extends AbstractAsyncTest {
         assertSingleOperationCompleted(operation);
     }
 
-    public void testOperationGetResult() {
+    public void testOperationGetResult() throws SQLException {
         SimpleEntity entity = new SimpleEntity();
         entity.setSimpleString("heho");
         daoSession.insert(entity);
@@ -69,7 +70,7 @@ public class BasicAsyncTest extends AbstractAsyncTest {
         assertEquals(entity.getSimpleString(), result.getSimpleString());
     }
 
-    public void testOperationGetResultException() {
+    public void testOperationGetResultException() throws SQLException {
         SimpleEntity entity = new SimpleEntity();
         daoSession.insert(entity);
         AsyncOperation operation = asyncSession.insert(entity);
@@ -84,7 +85,7 @@ public class BasicAsyncTest extends AbstractAsyncTest {
         assertTrue(operation.isFailed());
     }
 
-    public void testAsyncException() {
+    public void testAsyncException() throws SQLException {
         SimpleEntity entity = new SimpleEntity();
         daoSession.insert(entity);
         AsyncOperation operation = asyncSession.insert(entity);

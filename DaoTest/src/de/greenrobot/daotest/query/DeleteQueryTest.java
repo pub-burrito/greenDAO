@@ -17,6 +17,7 @@
  */
 package de.greenrobot.daotest.query;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,7 +37,7 @@ public class DeleteQueryTest extends TestEntityTestBase {
         QueryBuilder.LOG_VALUES = true;
     }
 
-    public void testDeleteQuerySimple() {
+    public void testDeleteQuerySimple() throws SQLException {
         ArrayList<TestEntity> inserted = insert(3);
         int value = getSimpleInteger(1);
         inserted.get(2).setSimpleInteger(value);
@@ -52,7 +53,7 @@ public class DeleteQueryTest extends TestEntityTestBase {
         assertEquals(getSimpleInteger(0), (int) allAfterDelete.get(0).getSimpleInteger());
     }
 
-    public void testDeleteQueryOr() {
+    public void testDeleteQueryOr() throws SQLException {
         ArrayList<TestEntity> inserted = insert(3);
 
         QueryBuilder<TestEntity> queryBuilder = dao.queryBuilder();
@@ -68,7 +69,7 @@ public class DeleteQueryTest extends TestEntityTestBase {
         assertEquals(inserted.get(1).getSimpleInteger(), allAfterDelete.get(0).getSimpleInteger());
     }
 
-    public void testDeleteQueryExecutingMultipleTimes() {
+    public void testDeleteQueryExecutingMultipleTimes() throws SQLException {
         insert(3);
 
         String value = getSimpleString(1);
@@ -86,7 +87,7 @@ public class DeleteQueryTest extends TestEntityTestBase {
         assertEquals(4, dao.count());
     }
 
-    public void testDeleteQueryChangeParameter() {
+    public void testDeleteQueryChangeParameter() throws SQLException {
         insert(3);
 
         String value = getSimpleString(1);
@@ -102,7 +103,7 @@ public class DeleteQueryTest extends TestEntityTestBase {
         assertEquals(getSimpleString(2), remaining.getSimpleString());
     }
 
-    public void testBuildQueryAndDeleteQuery() {
+    public void testBuildQueryAndDeleteQuery() throws SQLException {
         insert(3);
         int value = getSimpleInteger(1);
 

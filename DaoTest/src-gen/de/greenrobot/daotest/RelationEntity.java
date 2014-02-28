@@ -1,5 +1,7 @@
 package de.greenrobot.daotest;
 
+import java.sql.SQLException;
+
 import de.greenrobot.daotest.DaoSession;
 import de.greenrobot.dao.DaoException;
 
@@ -95,8 +97,9 @@ public class RelationEntity {
         this.simpleString = simpleString;
     }
 
-    /** To-one relationship, resolved on first access. */
-    public RelationEntity getParent() {
+    /** To-one relationship, resolved on first access. 
+     * @throws SQLException */
+    public RelationEntity getParent() throws SQLException {
         Long __key = this.parentId;
         if (parent__resolvedKey == null || !parent__resolvedKey.equals(__key)) {
             if (daoSession == null) {
@@ -120,8 +123,9 @@ public class RelationEntity {
         }
     }
 
-    /** To-one relationship, resolved on first access. */
-    public TestEntity getTestEntity() {
+    /** To-one relationship, resolved on first access. 
+     * @throws SQLException */
+    public TestEntity getTestEntity() throws SQLException {
         Long __key = this.testId;
         if (testEntity__resolvedKey == null || !testEntity__resolvedKey.equals(__key)) {
             if (daoSession == null) {
@@ -145,8 +149,9 @@ public class RelationEntity {
         }
     }
 
-    /** To-one relationship, resolved on first access. */
-    public TestEntity getTestNotNull() {
+    /** To-one relationship, resolved on first access. 
+     * @throws SQLException */
+    public TestEntity getTestNotNull() throws SQLException {
         long __key = this.testIdNotNull;
         if (testNotNull__resolvedKey == null || !testNotNull__resolvedKey.equals(__key)) {
             if (daoSession == null) {
@@ -173,8 +178,9 @@ public class RelationEntity {
         }
     }
 
-    /** To-one relationship, resolved on first access. */
-    public TestEntity getTestWithoutProperty() {
+    /** To-one relationship, resolved on first access. 
+     * @throws SQLException */
+    public TestEntity getTestWithoutProperty() throws SQLException {
         if (testWithoutProperty != null || !testWithoutProperty__refreshed) {
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
@@ -198,24 +204,27 @@ public class RelationEntity {
         }
     }
 
-    /** Convenient call for {@link AbstractDao#delete(Object)}. Entity must attached to an entity context. */
-    public void delete() {
+    /** Convenient call for {@link AbstractDao#delete(Object)}. Entity must attached to an entity context. 
+     * @throws SQLException */
+    public void delete() throws SQLException {
         if (myDao == null) {
             throw new DaoException("Entity is detached from DAO context");
         }    
         myDao.delete(this);
     }
 
-    /** Convenient call for {@link AbstractDao#update(Object)}. Entity must attached to an entity context. */
-    public void update() {
+    /** Convenient call for {@link AbstractDao#update(Object)}. Entity must attached to an entity context. 
+     * @throws SQLException */
+    public void update() throws SQLException {
         if (myDao == null) {
             throw new DaoException("Entity is detached from DAO context");
         }    
         myDao.update(this);
     }
 
-    /** Convenient call for {@link AbstractDao#refresh(Object)}. Entity must attached to an entity context. */
-    public void refresh() {
+    /** Convenient call for {@link AbstractDao#refresh(Object)}. Entity must attached to an entity context. 
+     * @throws SQLException */
+    public void refresh() throws SQLException {
         if (myDao == null) {
             throw new DaoException("Entity is detached from DAO context");
         }    

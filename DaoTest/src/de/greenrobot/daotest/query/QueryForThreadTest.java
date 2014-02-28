@@ -19,6 +19,7 @@ package de.greenrobot.daotest.query;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.sql.SQLException;
 
 import android.util.SparseArray;
 import de.greenrobot.dao.DaoException;
@@ -41,7 +42,7 @@ public class QueryForThreadTest extends TestEntityTestBase {
         assertSame(query, query.forCurrentThread());
     }
 
-    public void testGetForCurrentThread_ParametersAreReset() {
+    public void testGetForCurrentThread_ParametersAreReset() throws SQLException {
         insert(3);
         int value = getSimpleInteger(1);
         Query<TestEntity> query = dao.queryBuilder().where(Properties.SimpleInteger.eq(value)).build();
@@ -91,7 +92,7 @@ public class QueryForThreadTest extends TestEntityTestBase {
         }
     }
 
-    public void testGetForCurrentThread_TwoThreads() throws InterruptedException {
+    public void testGetForCurrentThread_TwoThreads() throws InterruptedException, SQLException {
         insert(3);
         createQueryFromOtherThread();
         Query<TestEntity> query = queryFromOtherThread.forCurrentThread();
@@ -108,7 +109,7 @@ public class QueryForThreadTest extends TestEntityTestBase {
         assertEquals(expected, (int) query.uniqueOrThrow().getSimpleInteger());
     }
 
-    public void testThrowOutsideOwnerThread() throws InterruptedException {
+    public void testThrowOutsideOwnerThread() throws InterruptedException, SQLException {
         createQueryFromOtherThread();
         try {
             queryFromOtherThread.list();

@@ -17,6 +17,8 @@
  */
 package de.greenrobot.daotest.entity;
 
+import java.sql.SQLException;
+
 import de.greenrobot.dao.DaoException;
 import de.greenrobot.dao.test.AbstractDaoSessionTest;
 import de.greenrobot.daotest.AnActiveEntity;
@@ -38,7 +40,7 @@ public class AnActiveEntityTest extends AbstractDaoSessionTest<DaoMaster, DaoSes
         dao = daoSession.getAnActiveEntityDao();
     }
 
-    public void testThrowWhenDetached() {
+    public void testThrowWhenDetached() throws SQLException {
         AnActiveEntity entity = new AnActiveEntity();
         try {
             entity.delete();
@@ -60,7 +62,7 @@ public class AnActiveEntityTest extends AbstractDaoSessionTest<DaoMaster, DaoSes
         }
     }
 
-    public void testActiveUpdate() {
+    public void testActiveUpdate() throws SQLException {
         AnActiveEntity entity = new AnActiveEntity(1l);
         long rowId = dao.insert(entity);
 
@@ -73,7 +75,7 @@ public class AnActiveEntityTest extends AbstractDaoSessionTest<DaoMaster, DaoSes
         assertEquals("NEW", entity2.getText());
     }
 
-    public void testActiveRefresh() {
+    public void testActiveRefresh() throws SQLException {
         AnActiveEntity entity = new AnActiveEntity(1l);
         dao.insert(entity);
 
@@ -85,7 +87,7 @@ public class AnActiveEntityTest extends AbstractDaoSessionTest<DaoMaster, DaoSes
         assertEquals("NEW", entity.getText());
     }
 
-    public void testActiveDelete() {
+    public void testActiveDelete() throws SQLException {
         AnActiveEntity entity = new AnActiveEntity(1l);
         dao.insert(entity);
 

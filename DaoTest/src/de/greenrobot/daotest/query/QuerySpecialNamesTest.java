@@ -17,6 +17,8 @@
  */
 package de.greenrobot.daotest.query;
 
+import java.sql.SQLException;
+
 import de.greenrobot.dao.query.QueryBuilder;
 import de.greenrobot.dao.test.AbstractDaoTest;
 import de.greenrobot.daotest.SpecialNamesEntity;
@@ -36,7 +38,7 @@ public class QuerySpecialNamesTest extends AbstractDaoTest<SpecialNamesEntityDao
         QueryBuilder.LOG_VALUES = true;
     }
 
-    public void testWhereWithSpecialNames() {
+    public void testWhereWithSpecialNames() throws SQLException {
         QueryBuilder<SpecialNamesEntity> queryBuilder = dao.queryBuilder();
         queryBuilder.where(Properties.Avg.isNotNull());
         queryBuilder.where(Properties.Count.isNotNull());
@@ -52,7 +54,7 @@ public class QuerySpecialNamesTest extends AbstractDaoTest<SpecialNamesEntityDao
         queryBuilder.buildDelete().executeDeleteWithoutDetachingEntities();
     }
 
-    public void testWhereWithSpecialNamesWithValues() {
+    public void testWhereWithSpecialNamesWithValues() throws SQLException {
         QueryBuilder<SpecialNamesEntity> queryBuilder = dao.queryBuilder();
         queryBuilder.where(Properties.Avg.eq("test"));
         queryBuilder.where(Properties.Count.notIn("test", "test2"));
@@ -68,7 +70,7 @@ public class QuerySpecialNamesTest extends AbstractDaoTest<SpecialNamesEntityDao
         queryBuilder.buildDelete().executeDeleteWithoutDetachingEntities();
     }
 
-    public void testOrderWithSpecialNames() {
+    public void testOrderWithSpecialNames() throws SQLException {
         QueryBuilder<SpecialNamesEntity> queryBuilder = dao.queryBuilder();
         queryBuilder.orderAsc(Properties.Avg);
         queryBuilder.orderAsc(Properties.Count);

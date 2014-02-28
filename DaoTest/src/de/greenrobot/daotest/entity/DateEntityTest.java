@@ -17,6 +17,7 @@
  */
 package de.greenrobot.daotest.entity;
 
+import java.sql.SQLException;
 import java.util.Date;
 
 import de.greenrobot.dao.test.AbstractDaoTestLongPk;
@@ -37,7 +38,7 @@ public class DateEntityTest extends AbstractDaoTestLongPk<DateEntityDao, DateEnt
         return entity;
     }
     
-    public void testValues() {
+    public void testValues() throws SQLException {
         DateEntity entity = createEntity(1l);
         dao.insert(entity);
         
@@ -47,7 +48,7 @@ public class DateEntityTest extends AbstractDaoTestLongPk<DateEntityDao, DateEnt
         assertEquals(entity.getDateNotNull(), reloaded.getDateNotNull());
     }
 
-    public void testValues2() {
+    public void testValues2() throws SQLException {
         DateEntity entity = createEntity(1l);
         long t1=32479875;
         long t2=976345942443435235l;

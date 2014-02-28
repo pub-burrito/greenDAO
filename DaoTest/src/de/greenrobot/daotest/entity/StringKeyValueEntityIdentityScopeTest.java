@@ -17,6 +17,8 @@
  */
 package de.greenrobot.daotest.entity;
 
+import java.sql.SQLException;
+
 import de.greenrobot.dao.identityscope.IdentityScopeObject;
 import de.greenrobot.daotest.StringKeyValueEntity;
 
@@ -27,7 +29,7 @@ public class StringKeyValueEntityIdentityScopeTest extends StringKeyValueEntityT
         super.setUp();
     }
 
-    public void testLoadIdScope() {
+    public void testLoadIdScope() throws SQLException {
         StringKeyValueEntity entity = createEntityWithRandomPk();
         dao.insert(entity);
         StringKeyValueEntity entity2 = dao.load(entity.getKey());
@@ -37,7 +39,7 @@ public class StringKeyValueEntityIdentityScopeTest extends StringKeyValueEntityT
         assertSame(entity2, entity3);
     }
 
-    public void testLoadIdScope_load() {
+    public void testLoadIdScope_load() throws SQLException {
         StringKeyValueEntity entity = createEntityWithRandomPk();
         dao.insert(entity);
         dao.detach(entity);
@@ -48,7 +50,7 @@ public class StringKeyValueEntityIdentityScopeTest extends StringKeyValueEntityT
         assertSame(entity2, entity3);
     }
 
-    public void testDetach() {
+    public void testDetach() throws SQLException {
         StringKeyValueEntity entity = createEntityWithRandomPk();
         dao.insert(entity);
         dao.detach(entity);
@@ -61,7 +63,7 @@ public class StringKeyValueEntityIdentityScopeTest extends StringKeyValueEntityT
         assertNotSame(entity, entity3);
     }
 
-    public void testDetachOther() {
+    public void testDetachOther() throws SQLException {
         StringKeyValueEntity entity = createEntityWithRandomPk();
         dao.insert(entity);
         dao.detach(entity);
@@ -72,7 +74,7 @@ public class StringKeyValueEntityIdentityScopeTest extends StringKeyValueEntityT
         assertSame(entity2, entity3);
     }
 
-    public void testLoadAllScope() {
+    public void testLoadAllScope() throws SQLException {
         StringKeyValueEntity entity = createEntityWithRandomPk();
         dao.insert(entity);
         StringKeyValueEntity entity2 = dao.loadAll().get(0);

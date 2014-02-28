@@ -18,6 +18,7 @@
 package de.greenrobot.daotest.entity;
 
 import java.lang.reflect.Field;
+import java.sql.SQLException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -106,8 +107,15 @@ public class AnActiveEntityMultithreadingTest extends AbstractDaoSessionTest<Dao
             while (running) {
                 AnActiveEntity entity = null;
                 entity = new AnActiveEntity(1l);
-                dao.insert(entity);
-                dao.delete(entity);
+                try
+				{
+					dao.insert(entity);
+					dao.delete(entity);
+				}
+				catch ( SQLException e )
+				{
+					e.printStackTrace();
+				}
             }
         }
     }
@@ -118,11 +126,18 @@ public class AnActiveEntityMultithreadingTest extends AbstractDaoSessionTest<Dao
             countDownAndAwaitLatch();
 
             AnActiveEntity entity = new AnActiveEntity(1l);
-            dao.insert(entity);
-            while (running) {
-                dao.detach(entity);
-                entity = dao.load(1l);
-            }
+            try
+			{
+				dao.insert(entity);
+				while (running) {
+					dao.detach(entity);
+					entity = dao.load(1l);
+				}
+			}
+			catch ( SQLException e )
+			{
+				e.printStackTrace();
+			}
         }
     }
 }

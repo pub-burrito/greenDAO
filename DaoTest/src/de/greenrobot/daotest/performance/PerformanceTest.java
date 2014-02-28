@@ -17,6 +17,7 @@
  */
 package de.greenrobot.daotest.performance;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -44,7 +45,7 @@ public abstract class PerformanceTest<D extends AbstractDao<T, K>, T, K> extends
         // runTests(1000);
     }
 
-    protected void runTests(int entityCount) {
+    protected void runTests(int entityCount) throws SQLException {
         DaoLog.d("####################");
         DaoLog.d(getClass().getSimpleName() + ": " + entityCount + " entities on " + new Date());
         DaoLog.d("####################");
@@ -70,7 +71,7 @@ public abstract class PerformanceTest<D extends AbstractDao<T, K>, T, K> extends
         System.gc();
     }
 
-    protected void runOneByOneTests(List<T> list, int loadCount, int modifyCount) {
+    protected void runOneByOneTests(List<T> list, int loadCount, int modifyCount) throws SQLException {
         dao.insertInTx(list);
         List<K> keys = new ArrayList<K>(loadCount);
         for (int i = 0; i < loadCount; i++) {
@@ -108,7 +109,7 @@ public abstract class PerformanceTest<D extends AbstractDao<T, K>, T, K> extends
         System.gc();
     }
 
-    protected List<T> runLoadOneByOne(List<K> keys, String traceName) {
+    protected List<T> runLoadOneByOne(List<K> keys, String traceName) throws SQLException {
         List<T> list = new ArrayList<T>(keys.size());
         startClock(traceName);
         for (K key : keys) {
@@ -118,7 +119,7 @@ public abstract class PerformanceTest<D extends AbstractDao<T, K>, T, K> extends
         return list;
     }
 
-    protected void runBatchTests(List<T> list) {
+    protected void runBatchTests(List<T> list) throws SQLException {
         startClock("insert");
         dao.insertInTx(list);
         stopClock(list.size() + " entities");
@@ -135,7 +136,7 @@ public abstract class PerformanceTest<D extends AbstractDao<T, K>, T, K> extends
         stopClock(list.size() + " entities");
     }
 
-    protected List<T> runLoadAll(String traceName) {
+    protected List<T> runLoadAll(String traceName) throws SQLException {
         startClock(traceName);
         List<T> list = dao.loadAll();
         stopClock(list.size() + " entities");

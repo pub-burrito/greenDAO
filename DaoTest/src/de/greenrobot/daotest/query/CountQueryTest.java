@@ -17,6 +17,7 @@
  */
 package de.greenrobot.daotest.query;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import de.greenrobot.dao.query.CountQuery;
@@ -35,7 +36,7 @@ public class CountQueryTest extends TestEntityTestBase {
         QueryBuilder.LOG_VALUES = true;
     }
 
-    public void testCountQuerySimple() {
+    public void testCountQuerySimple() throws SQLException {
         int value = getSimpleInteger(1);
         CountQuery<TestEntity> query = dao.queryBuilder().where(Properties.SimpleInteger.eq(value)).buildCount();
         assertEquals(0, query.count());
@@ -51,7 +52,7 @@ public class CountQueryTest extends TestEntityTestBase {
         assertEquals(0, query.count());
     }
 
-    public void testCountQueryTwoParameters() {
+    public void testCountQueryTwoParameters() throws SQLException {
         int value = getSimpleInteger(1);
         String valueString = getSimpleString(1);
         
@@ -75,7 +76,7 @@ public class CountQueryTest extends TestEntityTestBase {
         assertEquals(0, query.count());
     }
 
-    public void testCountQueryTwoParametersOr() {
+    public void testCountQueryTwoParametersOr() throws SQLException {
         int value = getSimpleInteger(1);
         String valueString = getSimpleString(2);
         
@@ -96,7 +97,7 @@ public class CountQueryTest extends TestEntityTestBase {
         assertEquals(0, query.count());
     }
 
-    public void testCountQueryChangeParameter() {
+    public void testCountQueryChangeParameter() throws SQLException {
         insert(3);
 
         String value = "not existing value";
@@ -110,7 +111,7 @@ public class CountQueryTest extends TestEntityTestBase {
         assertEquals(0, query.count());
     }
 
-    public void testBuildQueryAndCountQuery() {
+    public void testBuildQueryAndCountQuery() throws SQLException {
         insert(3);
         int value = getSimpleInteger(1);
 

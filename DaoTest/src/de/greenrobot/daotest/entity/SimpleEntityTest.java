@@ -17,6 +17,7 @@ package de.greenrobot.daotest.entity;
  * You should have received a copy of the GNU General Public License
  * along with greenDAO Generator.  If not, see <http://www.gnu.org/licenses/>.
  */
+import java.sql.SQLException;
 import java.util.Arrays;
 
 import de.greenrobot.dao.test.AbstractDaoTestLongPk;
@@ -36,7 +37,7 @@ public class SimpleEntityTest extends AbstractDaoTestLongPk<SimpleEntityDao, Sim
         return entity;
     }
 
-    public void testValuesNull() {
+    public void testValuesNull() throws SQLException {
         SimpleEntity entity = createEntity(1l);
         dao.insert(entity);
         SimpleEntity reloaded = dao.load(1l);
@@ -46,7 +47,7 @@ public class SimpleEntityTest extends AbstractDaoTestLongPk<SimpleEntityDao, Sim
         assertValuesNull(reloaded);
     }
 
-    public void testValues() {
+    public void testValues() throws SQLException {
         SimpleEntity entity = createEntity(1l);
         setValues(entity);
         dao.insert(entity);
@@ -55,7 +56,7 @@ public class SimpleEntityTest extends AbstractDaoTestLongPk<SimpleEntityDao, Sim
         assertValues(reloaded);
     }
 
-    public void testUpdateValues() {
+    public void testUpdateValues() throws SQLException {
         SimpleEntity entity = createEntity(1l);
         dao.insert(entity);
         entity = dao.load(1l);
@@ -66,7 +67,7 @@ public class SimpleEntityTest extends AbstractDaoTestLongPk<SimpleEntityDao, Sim
         assertValues(reloaded);
     }
 
-    public void testUpdateValuesToNull() {
+    public void testUpdateValuesToNull() throws SQLException {
         SimpleEntity entity = createEntity(1l);
         setValues(entity);
         dao.insert(entity);

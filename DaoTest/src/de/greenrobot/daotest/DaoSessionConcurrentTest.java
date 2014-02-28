@@ -409,7 +409,14 @@ public class DaoSessionConcurrentTest extends AbstractDaoSessionTest<DaoMaster, 
         Runnable runnable1 = new Runnable() {
             @Override
             public void run() {
-                entity.getToManyTargetEntityList();
+                try
+				{
+					entity.getToManyTargetEntityList();
+				}
+				catch ( SQLException e )
+				{
+					e.printStackTrace();
+				}
             }
         };
 
@@ -417,7 +424,14 @@ public class DaoSessionConcurrentTest extends AbstractDaoSessionTest<DaoMaster, 
         doTx(new Runnable() {
             @Override
             public void run() {
-                entity.getToManyTargetEntityList();
+                try
+				{
+					entity.getToManyTargetEntityList();
+				}
+				catch ( SQLException e )
+				{
+					e.printStackTrace();
+				}
             }
         });
         latchThreadsDone.await();
@@ -431,7 +445,14 @@ public class DaoSessionConcurrentTest extends AbstractDaoSessionTest<DaoMaster, 
         Runnable runnable1 = new Runnable() {
             @Override
             public void run() {
-                entity.getParent();
+                try
+				{
+					entity.getParent();
+				}
+				catch ( SQLException e )
+				{
+					e.printStackTrace();
+				}
             }
         };
 
@@ -439,7 +460,14 @@ public class DaoSessionConcurrentTest extends AbstractDaoSessionTest<DaoMaster, 
         doTx(new Runnable() {
             @Override
             public void run() {
-                entity.getParent();
+                try
+				{
+					entity.getParent();
+				}
+				catch ( SQLException e )
+				{
+					e.printStackTrace();
+				}
             }
         });
         latchThreadsDone.await();

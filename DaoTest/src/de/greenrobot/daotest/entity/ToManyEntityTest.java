@@ -17,6 +17,7 @@
  */
 package de.greenrobot.daotest.entity;
 
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +46,7 @@ public class ToManyEntityTest extends AbstractDaoSessionTest<DaoMaster, DaoSessi
         toManyTargetEntityDao = daoSession.getToManyTargetEntityDao();
     }
 
-    public void testToManyBasics() {
+    public void testToManyBasics() throws SQLException {
         int count = 0;
         for (int i = 0; i < 16; i++) {
             runTestToManyBasics(i + 1, i);
@@ -54,7 +55,7 @@ public class ToManyEntityTest extends AbstractDaoSessionTest<DaoMaster, DaoSessi
         assertEquals(count, toManyTargetEntityDao.count());
     }
 
-    public void runTestToManyBasics(long id, int count) {
+    public void runTestToManyBasics(long id, int count) throws SQLException {
         ToManyTargetEntity[] targetEntities = prepareToMany(id, count);
 
         ToManyEntity testEntity = toManyEntityDao.load(id);
@@ -77,13 +78,13 @@ public class ToManyEntityTest extends AbstractDaoSessionTest<DaoMaster, DaoSessi
         }
     }
 
-    private ToManyTargetEntity[] prepareToMany(long id, int count) {
+    private ToManyTargetEntity[] prepareToMany(long id, int count) throws SQLException {
         ToManyEntity entity = new ToManyEntity(id);
         daoSession.insert(entity);
         return insertTargetEntitites(id, count, null);
     }
 
-    private ToManyTargetEntity[] insertTargetEntitites(Long toManyId, int count, String joinProperty) {
+    private ToManyTargetEntity[] insertTargetEntitites(Long toManyId, int count, String joinProperty) throws SQLException {
         ToManyTargetEntity[] targetEntities = new ToManyTargetEntity[count];
         for (int i = 0; i < count; i++) {
             ToManyTargetEntity target = new ToManyTargetEntity();
@@ -96,7 +97,7 @@ public class ToManyEntityTest extends AbstractDaoSessionTest<DaoMaster, DaoSessi
         return targetEntities;
     }
 
-    public void testGetToManyTwice() {
+    public void testGetToManyTwice() throws SQLException {
         prepareToMany(1, 3);
 
         ToManyEntity testEntity = toManyEntityDao.load(1l);
@@ -105,7 +106,7 @@ public class ToManyEntityTest extends AbstractDaoSessionTest<DaoMaster, DaoSessi
         assertSame(resolvedToMany1, resolvedToMany2);
     }
 
-    public void testResetToMany() {
+    public void testResetToMany() throws SQLException {
         ToManyTargetEntity[] targetEntities = prepareToMany(1, 3);
 
         ToManyEntity testEntity = toManyEntityDao.load(1l);
@@ -116,7 +117,7 @@ public class ToManyEntityTest extends AbstractDaoSessionTest<DaoMaster, DaoSessi
         assertSameEntities(targetEntities, resolvedToMany2);
     }
 
-    public void testChangeResetToMany() {
+    public void testChangeResetToMany() throws SQLException {
         prepareToMany(1, 3);
 
         ToManyEntity testEntity = toManyEntityDao.load(1l);
@@ -137,7 +138,7 @@ public class ToManyEntityTest extends AbstractDaoSessionTest<DaoMaster, DaoSessi
         assertEquals(0, resolvedToMany3.size());
     }
 
-    public void testToManyOrder() {
+    public void testToManyOrder() throws SQLException {
         prepareToMany(1, 3);
 
         ToManyEntity testEntity = toManyEntityDao.load(1l);
@@ -150,7 +151,7 @@ public class ToManyEntityTest extends AbstractDaoSessionTest<DaoMaster, DaoSessi
         assertSame(resolvedToManyAsc.get(2), resolvedToManyDesc.get(0));
     }
 
-    public void testJoinProperty() {
+    public void testJoinProperty() throws SQLException {
         ToManyEntity entity = new ToManyEntity(1l);
         entity.setSourceJoinProperty("JOIN ME");
         daoSession.insert(entity);
@@ -172,7 +173,7 @@ public class ToManyEntityTest extends AbstractDaoSessionTest<DaoMaster, DaoSessi
         assertFalse(middleEntity.getId() == targetEntities.get(1).getId());
     }
 
-    public void testTwoJoinProperty() {
+    public void testTwoJoinProperty() throws SQLException {
         ToManyEntity entity = new ToManyEntity(1l);
         entity.setSourceJoinProperty("JOIN ME");
         daoSession.insert(entity);

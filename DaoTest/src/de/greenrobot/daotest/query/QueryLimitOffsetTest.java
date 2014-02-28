@@ -17,6 +17,7 @@
  */
 package de.greenrobot.daotest.query;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import de.greenrobot.dao.query.Query;
@@ -34,7 +35,7 @@ public class QueryLimitOffsetTest extends TestEntityTestBase {
         QueryBuilder.LOG_VALUES = true;
     }
 
-    public void testQueryBuilderLimit() {
+    public void testQueryBuilderLimit() throws SQLException {
         insert(10);
         List<TestEntity> result = dao.queryBuilder().limit(3).orderAsc(Properties.SimpleInt).list();
         assertEquals(3, result.size());
@@ -44,7 +45,7 @@ public class QueryLimitOffsetTest extends TestEntityTestBase {
         assertEquals(getSimpleInteger(2), result.get(2).getSimpleInteger().intValue());
     }
 
-    public void testQueryBuilderOffsetAndLimit() {
+    public void testQueryBuilderOffsetAndLimit() throws SQLException {
         insert(10);
         List<TestEntity> result = dao.queryBuilder().offset(3).limit(3).orderAsc(Properties.SimpleInt).list();
         assertEquals(3, result.size());
@@ -54,7 +55,7 @@ public class QueryLimitOffsetTest extends TestEntityTestBase {
         assertEquals(getSimpleInteger(5), result.get(2).getSimpleInteger().intValue());
     }
 
-    public void testQueryBuilderOffsetAndLimitWithWhere() {
+    public void testQueryBuilderOffsetAndLimitWithWhere() throws SQLException {
         insert(10);
         List<TestEntity> result = dao.queryBuilder().where(Properties.SimpleInteger.gt(getSimpleInteger(1))).offset(2)
                 .limit(3).orderAsc(Properties.SimpleInt).list();
@@ -65,7 +66,7 @@ public class QueryLimitOffsetTest extends TestEntityTestBase {
         assertEquals(getSimpleInteger(6), result.get(2).getSimpleInteger().intValue());
     }
 
-    public void testQueryOffsetAndLimit() {
+    public void testQueryOffsetAndLimit() throws SQLException {
         insert(10);
         Query<TestEntity> query = dao.queryBuilder().where(Properties.SimpleInteger.gt(getSimpleInteger(-1))).offset(-1)
                 .limit(-1).orderAsc(Properties.SimpleInt).build(); 

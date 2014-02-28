@@ -1,5 +1,6 @@
 package de.greenrobot.daotest;
 
+import java.sql.SQLException;
 import java.util.List;
 import de.greenrobot.daotest.DaoSession;
 import de.greenrobot.dao.DaoException;
@@ -58,8 +59,9 @@ public class TreeEntity {
         this.parentId = parentId;
     }
 
-    /** To-one relationship, resolved on first access. */
-    public TreeEntity getParent() {
+    /** To-one relationship, resolved on first access. 
+     * @throws SQLException */
+    public TreeEntity getParent() throws SQLException {
         Long __key = this.parentId;
         if (parent__resolvedKey == null || !parent__resolvedKey.equals(__key)) {
             if (daoSession == null) {
@@ -83,8 +85,9 @@ public class TreeEntity {
         }
     }
 
-    /** To-many relationship, resolved on first access (and after reset). Changes to to-many relations are not persisted, make changes to the target entity. */
-    public List<TreeEntity> getChildren() {
+    /** To-many relationship, resolved on first access (and after reset). Changes to to-many relations are not persisted, make changes to the target entity. 
+     * @throws SQLException */
+    public List<TreeEntity> getChildren() throws SQLException {
         if (children == null) {
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
@@ -105,24 +108,27 @@ public class TreeEntity {
         children = null;
     }
 
-    /** Convenient call for {@link AbstractDao#delete(Object)}. Entity must attached to an entity context. */
-    public void delete() {
+    /** Convenient call for {@link AbstractDao#delete(Object)}. Entity must attached to an entity context. 
+     * @throws SQLException */
+    public void delete() throws SQLException {
         if (myDao == null) {
             throw new DaoException("Entity is detached from DAO context");
         }    
         myDao.delete(this);
     }
 
-    /** Convenient call for {@link AbstractDao#update(Object)}. Entity must attached to an entity context. */
-    public void update() {
+    /** Convenient call for {@link AbstractDao#update(Object)}. Entity must attached to an entity context. 
+     * @throws SQLException */
+    public void update() throws SQLException {
         if (myDao == null) {
             throw new DaoException("Entity is detached from DAO context");
         }    
         myDao.update(this);
     }
 
-    /** Convenient call for {@link AbstractDao#refresh(Object)}. Entity must attached to an entity context. */
-    public void refresh() {
+    /** Convenient call for {@link AbstractDao#refresh(Object)}. Entity must attached to an entity context. 
+     * @throws SQLException */
+    public void refresh() throws SQLException {
         if (myDao == null) {
             throw new DaoException("Entity is detached from DAO context");
         }    

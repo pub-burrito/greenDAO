@@ -834,16 +834,16 @@ public abstract class AbstractDao<T, K> {
     }
 
     /** Reads the values from the current position of the given cursor and returns a new entity. */
-    abstract protected T readEntity(ResultSet resultSet, int offset);
+    abstract protected T readEntity(ResultSet resultSet, int offset) throws SQLException;
 
     /** Reads the key from the current position of the given cursor, or returns null if there's no single-value key. */
-    abstract protected K readKey(ResultSet resultSet, int offset);
+    abstract protected K readKey(ResultSet resultSet, int offset) throws SQLException;
 
     /** Reads the values from the current position of the given cursor into an existing entity. */
-    abstract protected void readEntity(ResultSet resultSet, T entity, int offset);
+    abstract protected void readEntity(ResultSet resultSet, T entity, int offset) throws SQLException;
 
     /** Binds the entity's values to the statement. Make sure to synchronize the statement outside of the method. */
-    abstract protected void bindValues(PreparedStatement stmt, T entity);
+    abstract protected void bindValues(PreparedStatement stmt, T entity) throws SQLException;
 
     /**
      * Updates the entity's key if possible (only for Long PKs currently). This method must always return the entity's

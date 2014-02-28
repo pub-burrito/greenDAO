@@ -1,5 +1,7 @@
 package de.greenrobot.daotest2.dao;
 
+import java.sql.Connection;
+
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
@@ -63,8 +65,8 @@ public class DaoMaster extends AbstractDaoMaster {
         }
     }
 
-    public DaoMaster(SQLiteDatabase db) {
-        super(db, SCHEMA_VERSION);
+    public DaoMaster(Connection connection) {
+        super(connection, SCHEMA_VERSION);
         registerDaoClass(KeepEntityDao.class);
         registerDaoClass(ToManyTarget2Dao.class);
         registerDaoClass(ToOneTarget2Dao.class);
@@ -72,11 +74,11 @@ public class DaoMaster extends AbstractDaoMaster {
     }
     
     public DaoSession newSession() {
-        return new DaoSession(db, IdentityScopeType.Session, daoConfigMap);
+        return new DaoSession(connection, IdentityScopeType.Session, daoConfigMap);
     }
     
     public DaoSession newSession(IdentityScopeType type) {
-        return new DaoSession(db, type, daoConfigMap);
+        return new DaoSession(connection, type, daoConfigMap);
     }
     
 }

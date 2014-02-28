@@ -1,5 +1,7 @@
 package de.greenrobot.daotest.entity;
 
+import java.sql.SQLException;
+
 import de.greenrobot.dao.test.AbstractDaoSessionTest;
 import de.greenrobot.daotest.AutoincrementEntity;
 import de.greenrobot.daotest.DaoMaster;
@@ -12,7 +14,7 @@ public class AutoincrementEntityTest extends AbstractDaoSessionTest<DaoMaster, D
         super(DaoMaster.class);
     }
 
-    public void testAutoincrement() {
+    public void testAutoincrement() throws SQLException {
         AutoincrementEntity entity = new AutoincrementEntity();
         daoSession.insert(entity);
         Long id1 = entity.getId();
@@ -24,7 +26,7 @@ public class AutoincrementEntityTest extends AbstractDaoSessionTest<DaoMaster, D
         assertEquals(id1 + 1, (long) entity2.getId());
     }
 
-    public void testNoAutoincrement() {
+    public void testNoAutoincrement() throws SQLException {
         SimpleEntity entity = new SimpleEntity();
         daoSession.insert(entity);
         Long id1 = entity.getId();

@@ -1,11 +1,15 @@
 package de.greenrobot.daotest;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 import de.greenrobot.dao.AbstractDaoMaster;
+import de.greenrobot.dao.JDBCUtils;
 import de.greenrobot.dao.identityscope.IdentityScopeType;
 
 import de.greenrobot.daotest.SimpleEntityDao;
@@ -31,22 +35,23 @@ import de.greenrobot.daotest.SqliteMasterDao;
 public class DaoMaster extends AbstractDaoMaster {
     public static final int SCHEMA_VERSION = 1;
 
-    /** Creates underlying database table using DAOs. */
-    public static void createAllTables(SQLiteDatabase db, boolean ifNotExists) {
-        SimpleEntityDao.createTable(db, ifNotExists);
-        SimpleEntityNotNullDao.createTable(db, ifNotExists);
-        TestEntityDao.createTable(db, ifNotExists);
-        RelationEntityDao.createTable(db, ifNotExists);
-        DateEntityDao.createTable(db, ifNotExists);
-        SpecialNamesEntityDao.createTable(db, ifNotExists);
-        AbcdefEntityDao.createTable(db, ifNotExists);
-        ToManyTargetEntityDao.createTable(db, ifNotExists);
-        ToManyEntityDao.createTable(db, ifNotExists);
-        TreeEntityDao.createTable(db, ifNotExists);
-        AnActiveEntityDao.createTable(db, ifNotExists);
-        ExtendsImplementsEntityDao.createTable(db, ifNotExists);
-        StringKeyValueEntityDao.createTable(db, ifNotExists);
-        AutoincrementEntityDao.createTable(db, ifNotExists);
+    /** Creates underlying database table using DAOs. 
+     * @throws SQLException */
+    public static void createAllTables(Connection connection, boolean ifNotExists) throws SQLException {
+        SimpleEntityDao.createTable(connection, ifNotExists);
+        SimpleEntityNotNullDao.createTable(connection, ifNotExists);
+        TestEntityDao.createTable(connection, ifNotExists);
+        RelationEntityDao.createTable(connection, ifNotExists);
+        DateEntityDao.createTable(connection, ifNotExists);
+        SpecialNamesEntityDao.createTable(connection, ifNotExists);
+        AbcdefEntityDao.createTable(connection, ifNotExists);
+        ToManyTargetEntityDao.createTable(connection, ifNotExists);
+        ToManyEntityDao.createTable(connection, ifNotExists);
+        TreeEntityDao.createTable(connection, ifNotExists);
+        AnActiveEntityDao.createTable(connection, ifNotExists);
+        ExtendsImplementsEntityDao.createTable(connection, ifNotExists);
+        StringKeyValueEntityDao.createTable(connection, ifNotExists);
+        AutoincrementEntityDao.createTable(connection, ifNotExists);
     }
     
     /** Drops underlying database table using DAOs. */
@@ -76,7 +81,16 @@ public class DaoMaster extends AbstractDaoMaster {
         @Override
         public void onCreate(SQLiteDatabase db) {
             Log.i("greenDAO", "Creating tables for schema version " + SCHEMA_VERSION);
-            createAllTables(db, false);
+			try
+			{
+				String dbPath = db.getPath();
+				Connection connection = JDBCUtils.connect( dbPath );
+				createAllTables(connection, false);
+			}
+			catch ( SQLException e )
+			{
+				e.printStackTrace();
+			}
         }
     }
     
@@ -94,8 +108,8 @@ public class DaoMaster extends AbstractDaoMaster {
         }
     }
 
-    public DaoMaster(SQLiteDatabase db) {
-        super(db, SCHEMA_VERSION);
+    public DaoMaster(Connection connection) {
+        super(connection, SCHEMA_VERSION);
         registerDaoClass(SimpleEntityDao.class);
         registerDaoClass(SimpleEntityNotNullDao.class);
         registerDaoClass(TestEntityDao.class);
@@ -114,11 +128,11 @@ public class DaoMaster extends AbstractDaoMaster {
     }
     
     public DaoSession newSession() {
-        return new DaoSession(db, IdentityScopeType.Session, daoConfigMap);
+        return new DaoSession(connection, IdentityScopeType.Session, daoConfigMap);
     }
     
     public DaoSession newSession(IdentityScopeType type) {
-        return new DaoSession(db, type, daoConfigMap);
+        return new DaoSession(connection, type, daoConfigMap);
     }
     
 }

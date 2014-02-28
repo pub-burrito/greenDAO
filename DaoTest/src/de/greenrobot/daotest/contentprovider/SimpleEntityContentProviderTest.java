@@ -17,6 +17,8 @@
  */
 package de.greenrobot.daotest.contentprovider;
 
+import java.sql.SQLException;
+
 import android.database.Cursor;
 import android.test.suitebuilder.annotation.Suppress;
 
@@ -41,7 +43,7 @@ public class SimpleEntityContentProviderTest extends AbstractDaoSessionTest<DaoM
         SimpleEntityContentProvider.daoSession = daoSession;
     }
 
-    public void testQuery() {
+    public void testQuery() throws SQLException {
         SimpleEntity entity = new SimpleEntity();
         entity.setSimpleString("hello");
         daoSession.insert(entity);

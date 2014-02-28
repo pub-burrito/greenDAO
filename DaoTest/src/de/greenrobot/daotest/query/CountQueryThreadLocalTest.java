@@ -17,6 +17,8 @@
  */
 package de.greenrobot.daotest.query;
 
+import java.sql.SQLException;
+
 import de.greenrobot.dao.DaoException;
 import de.greenrobot.dao.query.CountQuery;
 import de.greenrobot.dao.query.QueryBuilder;
@@ -32,7 +34,7 @@ public class CountQueryThreadLocalTest extends TestEntityTestBase {
         assertSame(query, query.forCurrentThread());
     }
 
-    public void testGetForCurrentThread_ParametersAreReset() {
+    public void testGetForCurrentThread_ParametersAreReset() throws SQLException {
         insert(3);
         int value = getSimpleInteger(1);
         CountQuery<TestEntity> query = dao.queryBuilder().where(Properties.SimpleInteger.eq(value)).buildCount();
@@ -42,7 +44,7 @@ public class CountQueryThreadLocalTest extends TestEntityTestBase {
         assertEquals(1, query.count());
     }
 
-    public void testGetForCurrentThread_TwoThreads() throws InterruptedException {
+    public void testGetForCurrentThread_TwoThreads() throws InterruptedException, SQLException {
         insert(3);
         createQueryFromOtherThread();
         CountQuery<TestEntity> query = queryFromOtherThread.forCurrentThread();
@@ -52,7 +54,7 @@ public class CountQueryThreadLocalTest extends TestEntityTestBase {
         assertEquals(0, query.count());
     }
 
-    public void testThrowOutsideOwnerThread() throws InterruptedException {
+    public void testThrowOutsideOwnerThread() throws InterruptedException, SQLException {
         createQueryFromOtherThread();
         try {
             queryFromOtherThread.count();

@@ -17,6 +17,7 @@
  */
 package de.greenrobot.daotest.query;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,14 +36,14 @@ public class RawQueryTest extends TestEntityTestBase {
         QueryBuilder.LOG_VALUES = true;
     }
 
-    public void testRawQueryEmptySql() {
+    public void testRawQueryEmptySql() throws SQLException {
         insert(3);
         Query<TestEntity> query = dao.queryRawCreate("");
         List<TestEntity> result = query.list();
         assertEquals(3, result.size());
     }
 
-    public void testRawQueryEqualsString() {
+    public void testRawQueryEqualsString() throws SQLException {
         ArrayList<TestEntity> inserted = insert(3);
         String value = getSimpleString(1);
 
@@ -55,7 +56,7 @@ public class RawQueryTest extends TestEntityTestBase {
         assertEquals(inserted.get(1).getId(), resultEntity.getId());
     }
 
-    public void testRawQueryCreate_setParameterInQuery() {
+    public void testRawQueryCreate_setParameterInQuery() throws SQLException {
         insert(3);
         String value = getSimpleString(2);
 
@@ -70,7 +71,7 @@ public class RawQueryTest extends TestEntityTestBase {
         assertEquals(value, result.get(0).getSimpleString());
     }
     
-    public void testRawQueryLazyList() {
+    public void testRawQueryLazyList() throws SQLException {
         ArrayList<TestEntity> list = insert(2);
 
         LazyList<TestEntity> listLazy = dao.queryRawCreate("").listLazy();

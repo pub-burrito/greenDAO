@@ -17,6 +17,8 @@
  */
 package de.greenrobot.daotest.entity;
 
+import java.sql.SQLException;
+
 import de.greenrobot.dao.DaoException;
 import de.greenrobot.dao.test.AbstractDaoTestLongPk;
 import de.greenrobot.daotest.TestEntity;
@@ -36,7 +38,7 @@ public class TestEntityTest extends AbstractDaoTestLongPk<TestEntityDao, TestEnt
         return entity;
     }
 
-    public void testRefresh() {
+    public void testRefresh() throws SQLException {
         TestEntity entity = createEntity(1l);
         entity.setSimpleInteger(42);
         entity.setSimpleString(null);
@@ -48,7 +50,7 @@ public class TestEntityTest extends AbstractDaoTestLongPk<TestEntityDao, TestEnt
         assertNull(entity.getSimpleString());
     }
 
-    public void testRefreshIllegal() {
+    public void testRefreshIllegal() throws SQLException {
         TestEntity entity = createEntity(1l);
         try {
             dao.refresh(entity);

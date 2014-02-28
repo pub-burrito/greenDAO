@@ -17,6 +17,7 @@
  */
 package de.greenrobot.daotest.entity;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import de.greenrobot.dao.identityscope.IdentityScopeType;
@@ -43,8 +44,8 @@ public class RelationEntityTest extends AbstractDaoTestLongPk<RelationEntityDao,
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        TestEntityDao.createTable(db, false);
-        daoMaster = new DaoMaster(db);
+        TestEntityDao.createTable(connection, false);
+        daoMaster = new DaoMaster(connection);
         daoSession = daoMaster.newSession(identityScopeTypeForSession);
         dao = daoSession.getRelationEntityDao();
     }
@@ -56,13 +57,13 @@ public class RelationEntityTest extends AbstractDaoTestLongPk<RelationEntityDao,
         return entity;
     }
 
-    public void testToOne() {
+    public void testToOne() throws SQLException {
         RelationEntity entity = insertEntityWithRelations(42l);
         entity = dao.load(entity.getId());
         assertTestEntity(entity);
     }
 
-    public void testToOneSelf() {
+    public void testToOneSelf() throws SQLException {
         RelationEntity entity = createEntity(1l);
         dao.insert(entity);
 
@@ -77,21 +78,21 @@ public class RelationEntityTest extends AbstractDaoTestLongPk<RelationEntityDao,
         assertEquals(entity.getId(), parent.getId());
     }
 
-    public void testToOneClearKey() {
+    public void testToOneClearKey() throws SQLException {
         RelationEntity entity = insertEntityWithRelations(42l);
         assertNotNull(entity.getParent());
         entity.setParentId(null);
         assertNull(entity.getParent());
     }
 
-    public void testToOneClearEntity() {
+    public void testToOneClearEntity() throws SQLException {
         RelationEntity entity = insertEntityWithRelations(42l);
         assertNotNull(entity.getParentId());
         entity.setParent(null);
         assertNull(entity.getParentId());
     }
 
-    public void testToOneUpdateKey() {
+    public void testToOneUpdateKey() throws SQLException {
         RelationEntity entity = insertEntityWithRelations(42l);
         TestEntity testEntity = entity.getTestEntity();
         RelationEntity entity2 = insertEntityWithRelations(43l);
@@ -107,7 +108,7 @@ public class RelationEntityTest extends AbstractDaoTestLongPk<RelationEntityDao,
         assertEquals(testEntity.getId(), entity.getTestEntity().getId());
     }
 
-    public void testToOneUpdateEntity() {
+    public void testToOneUpdateEntity() throws SQLException {
         RelationEntity entity = insertEntityWithRelations(42l);
         TestEntity testEntity = entity.getTestEntity();
         RelationEntity entity2 = insertEntityWithRelations(43l);
@@ -123,13 +124,13 @@ public class RelationEntityTest extends AbstractDaoTestLongPk<RelationEntityDao,
         assertEquals(testEntity.getId(), entity.getTestId());
     }
 
-    public void testToOneLoadDeep() {
+    public void testToOneLoadDeep() throws SQLException {
         RelationEntity entity = insertEntityWithRelations(42l);
         entity = dao.loadDeep(entity.getId());
         assertTestEntity(entity);
     }
 
-    public void testToOneNoMatch() {
+    public void testToOneNoMatch() throws SQLException {
         RelationEntity entity = insertEntityWithRelations(42l);
         assertNotNull(entity.getTestEntity());
         entity.setTestId(23l);
@@ -138,7 +139,7 @@ public class RelationEntityTest extends AbstractDaoTestLongPk<RelationEntityDao,
         assertNull(entity.getTestNotNull());
     }
 
-    public void testToOneNoMatchLoadDeep() {
+    public void testToOneNoMatchLoadDeep() throws SQLException {
         RelationEntity entity = insertEntityWithRelations(42l);
         assertNotNull(entity.getTestEntity());
         entity.setTestId(23l);
@@ -149,7 +150,7 @@ public class RelationEntityTest extends AbstractDaoTestLongPk<RelationEntityDao,
         assertNull(entity.getTestNotNull());
     }
 
-    public void testToOneLoadDeepNull() {
+    public void testToOneLoadDeepNull() throws SQLException {
         RelationEntity entity = insertEntityWithRelations(42l);
         entity.setParentId(null);
         entity.setTestId(null);
@@ -159,7 +160,7 @@ public class RelationEntityTest extends AbstractDaoTestLongPk<RelationEntityDao,
         assertNull(entity.getTestEntity());
     }
 
-    public void testQueryDeep() {
+    public void testQueryDeep() throws SQLException {
         insertEntityWithRelations(42l);
         String columnName = RelationEntityDao.Properties.SimpleString.columnName;
         List<RelationEntity> entityList = dao.queryDeep("WHERE T." + columnName + "=?", "findMe");
@@ -167,7 +168,7 @@ public class RelationEntityTest extends AbstractDaoTestLongPk<RelationEntityDao,
         assertTestEntity(entityList.get(0));
     }
 
-    protected RelationEntity insertEntityWithRelations(Long testEntityId) {
+    protected RelationEntity insertEntityWithRelations(Long testEntityId) throws SQLException {
         TestEntity testEntity = daoSession.getTestEntityDao().load(testEntityId);
         if (testEntity == null) {
             testEntity = new TestEntity(testEntityId);
@@ -190,7 +191,7 @@ public class RelationEntityTest extends AbstractDaoTestLongPk<RelationEntityDao,
         return entity;
     }
 
-    protected void assertTestEntity(RelationEntity entity) {
+    protected void assertTestEntity(RelationEntity entity) throws SQLException {
         TestEntity testEntity = entity.getTestEntity();
         assertNotNull(testEntity);
         assertEquals(42l, (long) testEntity.getId());

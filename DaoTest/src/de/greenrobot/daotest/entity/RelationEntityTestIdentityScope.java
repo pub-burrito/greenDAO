@@ -17,6 +17,7 @@
  */
 package de.greenrobot.daotest.entity;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import de.greenrobot.dao.identityscope.IdentityScopeType;
@@ -34,7 +35,7 @@ public class RelationEntityTestIdentityScope extends RelationEntityTest {
         super.setUp();
     }
 
-    public void testToOneLoadDeepIdentityScope() {
+    public void testToOneLoadDeepIdentityScope() throws SQLException {
         RelationEntity entity = insertEntityWithRelations(42l);
         RelationEntity entity2 = insertEntityWithRelations(42l);
         entity = dao.loadDeep(entity.getId());
@@ -45,7 +46,7 @@ public class RelationEntityTestIdentityScope extends RelationEntityTest {
         assertSame(entity.getTestEntity(), entity2.getTestEntity());
     }
 
-    public void testToQueryDeepIdentityScope() {
+    public void testToQueryDeepIdentityScope() throws SQLException {
         insertEntityWithRelations(42l);
         RelationEntity entity2 = insertEntityWithRelations(42l);
         String columnName = RelationEntityDao.Properties.SimpleString.columnName;
@@ -58,7 +59,7 @@ public class RelationEntityTestIdentityScope extends RelationEntityTest {
         assertSame(entity.getTestEntity(), entity2.getTestEntity());
     }
 
-    public void testLoadDeepIdentityScope() {
+    public void testLoadDeepIdentityScope() throws SQLException {
         RelationEntity entity = insertEntityWithRelations(42l);
         RelationEntity entity2 = dao.loadDeep(entity.getId());
         RelationEntity entity3 = dao.loadDeep(entity.getId());
@@ -67,7 +68,7 @@ public class RelationEntityTestIdentityScope extends RelationEntityTest {
         assertTestEntity(entity);
     }
 
-    public void testQueryDeepIdentityScope() {
+    public void testQueryDeepIdentityScope() throws SQLException {
         RelationEntity entity = insertEntityWithRelations(42l);
 
         String columnName = RelationEntityDao.Properties.SimpleString.columnName;

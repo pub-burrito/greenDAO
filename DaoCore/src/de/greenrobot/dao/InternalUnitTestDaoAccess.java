@@ -19,6 +19,7 @@ package de.greenrobot.dao;
 import java.lang.reflect.Constructor;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import de.greenrobot.dao.identityscope.IdentityScope;
 import de.greenrobot.dao.internal.DaoConfig;
@@ -47,11 +48,11 @@ public class InternalUnitTestDaoAccess<T, K> {
         return dao.isEntityUpdateable();
     }
 
-    public T readEntity(ResultSet resultSet, int offset) {
+    public T readEntity(ResultSet resultSet, int offset) throws SQLException {
         return dao.readEntity(resultSet, offset);
     }
 
-    public K readKey(ResultSet resultSet, int offset) {
+    public K readKey(ResultSet resultSet, int offset) throws SQLException {
         return dao.readKey(resultSet, offset);
     }
 

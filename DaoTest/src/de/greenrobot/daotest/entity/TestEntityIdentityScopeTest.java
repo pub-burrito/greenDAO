@@ -17,6 +17,8 @@
  */
 package de.greenrobot.daotest.entity;
 
+import java.sql.SQLException;
+
 import de.greenrobot.dao.identityscope.IdentityScopeLong;
 import de.greenrobot.daotest.TestEntity;
 
@@ -27,7 +29,7 @@ public class TestEntityIdentityScopeTest extends TestEntityTest {
         super.setUp();
     }
 
-    public void testLoadIdScope() {
+    public void testLoadIdScope() throws SQLException {
         TestEntity entity = createEntity(null);
         dao.insert(entity);
         TestEntity entity2 = dao.load(entity.getId());
@@ -37,7 +39,7 @@ public class TestEntityIdentityScopeTest extends TestEntityTest {
         assertSame(entity2, entity3);
     }
 
-    public void testDetach() {
+    public void testDetach() throws SQLException {
         TestEntity entity = createEntity(null);
         dao.insert(entity);
         dao.detach(entity);
@@ -50,7 +52,7 @@ public class TestEntityIdentityScopeTest extends TestEntityTest {
         assertNotSame(entity, entity3);
     }
 
-    public void testDetachOther() {
+    public void testDetachOther() throws SQLException {
         TestEntity entity = createEntity(null);
         dao.insert(entity);
         dao.detach(entity);
@@ -61,7 +63,7 @@ public class TestEntityIdentityScopeTest extends TestEntityTest {
         assertSame(entity2, entity3);
     }
 
-    public void testLoadAllScope() {
+    public void testLoadAllScope() throws SQLException {
         TestEntity entity = createEntity(null);
         dao.insert(entity);
         TestEntity entity2 = dao.loadAll().get(0);

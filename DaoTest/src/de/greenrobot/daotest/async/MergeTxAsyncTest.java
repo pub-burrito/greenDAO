@@ -1,11 +1,13 @@
 package de.greenrobot.daotest.async;
 
+import java.sql.SQLException;
+
 import de.greenrobot.dao.async.AsyncOperation;
 import de.greenrobot.daotest.SimpleEntity;
 
 public class MergeTxAsyncTest extends AbstractAsyncTest {
 
-    public void testMergeInsertAndUpdate() {
+    public void testMergeInsertAndUpdate() throws SQLException {
         SimpleEntity entity = new SimpleEntity();
         entity.setId(42l);
         entity.setSimpleString("heho");
