@@ -10,6 +10,12 @@ import java.sql.SQLException;
 
 public class JDBCUtils
 {
+	public static String driverName = "org.sqldroid.SQLDroidDriver";
+	public static String JDBC_URL_PREFIX = "jdbc:sqlite:";
+	public static String packageName = "de.greenrobot";
+	public static String DB_DIRECTORY = "/data/data/" + packageName + "/databases/";
+	public static String url = JDBC_URL_PREFIX + DB_DIRECTORY;
+
 	public static ResultSet query( Connection connection, String sql ) throws SQLException
 	{
 		return query( connection, sql, new Object[] {} );
@@ -96,7 +102,7 @@ public class JDBCUtils
 		// Loads and registers the JDBC driver
 		try
 		{
-			DriverManager.registerDriver( (Driver) ( Class.forName( "org.sqldroid.SQLDroidDriver", true, JDBCUtils.class.getClassLoader() ).newInstance() ) );
+			DriverManager.registerDriver( (Driver) ( Class.forName( driverName, true, JDBCUtils.class.getClassLoader() ).newInstance() ) );
 		}
 		catch ( SQLException e )
 		{
@@ -115,6 +121,7 @@ public class JDBCUtils
 			e.printStackTrace();
 		}
 		
-		return DriverManager.getConnection( "jdbc:sqlite:" + db );
+		System.err.println("conn: "+url+db);
+		return DriverManager.getConnection( url + db );
 	}
 }
