@@ -21,7 +21,6 @@ import java.sql.SQLException;
 
 import android.database.Cursor;
 import android.test.suitebuilder.annotation.Suppress;
-
 import de.greenrobot.dao.test.AbstractDaoSessionTest;
 import de.greenrobot.daotest.DaoMaster;
 import de.greenrobot.daotest.DaoSession;

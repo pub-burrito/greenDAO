@@ -2,10 +2,11 @@ package de.greenrobot.daotest2.specialentity;
 
 import java.sql.SQLException;
 import java.util.List;
-import de.greenrobot.daotest2.dao.DaoSession;
-import de.greenrobot.dao.DaoException;
 
+import de.greenrobot.dao.AbstractDao;
+import de.greenrobot.dao.DaoException;
 import de.greenrobot.daotest2.ToManyTarget2;
+import de.greenrobot.daotest2.dao.DaoSession;
 import de.greenrobot.daotest2.dao.ToManyTarget2Dao;
 import de.greenrobot.daotest2.specialdao.RelationSource2Dao;
 import de.greenrobot.daotest2.to1_specialdao.ToOneTarget2Dao;
