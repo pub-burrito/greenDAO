@@ -8,11 +8,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import android.util.Log;
+
 public class JDBCUtils
 {
 	public static String driverName = "org.sqldroid.SQLDroidDriver";
 	public static String JDBC_URL_PREFIX = "jdbc:sqlite:";
-	public static String packageName = "de.greenrobot";
+	public static String packageName = "de.greenrobot.daotest";
 	public static String DB_DIRECTORY = "/data/data/" + packageName + "/databases/";
 	public static String url = JDBC_URL_PREFIX + DB_DIRECTORY;
 
@@ -84,10 +86,30 @@ public class JDBCUtils
 		return resultSet.getObject( index ) == null;
 	}
 	
+	public static int getCount( ResultSet resultSet )
+	{
+		int count = 0;
+		if (resultSet != null)
+		{
+			try 
+			{
+				resultSet.beforeFirst();  
+				resultSet.last();
+				count = resultSet.getRow();
+				resultSet.beforeFirst();
+			} 
+			catch (SQLException e)
+			{
+				count = 0;
+			}
+		}
+		return count;
+	}
+	
 	public static Connection connect( String db ) throws SQLException
 	{
 		// setup
-		File f = new File( db );
+		File f = new File( DB_DIRECTORY+db );
 		if ( f.exists() )
 		{
 			f.delete();
@@ -121,7 +143,7 @@ public class JDBCUtils
 			e.printStackTrace();
 		}
 		
-		System.err.println("conn: "+url+db);
+		Log.i("JDBCUtils", "connecting: "+url+db);
 		return DriverManager.getConnection( url + db );
 	}
 }

@@ -145,10 +145,10 @@ public class ToManyEntityTest extends AbstractDaoSessionTest<DaoMaster, DaoSessi
         List<ToManyTargetEntity> resolvedToManyAsc = testEntity.getToManyTargetEntityList();
         List<ToManyTargetEntity> resolvedToManyDesc = testEntity.getToManyDescList();
         assertNotSame(resolvedToManyAsc, resolvedToManyDesc);
-        assertEquals(resolvedToManyAsc.get(0).getId(), resolvedToManyDesc.get(2).getId());
-        assertSame(resolvedToManyAsc.get(0), resolvedToManyDesc.get(2));
-        assertSame(resolvedToManyAsc.get(1), resolvedToManyDesc.get(1));
-        assertSame(resolvedToManyAsc.get(2), resolvedToManyDesc.get(0));
+        assertEquals(resolvedToManyAsc.get(1).getId(), resolvedToManyDesc.get(3).getId());
+        assertSame(resolvedToManyAsc.get(1), resolvedToManyDesc.get(3));
+        assertSame(resolvedToManyAsc.get(2), resolvedToManyDesc.get(2));
+        assertSame(resolvedToManyAsc.get(3), resolvedToManyDesc.get(1));
     }
 
     public void testJoinProperty() throws SQLException {

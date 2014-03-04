@@ -31,6 +31,7 @@ import de.greenrobot.dao.internal.DaoConfig;
 import de.greenrobot.dao.internal.TableStatements;
 import de.greenrobot.dao.query.Query;
 import de.greenrobot.dao.query.QueryBuilder;
+import de.greenrobot.platform.java.util.JDBCUtils;
 
 /**
  * Base class for all DAOs: Implements entity operations like insert, load, delete, and query.
@@ -133,7 +134,7 @@ public abstract class AbstractDao<T, K> {
         }
         String sql = statements.getSelectByKey();
         PreparedStatement statement = connection.prepareStatement( sql );
-        statement.setString( 0, key.toString() );
+        statement.setString( 1, key.toString() );
         ResultSet resultSet = statement.executeQuery();
         return loadUniqueAndCloseCursor(resultSet);
     }
@@ -394,7 +395,7 @@ public abstract class AbstractDao<T, K> {
     /** Reads all available rows from the given cursor and returns a list of entities. 
      * @throws SQLException */
     protected List<T> loadAllFromCursor(ResultSet resultSet) throws SQLException {
-        int count = resultSet.getFetchSize();
+        int count = JDBCUtils.getCount(resultSet);
         List<T> list = new ArrayList<T>(count);
         
         if (resultSet.next()) {
@@ -419,14 +420,16 @@ public abstract class AbstractDao<T, K> {
      * @throws SQLException */
     final protected T loadCurrent(ResultSet resultSet, int offset, boolean lock) throws SQLException {
         if (identityScopeLong != null) {
-            if (offset != 0) {
+            int index = pkOrdinal + offset;
+            if (index <= 0) index = 1; // first position
+			if (offset != 0) {
                 // Occurs with deep loads (left outer joins)
-                if (resultSet.getObject(pkOrdinal + offset) == null) {
+                if (resultSet.getObject(index) == null) {
                     return null;
                 }
             }
 
-            long key = resultSet.getLong(pkOrdinal + offset);
+            long key = resultSet.getLong(index);
             T entity = lock ? identityScopeLong.get2(key) : identityScopeLong.get2NoLock(key);
             if (entity != null) {
                 return entity;
@@ -482,7 +485,8 @@ public abstract class AbstractDao<T, K> {
 		PreparedStatement statement = connection.prepareStatement( sql );
 		for ( int i = 0; i < selectionArg.length; i++ )
 		{
-			statement.setString( i, selectionArg[i] );
+			int index = i+1;
+			statement.setString( index, selectionArg[i] );
 		}
 		ResultSet resultSet = statement.executeQuery();
 		return loadAllAndCloseCursor(resultSet);

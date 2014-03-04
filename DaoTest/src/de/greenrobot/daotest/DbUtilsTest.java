@@ -32,7 +32,7 @@ public class DbUtilsTest extends DbTest {
         ResultSet resultSet = statement.executeQuery();
         try {
             resultSet.next();
-            assertEquals(5, resultSet.getInt(0));
+            assertEquals(5, resultSet.getInt(1));
         } finally {
             statement.close();
         }

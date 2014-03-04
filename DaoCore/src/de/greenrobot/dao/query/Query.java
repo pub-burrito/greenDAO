@@ -122,7 +122,7 @@ public class Query<T> extends AbstractQuery<T> {
         checkThread();
         Connection connection = dao.getConnection();
         PreparedStatement statement = connection.prepareStatement( sql );
-        for ( int i = 0; i < parameters.length; i++ )
+        for ( int i = 1; i < parameters.length; i++ )
 		{
 			statement.setString( i, parameters[i] );
 		}

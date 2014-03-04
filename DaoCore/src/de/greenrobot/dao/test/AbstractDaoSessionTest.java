@@ -56,7 +56,7 @@ public abstract class AbstractDaoSessionTest<T extends AbstractDaoMaster, S exte
             Constructor<T> constructor = daoMasterClass.getConstructor(Connection.class);
             daoMaster = constructor.newInstance(connection);
 
-            Method createTableMethod = daoMasterClass.getMethod("createAllTables", SQLiteDatabase.class, boolean.class);
+            Method createTableMethod = daoMasterClass.getMethod("createAllTables", Connection.class, boolean.class);
             createTableMethod.invoke(null, connection, false);
         } catch (Exception e) {
             throw new RuntimeException("Could not prepare DAO session test", e);
