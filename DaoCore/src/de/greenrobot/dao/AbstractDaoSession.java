@@ -146,15 +146,18 @@ public class AbstractDaoSession {
 
     /**
      * Run the given Runnable inside a database transaction. If you except a result, consider callInTx.
+     * @throws SQLException 
      */
-    public void runInTx(Runnable runnable) {
-    	// TODO transaction
-//        connection.beginTransaction();
+    public void runInTx(Runnable runnable) throws SQLException {
+    	connection.setAutoCommit( false );
         try {
             runnable.run();
-//            connection.setTransactionSuccessful();
+            connection.commit();
+        } catch(SQLException e) {
+        	connection.rollback();
+        	e.printStackTrace();
         } finally {
-//            connection.endTransaction();
+        	connection.setAutoCommit( true );
         }
     }
 
@@ -163,15 +166,18 @@ public class AbstractDaoSession {
      * except a result, consider runInTx.
      */
     public <V> V callInTx(Callable<V> callable) throws Exception {
-// TODO transaction
-//    	connection.beginTransaction();
+    	connection.setAutoCommit( false );
+    	V result = null;
         try {
-            V result = callable.call();
-//            connection.setTransactionSuccessful();
-            return result;
+            result = callable.call();
+            connection.commit();
+        } catch(SQLException e) {
+        	connection.rollback();
+        	e.printStackTrace();
         } finally {
-//            connection.endTransaction();
+        	connection.setAutoCommit( true );
         }
+        return result;
     }
 
     /**
@@ -179,20 +185,22 @@ public class AbstractDaoSession {
      * DaoException).
      */
     public <V> V callInTxNoException(Callable<V> callable) {
-// TODO transaction
-//    	connection.beginTransaction();
-        try {
-            V result;
-            try {
-                result = callable.call();
-            } catch (Exception e) {
-                throw new DaoException("Callable failed", e);
-            }
-//            connection.setTransactionSuccessful();
-            return result;
-        } finally {
-//            connection.endTransaction();
-        }
+    	V result = null;
+    	try {
+	    	connection.setAutoCommit( false );
+	        try {
+	            result = callable.call();
+	            connection.commit();
+	        } catch (Exception e) {
+	        	connection.rollback();
+	            throw new DaoException("Callable failed", e);
+	        } finally {
+	        	connection.setAutoCommit( true );
+	        }
+    	} catch (SQLException e){
+    		throw new DaoException("Callable failed", e);
+    	}
+        return result;
     }
 
     /** Gets the SQLiteDatabase for custom database access. Not needed for greenDAO entities. */

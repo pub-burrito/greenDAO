@@ -5,7 +5,6 @@ import java.sql.Connection;
 import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -21,7 +20,6 @@ import de.greenrobot.platform.android.util.SQLiteUtil;
         android:authorities="de.greenrobot.daotest" />
 */
 
-////TODO check if this class is really necessary
 public class SimpleEntityContentProvider extends ContentProvider {
 
     public static final String AUTHORITY = "de.greenrobot.daotest";

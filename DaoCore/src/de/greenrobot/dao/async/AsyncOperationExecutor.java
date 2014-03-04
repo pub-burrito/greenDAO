@@ -15,6 +15,8 @@
  */
 package de.greenrobot.dao.async;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
@@ -153,7 +155,14 @@ class AsyncOperationExecutor implements Runnable, Handler.Callback {
                         AsyncOperation operation2 = queue.poll(waitForMergeMillis, TimeUnit.MILLISECONDS);
                         if (operation2 != null) {
                             if (operation.isMergeableWith(operation2)) {
-                                mergeTxAndExecute(operation, operation2);
+                                try
+								{
+									mergeTxAndExecute(operation, operation2);
+								}
+								catch ( SQLException e )
+								{
+									e.printStackTrace();
+								}
                             } else {
                                 // Cannot merge, execute both
                                 executeOperationAndPostCompleted(operation);
@@ -172,14 +181,13 @@ class AsyncOperationExecutor implements Runnable, Handler.Callback {
         }
     }
 
-    private void mergeTxAndExecute(AsyncOperation operation1, AsyncOperation operation2) {
+    private void mergeTxAndExecute(AsyncOperation operation1, AsyncOperation operation2) throws SQLException {
         ArrayList<AsyncOperation> mergedOps = new ArrayList<AsyncOperation>();
         mergedOps.add(operation1);
         mergedOps.add(operation2);
 
-// TODO transaction
-//        Connection connection = operation1.getConnection();
-//        connection.beginTransaction();
+        Connection connection = operation1.getConnection();
+        connection.setAutoCommit( false );
         boolean failed = false;
         try {
             for (int i = 0; i < mergedOps.size(); i++) {
@@ -201,12 +209,15 @@ class AsyncOperationExecutor implements Runnable, Handler.Callback {
                         mergedOps.add(removedOp);
                     } else {
                         // No more ops in the queue to merge, finish it
-//                        connection.setTransactionSuccessful();
+                    	connection.commit();
                     }
                 }
             }
+        } catch(SQLException e) {
+        	connection.rollback();
+        	e.printStackTrace();
         } finally {
-//            connection.endTransaction();
+            connection.setAutoCommit( true );
         }
         if (failed) {
             DaoLog.i("Revered merged transaction because one of the operations failed. Executing operations one by one instead...");
@@ -331,28 +342,32 @@ class AsyncOperationExecutor implements Runnable, Handler.Callback {
         // Do not set it to completed here because it might be a merged TX
     }
 
-    private void executeTransactionRunnable(AsyncOperation operation) {
-// TODO transaction
-//    	Connection connection = operation.getConnection();
-//      connection.beginTransaction();
+    private void executeTransactionRunnable(AsyncOperation operation) throws SQLException {
+    	Connection connection = operation.getConnection();
+    	connection.setAutoCommit( false );
         try {
             ((Runnable) operation.parameter).run();
-//            connection.setTransactionSuccessful();
+            connection.commit();
+        } catch(SQLException e) {
+        	connection.rollback();
+        	e.printStackTrace();
         } finally {
-//            connection.endTransaction();
+        	connection.setAutoCommit( true );
         }
     }
 
     @SuppressWarnings("unchecked")
     private void executeTransactionCallable(AsyncOperation operation) throws Exception {
-// TODO transaction
-//        Connection connection = operation.getConnection();
-//        connection.beginTransaction();
+        Connection connection = operation.getConnection();
+        connection.setAutoCommit( false );
         try {
             operation.result = ((Callable<Object>) operation.parameter).call();
-//            connection.setTransactionSuccessful();
+            connection.commit();
+        } catch(SQLException e) {
+        	connection.rollback();
+        	e.printStackTrace();
         } finally {
-//            connection.endTransaction();
+        	connection.setAutoCommit( true );
         }
     }
 

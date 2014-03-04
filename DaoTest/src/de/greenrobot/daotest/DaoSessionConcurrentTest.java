@@ -91,19 +91,26 @@ public class DaoSessionConcurrentTest extends AbstractDaoSessionTest<DaoMaster, 
         Runnable runnable3 = new Runnable() {
             @Override
             public void run() {
-                daoSession.runInTx(new Runnable() {
-                    @Override
-                    public void run() {
-                        try
-						{
-							dao.insert(createEntity(null));
-						}
-						catch ( SQLException e )
-						{
-							e.printStackTrace();
-						}
-                    }
-                });
+                try
+				{
+					daoSession.runInTx(new Runnable() {
+					    @Override
+					    public void run() {
+					        try
+							{
+								dao.insert(createEntity(null));
+							}
+							catch ( SQLException e )
+							{
+								e.printStackTrace();
+							}
+					    }
+					});
+				}
+				catch ( SQLException e )
+				{
+					e.printStackTrace();
+				}
             }
         };
         Runnable runnable4 = new Runnable() {
@@ -184,19 +191,26 @@ public class DaoSessionConcurrentTest extends AbstractDaoSessionTest<DaoMaster, 
         Runnable runnable3 = new Runnable() {
             @Override
             public void run() {
-                daoSession.runInTx(new Runnable() {
-                    @Override
-                    public void run() {
-                        try
-						{
-							dao.update(entity);
-						}
-						catch ( SQLException e )
-						{
-							e.printStackTrace();
-						}
-                    }
-                });
+                try
+				{
+					daoSession.runInTx(new Runnable() {
+					    @Override
+					    public void run() {
+					        try
+							{
+								dao.update(entity);
+							}
+							catch ( SQLException e )
+							{
+								e.printStackTrace();
+							}
+					    }
+					});
+				}
+				catch ( SQLException e )
+				{
+					e.printStackTrace();
+				}
             }
         };
         initThreads(runnable1, runnable2, runnable3);
@@ -250,19 +264,26 @@ public class DaoSessionConcurrentTest extends AbstractDaoSessionTest<DaoMaster, 
         Runnable runnable3 = new Runnable() {
             @Override
             public void run() {
-                daoSession.runInTx(new Runnable() {
-                    @Override
-                    public void run() {
-                        try
-						{
-							dao.delete(entity);
-						}
-						catch ( SQLException e )
-						{
-							e.printStackTrace();
-						}
-                    }
-                });
+                try
+				{
+					daoSession.runInTx(new Runnable() {
+					    @Override
+					    public void run() {
+					        try
+							{
+								dao.delete(entity);
+							}
+							catch ( SQLException e )
+							{
+								e.printStackTrace();
+							}
+					    }
+					});
+				}
+				catch ( SQLException e )
+				{
+					e.printStackTrace();
+				}
             }
         };
         initThreads(runnable1, runnable2, runnable3);
@@ -505,7 +526,7 @@ public class DaoSessionConcurrentTest extends AbstractDaoSessionTest<DaoMaster, 
         assertTrue(time < 10);
     }
 
-    protected void doTx(final Runnable runnableInsideTx) {
+    protected void doTx(final Runnable runnableInsideTx) throws SQLException {
         daoSession.runInTx(new Runnable() {
             @Override
             public void run() {

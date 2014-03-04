@@ -70,15 +70,18 @@ public class DbUtils {
     }
 
     public static int executeSqlStatementsInTx(Connection connection, String[] statements) throws SQLException {
-// TODO transaction
-//    	connection.beginTransaction();
+    	int count = 0;
+    	connection.setAutoCommit( false );
         try {
-            int count = executeSqlStatements(connection, statements);
-//            connection.setTransactionSuccessful();
-            return count;
+            count = executeSqlStatements(connection, statements);
+            connection.commit();
+        } catch(SQLException e) {
+        	connection.rollback();
+        	e.printStackTrace();
         } finally {
-//            connection.endTransaction();
+        	connection.setAutoCommit( true );
         }
+        return count;
     }
 
     public static int executeSqlStatements(Connection connection, String[] statements) throws SQLException {

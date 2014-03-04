@@ -266,9 +266,8 @@ public abstract class AbstractDao<T, K> {
         insertOrReplaceInTx(Arrays.asList(entities), isEntityUpdateable());
     }
 
-//	TODO transaction
-    private void executeInsertInTx(PreparedStatement stmt, Iterable<T> entities, boolean setPrimaryKey) {
-//    	connection.beginTransaction();
+    private void executeInsertInTx(PreparedStatement stmt, Iterable<T> entities, boolean setPrimaryKey) throws SQLException {
+    	connection.setAutoCommit( false );
         try {
             synchronized (stmt) {
                 if (identityScope != null) {
@@ -287,17 +286,17 @@ public abstract class AbstractDao<T, K> {
                 }
 				catch ( SQLException e )
 				{
+					connection.rollback();
 					e.printStackTrace();
-					// rollback?!
 				} finally {
                     if (identityScope != null) {
                         identityScope.unlock();
                     }
                 }
             }
-//            db.setTransactionSuccessful();
+            connection.commit();
         } finally {
-//            db.endTransaction();
+        	connection.setAutoCommit( true );
         }
     }
 
@@ -320,27 +319,19 @@ public abstract class AbstractDao<T, K> {
      */
     public long insertWithoutSettingPk(T entity) throws SQLException {
     	PreparedStatement stmt = statements.getInsertStatement();
-        long rowId;
-        // FIXME not sure what to do here...
-//        if (db.isDbLockedByCurrentThread()) {
-        if (!connection.isClosed()) {
+        long rowId = 0;
+        // Do TX to acquire a connection before locking the stmt to avoid deadlocks
+        connection.setAutoCommit( false );
+        try {
             synchronized (stmt) {
                 bindValues(stmt, entity);
                 rowId = stmt.executeUpdate();
+                connection.commit();
             }
-        } else {
-            // Do TX to acquire a connection before locking the stmt to avoid deadlocks
-// TODO transaction        	
-//            db.beginTransaction();
-            try {
-                synchronized (stmt) {
-                    bindValues(stmt, entity);
-                    rowId = stmt.executeUpdate();
-                }
-//                db.setTransactionSuccessful();
-            } finally {
-//                db.endTransaction();
-            }
+        } catch (SQLException e) {
+        	connection.rollback();
+        } finally {
+        	connection.setAutoCommit( true );
         }
         return rowId;
     }
@@ -356,27 +347,20 @@ public abstract class AbstractDao<T, K> {
     }
 
     private long executeInsert(T entity, PreparedStatement stmt) throws SQLException {
-        long rowId;
-        // FIXME not sure what to do here...
-//        if (connection.isDbLockedByCurrentThread()) {
-        if (!connection.isClosed()) {
+        long rowId = 0;
+        // Do TX to acquire a connection before locking the stmt to avoid deadlocks
+        connection.setAutoCommit( false );
+        try {
             synchronized (stmt) {
                 bindValues(stmt, entity);
                 rowId = stmt.executeUpdate();
             }
-        } else {
-            // Do TX to acquire a connection before locking the stmt to avoid deadlocks
-// TODO transaction
-//            db.beginTransaction();
-            try {
-                synchronized (stmt) {
-                    bindValues(stmt, entity);
-                    rowId = stmt.executeUpdate();
-                }
-//                db.setTransactionSuccessful();
-            } finally {
-//                db.endTransaction();
-            }
+            connection.commit();
+        } catch (SQLException e) {
+        	connection.rollback();
+        	e.printStackTrace();
+        } finally {
+        	connection.setAutoCommit( true );
         }
         updateKeyAfterInsertAndAttach(entity, rowId, true);
         return rowId;
@@ -532,24 +516,18 @@ public abstract class AbstractDao<T, K> {
     public void deleteByKey(K key) throws SQLException {
         assertSinglePk();
         PreparedStatement stmt = statements.getDeleteStatement();
-        // FIXME not sure what to do here...
-//        if (db.isDbLockedByCurrentThread()) {
-        if (!connection.isClosed()) {
+        // Do TX to acquire a connection before locking the stmt to avoid deadlocks
+        connection.setAutoCommit( false );
+        try {
             synchronized (stmt) {
                 deleteByKeyInsideSynchronized(key, stmt);
             }
-        } else {
-            // Do TX to acquire a connection before locking the stmt to avoid deadlocks
-// TODO transaction
-//            db.beginTransaction();
-            try {
-                synchronized (stmt) {
-                    deleteByKeyInsideSynchronized(key, stmt);
-                }
-//                db.setTransactionSuccessful();
-            } finally {
-//                db.endTransaction();
-            }
+            connection.commit();
+        } catch (SQLException e) {
+        	connection.rollback();
+        	e.printStackTrace();
+        } finally {
+        	connection.setAutoCommit( true );
         }
         if (identityScope != null) {
             identityScope.remove(key);
@@ -571,8 +549,7 @@ public abstract class AbstractDao<T, K> {
         assertSinglePk();
         PreparedStatement stmt = statements.getDeleteStatement();
         List<K> keysToRemoveFromIdentityScope = null;
-// TODO transaction
-//        db.beginTransaction();
+        connection.setAutoCommit( false );
         try {
             synchronized (stmt) {
                 if (identityScope != null) {
@@ -603,12 +580,15 @@ public abstract class AbstractDao<T, K> {
                     }
                 }
             }
-//            db.setTransactionSuccessful();
+            connection.commit();
             if (keysToRemoveFromIdentityScope != null && identityScope != null) {
                 identityScope.remove(keysToRemoveFromIdentityScope);
             }
+        } catch (SQLException e) {
+        	connection.rollback();
+        	e.printStackTrace();
         } finally {
-//            db.endTransaction();
+        	connection.setAutoCommit( true );
         }
     }
 
@@ -683,24 +663,18 @@ public abstract class AbstractDao<T, K> {
     public void update(T entity) throws SQLException {
         assertSinglePk();
         PreparedStatement stmt = statements.getUpdateStatement();
-// FIXME not sure what to do here...        
-//        if (db.isDbLockedByCurrentThread()) {
-        if (!connection.isClosed()) {
+        // Do TX to acquire a connection before locking the stmt to avoid deadlocks
+        connection.setAutoCommit( false );
+        try {
             synchronized (stmt) {
                 updateInsideSynchronized(entity, stmt, true);
             }
-        } else {
-            // Do TX to acquire a connection before locking the stmt to avoid deadlocks
-// TODO transaction        	
-//            db.beginTransaction();
-            try {
-                synchronized (stmt) {
-                    updateInsideSynchronized(entity, stmt, true);
-                }
-//                db.setTransactionSuccessful();
-            } finally {
-//                db.endTransaction();
-            }
+            connection.commit();
+        } catch (SQLException e){
+        	connection.rollback();
+        	e.printStackTrace();
+        } finally {
+        	connection.setAutoCommit( true );
         }
     }
 
@@ -762,8 +736,7 @@ public abstract class AbstractDao<T, K> {
      */
     public void updateInTx(Iterable<T> entities) throws SQLException {
         PreparedStatement stmt = statements.getUpdateStatement();
-// TODO transaction        
-//        db.beginTransaction();
+    	connection.setAutoCommit( false );
         try {
             synchronized (stmt) {
                 if (identityScope != null) {
@@ -779,9 +752,12 @@ public abstract class AbstractDao<T, K> {
                     }
                 }
             }
-//            db.setTransactionSuccessful();
+            connection.commit();
+        } catch(SQLException e) {
+        	connection.rollback();
+        	e.printStackTrace();
         } finally {
-//            db.endTransaction();
+        	connection.setAutoCommit( true );
         }
     }
 

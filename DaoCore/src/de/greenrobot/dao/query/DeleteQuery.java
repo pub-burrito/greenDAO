@@ -68,31 +68,24 @@ public class DeleteQuery<T> extends AbstractQuery<T> {
     public void executeDeleteWithoutDetachingEntities() throws SQLException {
         checkThread();
         Connection connection = dao.getConnection();
-// FIXME not sure what to do here...
-//        if (connection.isDbLockedByCurrentThread()) {
-        if (!connection.isClosed()) {
+
+        // Do TX to acquire a connection before locking this to avoid deadlocks
+        // Locking order as described in AbstractDao
+        connection.setAutoCommit( false );
+        try {
         	PreparedStatement statement = connection.prepareStatement( sql );
         	for ( int i = 0; i < parameters.length; i++ )
 			{
-				statement.setString( i, parameters[i] );
+        		int index = i+1;
+				statement.setString( index, parameters[i] );
 			}
             statement.executeUpdate();
-        } else {
-            // Do TX to acquire a connection before locking this to avoid deadlocks
-            // Locking order as described in AbstractDao
-// TODO transaction (it might need to open a new connection too)
-//        	connection.beginTransaction();
-            try {
-            	PreparedStatement statement = connection.prepareStatement( sql );
-            	for ( int i = 0; i < parameters.length; i++ )
-    			{
-    				statement.setString( i, parameters[i] );
-    			}
-                statement.executeUpdate();
-//                connection.setTransactionSuccessful();
-            } finally {
-//                connection.endTransaction();
-            }
+            connection.commit();
+        } catch(SQLException e) {
+        	connection.rollback();
+        	e.printStackTrace();
+        } finally {
+        	connection.setAutoCommit( true );
         }
     }
 
