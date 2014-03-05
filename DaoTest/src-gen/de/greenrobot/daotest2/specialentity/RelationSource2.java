@@ -1,12 +1,12 @@
 package de.greenrobot.daotest2.specialentity;
 
 import java.sql.SQLException;
-import java.util.List;
 
-import de.greenrobot.dao.AbstractDao;
-import de.greenrobot.dao.DaoException;
-import de.greenrobot.daotest2.ToManyTarget2;
+import java.util.List;
 import de.greenrobot.daotest2.dao.DaoSession;
+import de.greenrobot.dao.DaoException;
+
+import de.greenrobot.daotest2.ToManyTarget2;
 import de.greenrobot.daotest2.dao.ToManyTarget2Dao;
 import de.greenrobot.daotest2.specialdao.RelationSource2Dao;
 import de.greenrobot.daotest2.to1_specialdao.ToOneTarget2Dao;
@@ -20,6 +20,7 @@ import de.greenrobot.daotest2.to1_specialentity.ToOneTarget2;
  * Entity mapped to table RELATION_SOURCE2.
  */
 public class RelationSource2 {
+
 
     private Long id;
     private Long toOneId;
@@ -53,7 +54,7 @@ public class RelationSource2 {
     /** called by internal mechanisms, do not call yourself. */
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
-        myDao = daoSession != null ? daoSession.getRelationSource2Dao() : null;
+        myDao = this.daoSession != null ? this.daoSession.getRelationSource2Dao() : null;
     }
 
     public Long getId() {
@@ -72,8 +73,7 @@ public class RelationSource2 {
         this.toOneId = toOneId;
     }
 
-    /** To-one relationship, resolved on first access. 
-     * @throws SQLException */
+    /** To-one relationship, resolved on first access. */
     public ToOneTarget2 getToOneTarget2() throws SQLException {
         Long __key = this.toOneId;
         if (toOneTarget2__resolvedKey == null || !toOneTarget2__resolvedKey.equals(__key)) {
@@ -98,8 +98,7 @@ public class RelationSource2 {
         }
     }
 
-    /** To-many relationship, resolved on first access (and after reset). Changes to to-many relations are not persisted, make changes to the target entity. 
-     * @throws SQLException */
+    /** To-many relationship, resolved on first access (and after reset). Changes to to-many relations are not persisted, make changes to the target entity. */
     public List<ToManyTarget2> getToManyTarget2List() throws SQLException {
         if (toManyTarget2List == null) {
             if (daoSession == null) {
@@ -121,8 +120,7 @@ public class RelationSource2 {
         toManyTarget2List = null;
     }
 
-    /** Convenient call for {@link AbstractDao#delete(Object)}. Entity must attached to an entity context. 
-     * @throws SQLException */
+    /** Convenient call for {@link AbstractDao#delete(Object)}. Entity must attached to an entity context. */
     public void delete() throws SQLException {
         if (myDao == null) {
             throw new DaoException("Entity is detached from DAO context");
@@ -130,8 +128,7 @@ public class RelationSource2 {
         myDao.delete(this);
     }
 
-    /** Convenient call for {@link AbstractDao#update(Object)}. Entity must attached to an entity context. 
-     * @throws SQLException */
+    /** Convenient call for {@link AbstractDao#update(Object)}. Entity must attached to an entity context. */
     public void update() throws SQLException {
         if (myDao == null) {
             throw new DaoException("Entity is detached from DAO context");
@@ -139,8 +136,7 @@ public class RelationSource2 {
         myDao.update(this);
     }
 
-    /** Convenient call for {@link AbstractDao#refresh(Object)}. Entity must attached to an entity context. 
-     * @throws SQLException */
+    /** Convenient call for {@link AbstractDao#refresh(Object)}. Entity must attached to an entity context. */
     public void refresh() throws SQLException {
         if (myDao == null) {
             throw new DaoException("Entity is detached from DAO context");

@@ -42,12 +42,12 @@ along with greenDAO Generator.  If not, see <http://www.gnu.org/licenses/>.
         return selectDeep;
     }
     
-    protected ${entity.className} loadCurrentDeep(Cursor cursor, boolean lock) {
-        ${entity.className} entity = loadCurrent(cursor, 0, lock);
+    protected ${entity.className} loadCurrentDeep(ResultSet resultSet, boolean lock) throws SQLException {
+        ${entity.className} entity = loadCurrent(resultSet, 0, lock);
         int offset = getAllColumns().length;
 
 <#list entity.toOneRelations as toOne>
-        ${toOne.targetEntity.className} ${toOne.name} = loadCurrentOther(daoSession.get${toOne.targetEntity.classNameDao}(), cursor, offset);
+        ${toOne.targetEntity.className} ${toOne.name} = loadCurrentOther(daoSession.get${toOne.targetEntity.classNameDao}(), resultSet, offset);
 <#if toOne.fkProperties[0].notNull>         if(${toOne.name} != null) {
     </#if>        entity.set${toOne.name?cap_first}(${toOne.name});
 <#if toOne.fkProperties[0].notNull>
@@ -61,7 +61,7 @@ along with greenDAO Generator.  If not, see <http://www.gnu.org/licenses/>.
         return entity;    
     }
 
-    public ${entity.className} loadDeep(Long key) {
+    public ${entity.className} loadDeep(Long key) throws SQLException {
         assertSinglePk();
         if (key == null) {
             return null;
@@ -73,35 +73,35 @@ along with greenDAO Generator.  If not, see <http://www.gnu.org/licenses/>.
         String sql = builder.toString();
         
         String[] keyArray = new String[] { key.toString() };
-        Cursor cursor = db.rawQuery(sql, keyArray);
+        ResultSet resultSet = JDBCUtils.query(connection, sql, (Object[]) keyArray);
         
         try {
-            boolean available = cursor.moveToFirst();
+            boolean available = resultSet.next();
             if (!available) {
                 return null;
-            } else if (!cursor.isLast()) {
-                throw new IllegalStateException("Expected unique result, but count was " + cursor.getCount());
+            } else if (!resultSet.isLast()) {
+                throw new IllegalStateException("Expected unique result, but count was " + JDBCUtils.getCount(resultSet));
             }
-            return loadCurrentDeep(cursor, true);
+            return loadCurrentDeep(resultSet, true);
         } finally {
-            cursor.close();
+            resultSet.close();
         }
     }
     
     /** Reads all available rows from the given cursor and returns a list of new ImageTO objects. */
-    public List<${entity.className}> loadAllDeepFromCursor(Cursor cursor) {
-        int count = cursor.getCount();
+    public List<${entity.className}> loadAllDeepFromResultSet(ResultSet resultSet) throws SQLException {
+        int count = JDBCUtils.getCount(resultSet);
         List<${entity.className}> list = new ArrayList<${entity.className}>(count);
         
-        if (cursor.moveToFirst()) {
+        if (resultSet.first()) {
             if (identityScope != null) {
                 identityScope.lock();
                 identityScope.reserveRoom(count);
             }
             try {
                 do {
-                    list.add(loadCurrentDeep(cursor, false));
-                } while (cursor.moveToNext());
+                    list.add(loadCurrentDeep(resultSet, false));
+                } while (resultSet.next());
             } finally {
                 if (identityScope != null) {
                     identityScope.unlock();
@@ -111,19 +111,20 @@ along with greenDAO Generator.  If not, see <http://www.gnu.org/licenses/>.
         return list;
     }
     
-    protected List<${entity.className}> loadDeepAllAndCloseCursor(Cursor cursor) {
+    protected List<${entity.className}> loadDeepAllAndCloseResultSet(ResultSet resultSet) throws SQLException {
         try {
-            return loadAllDeepFromCursor(cursor);
+            return loadAllDeepFromResultSet(resultSet);
         } finally {
-            cursor.close();
+            resultSet.close();
         }
     }
     
 
     /** A raw-style query where you can pass any WHERE clause and arguments. */
-    public List<${entity.className}> queryDeep(String where, String... selectionArg) {
-        Cursor cursor = db.rawQuery(getSelectDeep() + where, selectionArg);
-        return loadDeepAllAndCloseCursor(cursor);
+    public List<${entity.className}> queryDeep(String where, String... selectionArg) throws SQLException {
+    
+        ResultSet resultSet = JDBCUtils.query( connection, ( getSelectDeep() + where ), (Object[]) selectionArg );
+        return loadDeepAllAndCloseResultSet(resultSet);
     }
  
 </#if>

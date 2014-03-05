@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License
 along with greenDAO Generator.  If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<#assign toBindType = {"Boolean":"Long", "Byte":"Long", "Short":"Long", "Int":"Long", "Long":"Long", "Float":"Double", "Double":"Double", "String":"String", "ByteArray":"Blob", "Date": "Long" } />
-<#assign toCursorType = {"Boolean":"Short", "Byte":"Short", "Short":"Short", "Int":"Int", "Long":"Long", "Float":"Float", "Double":"Double", "String":"String", "ByteArray":"Blob", "Date": "Long"  } />
+<#assign toBindType = {"Boolean":"Long", "Byte":"Long", "Short":"Long", "Int":"Long", "Long":"Long", "Float":"Double", "Double":"Double", "String":"String", "ByteArray":"Bytes", "Date": "Long" } />
+<#assign toCursorType = {"Boolean":"Short", "Byte":"Short", "Short":"Short", "Int":"Int", "Long":"Long", "Float":"Float", "Double":"Double", "String":"String", "ByteArray":"Bytes", "Date": "Long"  } />
 package ${entity.javaPackageDao};
 
 <#if entity.toOneRelations?has_content || entity.incomingToManyRelations?has_content>
@@ -27,9 +27,14 @@ import java.util.List;
 <#if entity.toOneRelations?has_content>
 import java.util.ArrayList;
 </#if>
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteStatement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+<#if !entity.skipTableCreation>
+import java.sql.Connection;
+</#if>
+
+import de.greenrobot.platform.java.util.JDBCUtils;
 
 import de.greenrobot.dao.AbstractDao;
 import de.greenrobot.dao.Property;
@@ -76,8 +81,7 @@ public class ${entity.classNameDao} extends AbstractDao<${entity.className}, ${e
     };
 
 <#if entity.active>
-    private DaoSession daoSession;
-
+	private DaoSession daoSession;
 </#if>
 <#list entity.incomingToManyRelations as toMany>
     private Query<${toMany.targetEntity.className}> ${toMany.sourceEntity.className?uncap_first}_${toMany.name?cap_first}Query;
@@ -96,16 +100,16 @@ public class ${entity.classNameDao} extends AbstractDao<${entity.className}, ${e
 
 <#if !entity.skipTableCreation>
     /** Creates the underlying database table. */
-    public static void createTable(SQLiteDatabase db, boolean ifNotExists) {
+    public static void createTable(Connection connection, boolean ifNotExists) throws SQLException {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
-        db.execSQL("CREATE TABLE " + constraint + "'${entity.tableName}' (" + //
+        JDBCUtils.execute( connection, "CREATE TABLE " + constraint + "'${entity.tableName}' (" + //
 <#list entity.propertiesColumns as property>
                 "'${property.columnName}' ${property.columnType}<#if property.constraints??> ${property.constraints} </#if><#if property_has_next>," +<#else>);");</#if> // ${property_index}: ${property.propertyName}
 </#list>
 <#if entity.indexes?has_content >
         // Add Indexes
 <#list entity.indexes as index>
-        db.execSQL("CREATE <#if index.unique>UNIQUE </#if>INDEX " + constraint + "${index.name} ON ${entity.tableName}" +
+        JDBCUtils.execute( connection, "CREATE <#if index.unique>UNIQUE </#if>INDEX " + constraint + "${index.name} ON ${entity.tableName}" +
                 " (<#list index.properties 
 as property>${property.columnName}<#if property_has_next>,</#if></#list>);");
 </#list>
@@ -113,21 +117,19 @@ as property>${property.columnName}<#if property_has_next>,</#if></#list>);");
     }
 
     /** Drops the underlying database table. */
-    public static void dropTable(SQLiteDatabase db, boolean ifExists) {
-        String sql = "DROP TABLE " + (ifExists ? "IF EXISTS " : "") + "'${entity.tableName}'";
-        db.execSQL(sql);
+    public static void dropTable(Connection connection, boolean ifExists) throws SQLException {
+        JDBCUtils.execute( connection, "DROP TABLE " + (ifExists ? "IF EXISTS " : "") + "'${entity.tableName}'");
     }
 
 </#if>
     /** @inheritdoc */
     @Override
-    protected void bindValues(SQLiteStatement stmt, ${entity.className} entity) {
-        stmt.clearBindings();
+    protected void bindValues(PreparedStatement statement, ${entity.className} entity) throws SQLException {
 <#list entity.properties as property>
 <#if property.notNull || entity.protobuf>
 <#if entity.protobuf>
         if(entity.has${property.propertyName?cap_first}()) {
-    </#if>        stmt.bind${toBindType[property.propertyType]}(${property_index + 1}, entity.get${property.propertyName?cap_first}()<#if
+    </#if>        statement.set${toBindType[property.propertyType]}(${property_index + 1}, entity.get${property.propertyName?cap_first}()<#if
      property.propertyType == "Boolean"> ? 1l: 0l</#if><#if property.propertyType == "Date">.getTime()</#if>);
 <#if entity.protobuf>
         }
@@ -135,7 +137,7 @@ as property>${property.columnName}<#if property_has_next>,</#if></#list>);");
 <#else> <#-- nullable, non-protobuff -->
         ${property.javaType} ${property.propertyName} = entity.get${property.propertyName?cap_first}();
         if (${property.propertyName} != null) {
-            stmt.bind${toBindType[property.propertyType]}(${property_index + 1}, ${property.propertyName}<#if
+            statement.set${toBindType[property.propertyType]}(${property_index + 1}, ${property.propertyName}<#if
  property.propertyType == "Boolean"> ? 1l: 0l</#if><#if property.propertyType == "Date">.getTime()</#if>);
         }
 </#if>
@@ -168,11 +170,12 @@ as property>${property.columnName}<#if property_has_next>,</#if></#list>);");
 </#if>
     /** @inheritdoc */
     @Override
-    public ${entity.pkType} readKey(Cursor cursor, int offset) {
+    public ${entity.pkType} readKey(ResultSet resultSet, int offset) throws SQLException {
 <#if entity.pkProperty??>
-        return <#if !entity.pkProperty.notNull>cursor.isNull(offset + ${entity.pkProperty.ordinal}) ? null : </#if><#if
+    	int index = 1;
+        return <#if !entity.pkProperty.notNull>JDBCUtils.isNull(resultSet, offset + index) ? null : </#if><#if
             entity.pkProperty.propertyType == "Byte">(byte) </#if><#if
-            entity.pkProperty.propertyType == "Date">new java.util.Date(</#if>cursor.get${toCursorType[entity.pkProperty.propertyType]}(offset + ${entity.pkProperty.ordinal})<#if
+            entity.pkProperty.propertyType == "Date">new java.util.Date(</#if>resultSet.get${toCursorType[entity.pkProperty.propertyType]}(offset + index++)<#if
             entity.pkProperty.propertyType == "Boolean"> != 0</#if><#if
             entity.pkProperty.propertyType == "Date">)</#if>;
 <#else>
@@ -182,13 +185,14 @@ as property>${property.columnName}<#if property_has_next>,</#if></#list>);");
 
     /** @inheritdoc */
     @Override
-    public ${entity.className} readEntity(Cursor cursor, int offset) {
+    public ${entity.className} readEntity(ResultSet resultSet, int offset) throws SQLException {
 <#if entity.protobuf>
         Builder builder = ${entity.className}.newBuilder();
+        int index = 1;
 <#list entity.properties as property>
 <#if !property.notNull>
         if (!cursor.isNull(offset + ${property_index})) {
-    </#if>        builder.set${property.propertyName?cap_first}(cursor.get${toCursorType[property.propertyType]}(offset + ${property_index}));
+    </#if>        builder.set${property.propertyName?cap_first}(resultSet.get${toCursorType[property.propertyType]}(offset + index));
 <#if !property.notNull>
         }
 </#if>        
@@ -198,11 +202,12 @@ as property>${property.columnName}<#if property_has_next>,</#if></#list>);");
 <#--
 ############################## readEntity non-protobuff, constructor ############################## 
 -->
-        ${entity.className} entity = new ${entity.className}( //
+		int index = 1;
+        ${entity.className} entity = new ${entity.className}(
 <#list entity.properties as property>
-            <#if !property.notNull>cursor.isNull(offset + ${property_index}) ? null : </#if><#if
+            <#if !property.notNull>JDBCUtils.isNull(resultSet, offset + index) ? null : </#if><#if
             property.propertyType == "Byte">(byte) </#if><#if
-            property.propertyType == "Date">new java.util.Date(</#if>cursor.get${toCursorType[property.propertyType]}(offset + ${property_index})<#if
+            property.propertyType == "Date">new java.util.Date(</#if>resultSet.get${toCursorType[property.propertyType]}(offset + index++)<#if
             property.propertyType == "Boolean"> != 0</#if><#if
             property.propertyType == "Date">)</#if><#if property_has_next>,</#if> // ${property.propertyName}
 </#list>        
@@ -213,21 +218,22 @@ as property>${property.columnName}<#if property_has_next>,</#if></#list>);");
 ############################## readEntity non-protobuff, setters ############################## 
 -->
         ${entity.className} entity = new ${entity.className}();
-        readEntity(cursor, entity, offset);
+        readEntity(resultSet, entity, offset);
         return entity;
 </#if>
     }
      
     /** @inheritdoc */
     @Override
-    public void readEntity(Cursor cursor, ${entity.className} entity, int offset) {
+    public void readEntity(ResultSet resultSet, ${entity.className} entity, int offset) throws SQLException {
 <#if entity.protobuf>
         throw new UnsupportedOperationException("Protobuf objects cannot be modified");
 <#else> 
+		int index = 1;
 <#list entity.properties as property>
-        entity.set${property.propertyName?cap_first}(<#if !property.notNull>cursor.isNull(offset + ${property_index}) ? null : </#if><#if
+        entity.set${property.propertyName?cap_first}(<#if !property.notNull>JDBCUtils.isNull(resultSet, offset + index) ? null : </#if><#if
             property.propertyType == "Byte">(byte) </#if><#if
-            property.propertyType == "Date">new java.util.Date(</#if>cursor.get${toCursorType[property.propertyType]}(offset + ${property_index})<#if
+            property.propertyType == "Date">new java.util.Date(</#if>resultSet.get${toCursorType[property.propertyType]}(offset + index++)<#if
             property.propertyType == "Boolean"> != 0</#if><#if
             property.propertyType == "Date">)</#if>);
 </#list>
@@ -275,7 +281,7 @@ as property>${property.columnName}<#if property_has_next>,</#if></#list>);");
 <#list entity.incomingToManyRelations as toMany>
     /** Internal query to resolve the "${toMany.name}" to-many relationship of ${toMany.sourceEntity.className}. */
     public List<${toMany.targetEntity.className}> _query${toMany.sourceEntity.className?cap_first}_${toMany.name?cap_first}(<#--
-    --><#list toMany.targetProperties as property>${property.javaType} ${property.propertyName}<#if property_has_next>, </#if></#list>) {
+    --><#list toMany.targetProperties as property>${property.javaType} ${property.propertyName}<#if property_has_next>, </#if></#list>) throws SQLException {
         synchronized (this) {
             if (${toMany.sourceEntity.className?uncap_first}_${toMany.name?cap_first}Query == null) {
                 QueryBuilder<${toMany.targetEntity.className}> queryBuilder = queryBuilder();

@@ -22,6 +22,10 @@ along with greenDAO Generator.  If not, see <http://www.gnu.org/licenses/>.
 <#assign complexTypes = ["String", "ByteArray", "Date"]/>
 package ${entity.javaPackage};
 
+<#if entity.active>
+import java.sql.SQLException;
+</#if>
+
 <#if entity.toManyRelations?has_content>
 import java.util.List;
 </#if>
@@ -51,6 +55,10 @@ public class ${entity.className}<#if
 entity.superclass?has_content> extends ${entity.superclass} </#if><#if
 entity.interfacesToImplement?has_content> implements <#list entity.interfacesToImplement
 as ifc>${ifc}<#if ifc_has_next>, </#if></#list></#if> {
+
+<#if entity.interfacesToImplement?has_content>
+	private static final long serialVersionUID = 1L;
+</#if>
 
 <#list entity.properties as property>
 <#if property.notNull && complexTypes?seq_contains(property.propertyType)>
@@ -110,7 +118,7 @@ property>${property.javaType} ${property.propertyName}<#if property_has_next>, <
     /** called by internal mechanisms, do not call yourself. */
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;
-        myDao = daoSession != null ? daoSession.get${entity.classNameDao?cap_first}() : null;
+        myDao = this.daoSession != null ? this.daoSession.get${entity.classNameDao?cap_first}() : null;
     }
 
 </#if>
@@ -137,7 +145,7 @@ property>${property.javaType} ${property.propertyName}<#if property_has_next>, <
 -->
 <#list entity.toOneRelations as toOne>
     /** To-one relationship, resolved on first access. */
-    public ${toOne.targetEntity.className} get${toOne.name?cap_first}() {
+    public ${toOne.targetEntity.className} get${toOne.name?cap_first}() throws SQLException {
 <#if toOne.useFkProperty>
         ${toOne.fkProperties[0].javaType} __key = this.${toOne.fkProperties[0].propertyName};
         if (${toOne.name}__resolvedKey == null || <#--
@@ -198,7 +206,7 @@ property>${property.javaType} ${property.propertyName}<#if property_has_next>, <
 -->
 <#list entity.toManyRelations as toMany>
     /** To-many relationship, resolved on first access (and after reset). Changes to to-many relations are not persisted, make changes to the target entity. */
-    public List<${toMany.targetEntity.className}> get${toMany.name?cap_first}() {
+    public List<${toMany.targetEntity.className}> get${toMany.name?cap_first}() throws SQLException {
         if (${toMany.name} == null) {
             if (daoSession == null) {
                 throw new DaoException("Entity is detached from DAO context");
@@ -228,7 +236,7 @@ property>${property.javaType} ${property.propertyName}<#if property_has_next>, <
 -->
 <#if entity.active>
     /** Convenient call for {@link AbstractDao#delete(Object)}. Entity must attached to an entity context. */
-    public void delete() {
+    public void delete() throws SQLException {
         if (myDao == null) {
             throw new DaoException("Entity is detached from DAO context");
         }    
@@ -236,7 +244,7 @@ property>${property.javaType} ${property.propertyName}<#if property_has_next>, <
     }
 
     /** Convenient call for {@link AbstractDao#update(Object)}. Entity must attached to an entity context. */
-    public void update() {
+    public void update() throws SQLException {
         if (myDao == null) {
             throw new DaoException("Entity is detached from DAO context");
         }    
@@ -244,7 +252,7 @@ property>${property.javaType} ${property.propertyName}<#if property_has_next>, <
     }
 
     /** Convenient call for {@link AbstractDao#refresh(Object)}. Entity must attached to an entity context. */
-    public void refresh() {
+    public void refresh() throws SQLException {
         if (myDao == null) {
             throw new DaoException("Entity is detached from DAO context");
         }    

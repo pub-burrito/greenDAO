@@ -1,41 +1,21 @@
 package de.greenrobot.daotest.entity;
 
-import java.sql.SQLException;
+import de.greenrobot.dao.test.AbstractDaoTestLongPk;
 
-import de.greenrobot.dao.test.AbstractDaoSessionTest;
 import de.greenrobot.daotest.AutoincrementEntity;
-import de.greenrobot.daotest.DaoMaster;
-import de.greenrobot.daotest.DaoSession;
-import de.greenrobot.daotest.SimpleEntity;
+import de.greenrobot.daotest.AutoincrementEntityDao;
 
-public class AutoincrementEntityTest extends AbstractDaoSessionTest<DaoMaster, DaoSession> {
+public class AutoincrementEntityTest extends AbstractDaoTestLongPk<AutoincrementEntityDao, AutoincrementEntity> {
 
     public AutoincrementEntityTest() {
-        super(DaoMaster.class);
+        super(AutoincrementEntityDao.class);
     }
 
-    public void testAutoincrement() throws SQLException {
+    @Override
+    protected AutoincrementEntity createEntity(Long key) {
         AutoincrementEntity entity = new AutoincrementEntity();
-        daoSession.insert(entity);
-        Long id1 = entity.getId();
-        assertNotNull(id1);
-        daoSession.delete(entity);
-
-        AutoincrementEntity entity2 = new AutoincrementEntity();
-        daoSession.insert(entity2);
-        assertEquals(id1 + 1, (long) entity2.getId());
-    }
-
-    public void testNoAutoincrement() throws SQLException {
-        SimpleEntity entity = new SimpleEntity();
-        daoSession.insert(entity);
-        Long id1 = entity.getId();
-        assertNotNull(id1);
-        daoSession.delete(entity);
-
-        SimpleEntity entity2 = new SimpleEntity();
-        daoSession.insert(entity2);
-        assertEquals(id1, entity2.getId());
+        entity.setId(key);
+        return entity;
     }
 
 }

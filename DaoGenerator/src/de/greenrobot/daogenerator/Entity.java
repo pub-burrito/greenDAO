@@ -230,6 +230,7 @@ public class Entity {
     public ContentProvider addContentProvider() {
         List<Entity> entities = new ArrayList<Entity>();
         ContentProvider contentProvider = new ContentProvider(schema, entities);
+        contentProvider.setClassName( this.getClassName() + "ContentProvider" );
         contentProviders.add(contentProvider);
         return contentProvider;
     }
