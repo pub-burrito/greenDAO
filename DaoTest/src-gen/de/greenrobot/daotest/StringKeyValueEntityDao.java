@@ -70,8 +70,7 @@ public class StringKeyValueEntityDao extends AbstractDao<StringKeyValueEntity, S
     /** @inheritdoc */
     @Override
     public String readKey(ResultSet resultSet, int offset) throws SQLException {
-    	int index = 1;
-        return JDBCUtils.isNull(resultSet, offset + index) ? null : resultSet.getString(offset + index++);
+        return JDBCUtils.isNull(resultSet, offset + 1) ? null : resultSet.getString(offset + 1);
     }    
 
     /** @inheritdoc */

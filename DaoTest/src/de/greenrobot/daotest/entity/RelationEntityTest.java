@@ -7,6 +7,8 @@ import de.greenrobot.daotest.RelationEntityDao;
 
 public class RelationEntityTest extends AbstractDaoTestLongPk<RelationEntityDao, RelationEntity> {
 
+	private long testIdNotNull;
+	
     public RelationEntityTest() {
         super(RelationEntityDao.class);
     }
@@ -15,8 +17,8 @@ public class RelationEntityTest extends AbstractDaoTestLongPk<RelationEntityDao,
     protected RelationEntity createEntity(Long key) {
         RelationEntity entity = new RelationEntity();
         entity.setId(key);
-        entity.setTestIdNotNull();
-        return entity;
+		entity.setTestIdNotNull(testIdNotNull);
+		return entity;
     }
 
 }

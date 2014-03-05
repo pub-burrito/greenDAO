@@ -86,8 +86,7 @@ public class SimpleEntityNotNullDao extends AbstractDao<SimpleEntityNotNull, Lon
     /** @inheritdoc */
     @Override
     public Long readKey(ResultSet resultSet, int offset) throws SQLException {
-    	int index = 1;
-        return resultSet.getLong(offset + index++);
+        return resultSet.getLong(offset + 1);
     }    
 
     /** @inheritdoc */

@@ -7,6 +7,7 @@ import de.greenrobot.daotest.SqliteMasterDao;
 
 public class SqliteMasterTest extends AbstractDaoTestLongPk<SqliteMasterDao, SqliteMaster> {
 
+	
     public SqliteMasterTest() {
         super(SqliteMasterDao.class);
     }
@@ -14,7 +15,7 @@ public class SqliteMasterTest extends AbstractDaoTestLongPk<SqliteMasterDao, Sql
     @Override
     protected SqliteMaster createEntity(Long key) {
         SqliteMaster entity = new SqliteMaster();
-        return entity;
+		return entity;
     }
 
 }

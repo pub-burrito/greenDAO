@@ -116,8 +116,7 @@ public class TestEntityDao extends AbstractDao<TestEntity, Long> {
     /** @inheritdoc */
     @Override
     public Long readKey(ResultSet resultSet, int offset) throws SQLException {
-    	int index = 1;
-        return JDBCUtils.isNull(resultSet, offset + index) ? null : resultSet.getLong(offset + index++);
+        return JDBCUtils.isNull(resultSet, offset + 1) ? null : resultSet.getLong(offset + 1);
     }    
 
     /** @inheritdoc */

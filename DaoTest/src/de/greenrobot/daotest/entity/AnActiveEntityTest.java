@@ -7,6 +7,7 @@ import de.greenrobot.daotest.AnActiveEntityDao;
 
 public class AnActiveEntityTest extends AbstractDaoTestLongPk<AnActiveEntityDao, AnActiveEntity> {
 
+	
     public AnActiveEntityTest() {
         super(AnActiveEntityDao.class);
     }
@@ -15,7 +16,7 @@ public class AnActiveEntityTest extends AbstractDaoTestLongPk<AnActiveEntityDao,
     protected AnActiveEntity createEntity(Long key) {
         AnActiveEntity entity = new AnActiveEntity();
         entity.setId(key);
-        return entity;
+		return entity;
     }
 
 }

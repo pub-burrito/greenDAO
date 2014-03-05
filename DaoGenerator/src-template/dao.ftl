@@ -172,10 +172,9 @@ as property>${property.columnName}<#if property_has_next>,</#if></#list>);");
     @Override
     public ${entity.pkType} readKey(ResultSet resultSet, int offset) throws SQLException {
 <#if entity.pkProperty??>
-    	int index = 1;
-        return <#if !entity.pkProperty.notNull>JDBCUtils.isNull(resultSet, offset + index) ? null : </#if><#if
+        return <#if !entity.pkProperty.notNull>JDBCUtils.isNull(resultSet, offset + 1) ? null : </#if><#if
             entity.pkProperty.propertyType == "Byte">(byte) </#if><#if
-            entity.pkProperty.propertyType == "Date">new java.util.Date(</#if>resultSet.get${toCursorType[entity.pkProperty.propertyType]}(offset + index++)<#if
+            entity.pkProperty.propertyType == "Date">new java.util.Date(</#if>resultSet.get${toCursorType[entity.pkProperty.propertyType]}(offset + 1)<#if
             entity.pkProperty.propertyType == "Boolean"> != 0</#if><#if
             entity.pkProperty.propertyType == "Date">)</#if>;
 <#else>

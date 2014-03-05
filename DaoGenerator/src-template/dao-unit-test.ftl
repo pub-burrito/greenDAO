@@ -32,6 +32,14 @@ import ${entity.javaPackageDao}.${entity.classNameDao};
 public class ${entity.classNameTest} extends <#if
 isStringPK>AbstractDaoTestStringPk<${entity.classNameDao}, ${entity.className}><#else>AbstractDaoTestLongPk<${entity.classNameDao}, ${entity.className}></#if> {
 
+	<#list entity.properties as property>
+	<#if property.notNull>
+	<#if property.propertyName != entity.pkProperty.propertyName>
+	private ${property.javaType} ${property.propertyName};
+	</#if>
+	</#if>
+	</#list>
+	
     public ${entity.classNameTest}() {
         super(${entity.classNameDao}.class);
     }
@@ -42,12 +50,14 @@ isStringPK>AbstractDaoTestStringPk<${entity.classNameDao}, ${entity.className}><
 <#if entity.pkProperty??>
         entity.set${entity.pkProperty.propertyName?cap_first}(key);
 </#if>
-<#list entity.properties as property>
-<#if property.notNull>
-        entity.set${property.propertyName?cap_first}();
-</#if> 
-</#list>
-        return entity;
+		<#list entity.properties as property>
+		<#if property.notNull>
+		<#if property.propertyName != entity.pkProperty.propertyName>
+		entity.set${property.propertyName?cap_first}(${property.propertyName});
+		</#if> 
+		</#if> 
+		</#list>
+		return entity;
     }
 
 }

@@ -7,6 +7,7 @@ import de.greenrobot.daotest.ToManyEntityDao;
 
 public class ToManyEntityTest extends AbstractDaoTestLongPk<ToManyEntityDao, ToManyEntity> {
 
+	
     public ToManyEntityTest() {
         super(ToManyEntityDao.class);
     }
@@ -15,7 +16,7 @@ public class ToManyEntityTest extends AbstractDaoTestLongPk<ToManyEntityDao, ToM
     protected ToManyEntity createEntity(Long key) {
         ToManyEntity entity = new ToManyEntity();
         entity.setId(key);
-        return entity;
+		return entity;
     }
 
 }

@@ -7,6 +7,7 @@ import de.greenrobot.daotest.SimpleEntityDao;
 
 public class SimpleEntityTest extends AbstractDaoTestLongPk<SimpleEntityDao, SimpleEntity> {
 
+	
     public SimpleEntityTest() {
         super(SimpleEntityDao.class);
     }
@@ -15,7 +16,7 @@ public class SimpleEntityTest extends AbstractDaoTestLongPk<SimpleEntityDao, Sim
     protected SimpleEntity createEntity(Long key) {
         SimpleEntity entity = new SimpleEntity();
         entity.setId(key);
-        return entity;
+		return entity;
     }
 
 }

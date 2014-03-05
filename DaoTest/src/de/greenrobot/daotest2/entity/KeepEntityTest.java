@@ -7,6 +7,7 @@ import de.greenrobot.daotest2.dao.KeepEntityDao;
 
 public class KeepEntityTest extends AbstractDaoTestLongPk<KeepEntityDao, KeepEntity> {
 
+	
     public KeepEntityTest() {
         super(KeepEntityDao.class);
     }
@@ -15,7 +16,7 @@ public class KeepEntityTest extends AbstractDaoTestLongPk<KeepEntityDao, KeepEnt
     protected KeepEntity createEntity(Long key) {
         KeepEntity entity = new KeepEntity();
         entity.setId(key);
-        return entity;
+		return entity;
     }
 
 }

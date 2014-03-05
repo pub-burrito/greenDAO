@@ -7,6 +7,7 @@ import de.greenrobot.daotest.SpecialNamesEntityDao;
 
 public class SpecialNamesEntityTest extends AbstractDaoTestLongPk<SpecialNamesEntityDao, SpecialNamesEntity> {
 
+	
     public SpecialNamesEntityTest() {
         super(SpecialNamesEntityDao.class);
     }
@@ -15,7 +16,7 @@ public class SpecialNamesEntityTest extends AbstractDaoTestLongPk<SpecialNamesEn
     protected SpecialNamesEntity createEntity(Long key) {
         SpecialNamesEntity entity = new SpecialNamesEntity();
         entity.setId(key);
-        return entity;
+		return entity;
     }
 
 }

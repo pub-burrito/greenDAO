@@ -17,9 +17,14 @@
  */
 package de.greenrobot.daogenerator;
 
-import de.greenrobot.daogenerator.Property.PropertyBuilder;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
-import java.util.*;
+import de.greenrobot.daogenerator.Property.PropertyBuilder;
 
 /**
  * Model class for an entity: a Java data object mapped to a data base table. A new entity is added to a {@link Schema}
@@ -456,7 +461,7 @@ public class Entity {
             pkProperty = propertiesPk.get(0);
             pkType = schema.mapToJavaTypeNullable(pkProperty.getPropertyType());
         } else {
-            pkType = "Void";
+            pkType = "Long"; // this used to be Void but Void is not a Long as expected by the super type AbstractDao<SqliteMaster, Long>
         }
 
         propertiesColumns = new ArrayList<Property>(properties);

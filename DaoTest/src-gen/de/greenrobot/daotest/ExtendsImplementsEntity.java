@@ -5,7 +5,7 @@ package de.greenrobot.daotest;
 /**
  * Entity mapped to table EXTENDS_IMPLEMENTS_ENTITY.
  */
-public class ExtendsImplementsEntity extends TestSuperclass  implements TestInterface, java.io.Serializable {
+public class ExtendsImplementsEntity extends Object implements java.io.Serializable {
 
 	private static final long serialVersionUID = 1L;
 

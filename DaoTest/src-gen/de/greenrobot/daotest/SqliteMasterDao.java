@@ -16,7 +16,7 @@ import de.greenrobot.daotest.SqliteMaster;
 /** 
  * DAO for table SQLITE_MASTER.
 */
-public class SqliteMasterDao extends AbstractDao<SqliteMaster, Void> {
+public class SqliteMasterDao extends AbstractDao<SqliteMaster, Long> {
 
     public static final String TABLENAME = "SQLITE_MASTER";
 
@@ -73,7 +73,7 @@ public class SqliteMasterDao extends AbstractDao<SqliteMaster, Void> {
 
     /** @inheritdoc */
     @Override
-    public Void readKey(ResultSet resultSet, int offset) throws SQLException {
+    public Long readKey(ResultSet resultSet, int offset) throws SQLException {
         return null;
     }    
 
@@ -104,14 +104,14 @@ public class SqliteMasterDao extends AbstractDao<SqliteMaster, Void> {
     
     /** @inheritdoc */
     @Override
-    protected Void updateKeyAfterInsert(SqliteMaster entity, long rowId) {
+    protected Long updateKeyAfterInsert(SqliteMaster entity, long rowId) {
         // Unsupported or missing PK type
         return null;
     }
     
     /** @inheritdoc */
     @Override
-    public Void getKey(SqliteMaster entity) {
+    public Long getKey(SqliteMaster entity) {
         return null;
     }
 

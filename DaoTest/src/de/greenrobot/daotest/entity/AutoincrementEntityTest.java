@@ -7,6 +7,7 @@ import de.greenrobot.daotest.AutoincrementEntityDao;
 
 public class AutoincrementEntityTest extends AbstractDaoTestLongPk<AutoincrementEntityDao, AutoincrementEntity> {
 
+	
     public AutoincrementEntityTest() {
         super(AutoincrementEntityDao.class);
     }
@@ -15,7 +16,7 @@ public class AutoincrementEntityTest extends AbstractDaoTestLongPk<Autoincrement
     protected AutoincrementEntity createEntity(Long key) {
         AutoincrementEntity entity = new AutoincrementEntity();
         entity.setId(key);
-        return entity;
+		return entity;
     }
 
 }

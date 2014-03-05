@@ -212,8 +212,9 @@ public class TestDaoGenerator {
         Entity entity = schema.addEntity("ExtendsImplementsEntity");
         entity.addIdProperty();
         entity.addStringProperty("text");
-        entity.setSuperclass("TestSuperclass");
-        entity.implementsInterface("TestInterface");
+        entity.setSuperclass("Object");
+//        entity.setSuperclass("TestSuperclass");
+//        entity.implementsInterface("TestInterface");
         entity.implementsSerializable();
     }
 

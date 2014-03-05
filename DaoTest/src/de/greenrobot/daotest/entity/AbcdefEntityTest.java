@@ -7,6 +7,7 @@ import de.greenrobot.daotest.AbcdefEntityDao;
 
 public class AbcdefEntityTest extends AbstractDaoTestLongPk<AbcdefEntityDao, AbcdefEntity> {
 
+	
     public AbcdefEntityTest() {
         super(AbcdefEntityDao.class);
     }
@@ -15,7 +16,7 @@ public class AbcdefEntityTest extends AbstractDaoTestLongPk<AbcdefEntityDao, Abc
     protected AbcdefEntity createEntity(Long key) {
         AbcdefEntity entity = new AbcdefEntity();
         entity.setId(key);
-        return entity;
+		return entity;
     }
 
 }

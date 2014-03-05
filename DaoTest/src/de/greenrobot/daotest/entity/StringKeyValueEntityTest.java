@@ -7,6 +7,7 @@ import de.greenrobot.daotest.StringKeyValueEntityDao;
 
 public class StringKeyValueEntityTest extends AbstractDaoTestStringPk<StringKeyValueEntityDao, StringKeyValueEntity> {
 
+	
     public StringKeyValueEntityTest() {
         super(StringKeyValueEntityDao.class);
     }
@@ -15,7 +16,7 @@ public class StringKeyValueEntityTest extends AbstractDaoTestStringPk<StringKeyV
     protected StringKeyValueEntity createEntity(String key) {
         StringKeyValueEntity entity = new StringKeyValueEntity();
         entity.setKey(key);
-        return entity;
+		return entity;
     }
 
 }
