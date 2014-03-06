@@ -100,10 +100,11 @@ public class AsyncOperation {
      * The operation's result after it has completed. Waits until a result is available.
      * 
      * @return The operation's result or null if the operation type does not produce any result.
+     * @throws DaoException 
      * @throws {@link AsyncDaoException} if the operation produced an exception
      * @see #waitForCompletion()
      */
-    public synchronized Object getResult() {
+    public synchronized Object getResult() throws DaoException {
         if (!completed) {
             waitForCompletion();
         }
@@ -138,7 +139,7 @@ public class AsyncOperation {
         return timeCompleted;
     }
 
-    public long getDuration() {
+    public long getDuration() throws DaoException {
         if (timeCompleted == 0) {
             throw new DaoException("This operation did not yet complete");
         } else {
@@ -159,8 +160,9 @@ public class AsyncOperation {
      * rethrown as a {@link DaoException}.
      * 
      * @return Result if any, see {@link #getResult()}
+     * @throws DaoException 
      */
-    public synchronized Object waitForCompletion() {
+    public synchronized Object waitForCompletion() throws DaoException {
         while (!completed) {
             try {
                 wait();
@@ -176,8 +178,9 @@ public class AsyncOperation {
      * interrupted, any {@link InterruptedException} will be rethrown as a {@link DaoException}.
      * 
      * @return true if the operation completed in the given time frame.
+     * @throws DaoException 
      */
-    public synchronized boolean waitForCompletion(int maxMillis) {
+    public synchronized boolean waitForCompletion(int maxMillis) throws DaoException {
         if (!completed) {
             try {
                 wait(maxMillis);

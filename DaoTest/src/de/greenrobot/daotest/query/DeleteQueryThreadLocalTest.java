@@ -75,9 +75,16 @@ public class DeleteQueryThreadLocalTest extends TestEntityTestBase {
 
             @Override
             public void run() {
-                QueryBuilder<TestEntity> builder = dao.queryBuilder();
-                builder.where(Properties.SimpleInteger.eq(getSimpleInteger(1)));
-                queryFromOtherThread = builder.buildDelete();
+                try
+				{
+                	QueryBuilder<TestEntity> builder = dao.queryBuilder();
+					builder.where(Properties.SimpleInteger.eq(getSimpleInteger(1)));
+					queryFromOtherThread = builder.buildDelete();
+				}
+				catch ( DaoException e )
+				{
+					e.printStackTrace();
+				}
             }
         };
         thread.start();

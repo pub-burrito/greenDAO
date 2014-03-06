@@ -18,6 +18,7 @@
 package de.greenrobot.daotest;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -27,7 +28,8 @@ import de.greenrobot.dao.test.DbTest;
 
 public class DbUtilsTest extends DbTest {
     public void testExecuteSqlScript() throws IOException, SQLException {
-        DbUtils.executeSqlScript(getContext(), connection, "minimal-entity.sql");
+    	InputStream in = getContext().getResources().getAssets().open("minimal-entity.sql");
+        DbUtils.executeSqlScript(connection, in);
         PreparedStatement statement = connection.prepareStatement( "SELECT count(*) from MINIMAL_ENTITY" );
         ResultSet resultSet = statement.executeQuery();
         try {
@@ -37,5 +39,4 @@ public class DbUtilsTest extends DbTest {
             statement.close();
         }
     }
-
 }

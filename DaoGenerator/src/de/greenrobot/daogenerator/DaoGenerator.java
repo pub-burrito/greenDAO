@@ -110,6 +110,8 @@ public class DaoGenerator {
                 if (!javaFilename.exists()) {
                     generate(templateDaoUnitTest, outDirTestFile, javaPackageTest, classNameTest, schema, entity);
                 } else {
+                	javaFilename.delete();
+                	generate(templateDaoUnitTest, outDirTestFile, javaPackageTest, classNameTest, schema, entity);
                     System.out.println("Skipped " + javaFilename.getCanonicalPath());
                 }
             }

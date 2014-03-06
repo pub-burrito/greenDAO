@@ -16,7 +16,8 @@
 
 package de.greenrobot.dao;
 
-import android.util.Log;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Internal greenDAO logger class. A wrapper around the Android Log class providing a static Log Tag.
@@ -25,69 +26,53 @@ import android.util.Log;
  * 
  */
 public class DaoLog {
-    private final static String TAG = "greenDAO";
+	
+	private final static String TAG = "greenDAO";
+	private final static Logger Log = Logger.getLogger(Logger.class.getName(), TAG);
 
-    public static final int VERBOSE = 2;
-    public static final int DEBUG = 3;
-    public static final int INFO = 4;
-    public static final int WARN = 5;
-    public static final int ERROR = 6;
-    public static final int ASSERT = 7;
+    public static final Level VERBOSE = Level.ALL;
+    public static final Level DEBUG = Level.FINEST;
+    public static final Level INFO = Level.INFO;
+    public static final Level WARN = Level.WARNING;
+    public static final Level ERROR = Level.SEVERE;
+    public static final Level ASSERT = Level.FINE;
 
-    public static boolean isLoggable(int level) {
-        return Log.isLoggable(TAG, level);
+    public static boolean isLoggable(Level level) {
+        return Log.isLoggable(level);
+    }
+    
+    public static void v(String msg) {
+    	Log.log(VERBOSE, msg);
     }
 
-    public static String getStackTraceString(Throwable th) {
-        return Log.getStackTraceString(th);
+    public static void d(String msg) {
+    	Log.log(DEBUG, msg) ;
     }
 
-    public static int println(int level, String msg) {
-        return Log.println(level, TAG, msg);
+    public static void d(String msg, Throwable t) {
+    	Log.log(DEBUG, msg, t);
+    }
+    
+    public static void i(String msg) {
+        Log.log(INFO, msg);
     }
 
-    public static int v(String msg) {
-        return Log.v(TAG, msg);
+    public static void i(String msg, Throwable t) {
+    	Log.log(INFO, msg, t);
+    }
+    
+    public static void w(String msg) {
+        Log.log(WARN, msg);
     }
 
-    public static int v(String msg, Throwable th) {
-        return Log.v(TAG, msg, th);
+    public static void w(String msg, Throwable t) {
+    	Log.log(WARN, msg, t);
     }
-
-    public static int d(String msg) {
-        return Log.d(TAG, msg);
+    
+    public static void e(String msg) {
+        Log.log(ERROR, msg);
     }
-
-    public static int d(String msg, Throwable th) {
-        return Log.d(TAG, msg, th);
+    public static void e(String msg, Throwable t) {
+    	Log.log(ERROR, msg, t);
     }
-
-    public static int i(String msg) {
-        return Log.i(TAG, msg);
-    }
-
-    public static int i(String msg, Throwable th) {
-        return Log.i(TAG, msg, th);
-    }
-
-    public static int w(String msg) {
-        return Log.w(TAG, msg);
-    }
-
-    public static int w(String msg, Throwable th) {
-        return Log.w(TAG, msg, th);
-    }
-
-    public static int w(Throwable th) {
-        return Log.w(TAG, th);
-    }
-
-    public static int e(String msg) {
-        return Log.w(TAG, msg);
-    }
-
-    public static int e(String msg, Throwable th) {
-        return Log.e(TAG, msg, th);
-    }
-
 }

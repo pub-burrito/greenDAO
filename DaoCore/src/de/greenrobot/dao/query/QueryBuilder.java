@@ -94,8 +94,9 @@ public class QueryBuilder<T> {
     /**
      * Adds the given conditions to the where clause using an logical AND. To create new conditions, use the properties
      * given in the generated dao classes.
+     * @throws DaoException 
      */
-    public QueryBuilder<T> where(WhereCondition cond, WhereCondition... condMore) {
+    public QueryBuilder<T> where(WhereCondition cond, WhereCondition... condMore) throws DaoException {
         whereConditions.add(cond);
         for (WhereCondition whereCondition : condMore) {
             checkCondition(whereCondition);
@@ -107,8 +108,9 @@ public class QueryBuilder<T> {
     /**
      * Adds the given conditions to the where clause using an logical OR. To create new conditions, use the properties
      * given in the generated dao classes.
+     * @throws DaoException 
      */
-    public QueryBuilder<T> whereOr(WhereCondition cond1, WhereCondition cond2, WhereCondition... condMore) {
+    public QueryBuilder<T> whereOr(WhereCondition cond1, WhereCondition cond2, WhereCondition... condMore) throws DaoException {
         whereConditions.add(or(cond1, cond2, condMore));
         return this;
     }
@@ -117,8 +119,9 @@ public class QueryBuilder<T> {
      * Creates a WhereCondition by combining the given conditions using OR. The returned WhereCondition must be used
      * inside {@link #where(WhereCondition, WhereCondition...)} or
      * {@link #whereOr(WhereCondition, WhereCondition, WhereCondition...)}.
+     * @throws DaoException 
      */
-    public WhereCondition or(WhereCondition cond1, WhereCondition cond2, WhereCondition... condMore) {
+    public WhereCondition or(WhereCondition cond1, WhereCondition cond2, WhereCondition... condMore) throws DaoException {
         return combineWhereConditions(" OR ", cond1, cond2, condMore);
     }
 
@@ -126,13 +129,14 @@ public class QueryBuilder<T> {
      * Creates a WhereCondition by combining the given conditions using AND. The returned WhereCondition must be used
      * inside {@link #where(WhereCondition, WhereCondition...)} or
      * {@link #whereOr(WhereCondition, WhereCondition, WhereCondition...)}.
+     * @throws DaoException 
      */
-    public WhereCondition and(WhereCondition cond1, WhereCondition cond2, WhereCondition... condMore) {
+    public WhereCondition and(WhereCondition cond1, WhereCondition cond2, WhereCondition... condMore) throws DaoException {
         return combineWhereConditions(" AND ", cond1, cond2, condMore);
     }
 
     protected WhereCondition combineWhereConditions(String combineOp, WhereCondition cond1, WhereCondition cond2,
-            WhereCondition... condMore) {
+            WhereCondition... condMore) throws DaoException {
         StringBuilder builder = new StringBuilder("(");
         List<Object> combinedValues = new ArrayList<Object>();
 
@@ -148,13 +152,13 @@ public class QueryBuilder<T> {
         return new WhereCondition.StringCondition(builder.toString(), combinedValues.toArray());
     }
 
-    protected void addCondition(StringBuilder builder, List<Object> values, WhereCondition condition) {
+    protected void addCondition(StringBuilder builder, List<Object> values, WhereCondition condition) throws DaoException {
         checkCondition(condition);
         condition.appendTo(builder, tablePrefix);
         condition.appendValuesTo(values);
     }
 
-    protected void checkCondition(WhereCondition whereCondition) {
+    protected void checkCondition(WhereCondition whereCondition) throws DaoException {
         if (whereCondition instanceof PropertyCondition) {
             checkProperty(((PropertyCondition) whereCondition).property);
         }
@@ -174,19 +178,21 @@ public class QueryBuilder<T> {
         // return new QueryBuilder<J>(joinDao, "TX");
     }
 
-    /** Adds the given properties to the ORDER BY section using ascending order. */
-    public QueryBuilder<T> orderAsc(Property... properties) {
+    /** Adds the given properties to the ORDER BY section using ascending order. 
+     * @throws DaoException */
+    public QueryBuilder<T> orderAsc(Property... properties) throws DaoException {
         orderAscOrDesc(" ASC", properties);
         return this;
     }
 
-    /** Adds the given properties to the ORDER BY section using descending order. */
-    public QueryBuilder<T> orderDesc(Property... properties) {
+    /** Adds the given properties to the ORDER BY section using descending order. 
+     * @throws DaoException */
+    public QueryBuilder<T> orderDesc(Property... properties) throws DaoException {
         orderAscOrDesc(" DESC", properties);
         return this;
     }
 
-    private void orderAscOrDesc(String ascOrDescWithLeadingSpace, Property... properties) {
+    private void orderAscOrDesc(String ascOrDescWithLeadingSpace, Property... properties) throws DaoException {
         for (Property property : properties) {
             checkOrderBuilder();
             append(orderBuilder, property);
@@ -197,8 +203,9 @@ public class QueryBuilder<T> {
         }
     }
 
-    /** Adds the given properties to the ORDER BY section using the given custom order. */
-    public QueryBuilder<T> orderCustom(Property property, String customOrderForProperty) {
+    /** Adds the given properties to the ORDER BY section using the given custom order. 
+     * @throws DaoException */
+    public QueryBuilder<T> orderCustom(Property property, String customOrderForProperty) throws DaoException {
         checkOrderBuilder();
         append(orderBuilder, property).append(' ');
         orderBuilder.append(customOrderForProperty);
@@ -215,13 +222,13 @@ public class QueryBuilder<T> {
         return this;
     }
 
-    protected StringBuilder append(StringBuilder builder, Property property) {
+    protected StringBuilder append(StringBuilder builder, Property property) throws DaoException {
         checkProperty(property);
         builder.append(tablePrefix).append('.').append('\'').append(property.columnName).append('\'');
         return builder;
     }
 
-    protected void checkProperty(Property property) {
+    protected void checkProperty(Property property) throws DaoException {
         if (dao != null) {
             Property[] properties = dao.getProperties();
             boolean found = false;
@@ -255,8 +262,9 @@ public class QueryBuilder<T> {
     /**
      * Builds a reusable query object (Query objects can be executed more efficiently than creating a QueryBuilder for
      * each execution.
+     * @throws DaoException 
      */
-    public Query<T> build() {
+    public Query<T> build() throws DaoException {
         String select;
         if (joinBuilder == null || joinBuilder.length() == 0) {
             select = InternalQueryDaoAccess.getStatements(dao).getSelectAll();

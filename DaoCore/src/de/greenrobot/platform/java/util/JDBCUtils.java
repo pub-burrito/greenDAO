@@ -1,6 +1,5 @@
 package de.greenrobot.platform.java.util;
 
-import java.io.File;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
@@ -8,16 +7,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import android.util.Log;
-
 public class JDBCUtils
 {
-	public static String driverName = "org.sqldroid.SQLDroidDriver";
-	public static String JDBC_URL_PREFIX = "jdbc:sqlite:";
-	public static String packageName = "de.greenrobot.daotest";
-	public static String DB_DIRECTORY = "/data/data/" + packageName + "/databases/";
-	public static String url = JDBC_URL_PREFIX + DB_DIRECTORY;
-
 	public static ResultSet query( Connection connection, String sql ) throws SQLException
 	{
 		return query( connection, sql, new Object[] {} );
@@ -89,16 +80,16 @@ public class JDBCUtils
 	public static int getCount( ResultSet resultSet )
 	{
 		int count = 0;
-		if (resultSet != null)
+		if ( resultSet != null )
 		{
-			try 
+			try
 			{
-				resultSet.beforeFirst();  
+				resultSet.beforeFirst();
 				resultSet.last();
 				count = resultSet.getRow();
 				resultSet.beforeFirst();
-			} 
-			catch (SQLException e)
+			}
+			catch ( SQLException e )
 			{
 				count = 0;
 			}
@@ -130,26 +121,51 @@ public class JDBCUtils
 			e.printStackTrace();
 		}
 		
-		Log.i("JDBCUtils", "connecting: "+connectionString);
 		return DriverManager.getConnection( connectionString );
 	}
 	
-	public static Connection connect( String db ) throws SQLException
+	public static final void appendValueToSql( StringBuilder sql, Object value )
 	{
-		// setup
-		File f = new File( DB_DIRECTORY+db );
-		if ( f.exists() )
+		if ( value == null )
 		{
-			f.delete();
+			sql.append( "NULL" );
+		}
+		else if ( value instanceof Boolean )
+		{
+			Boolean bool = (Boolean) value;
+			if ( bool )
+			{
+				sql.append( '1' );
+			}
+			else
+			{
+				sql.append( '0' );
+			}
 		}
 		else
 		{
-			if ( null != f.getParent() )
+			appendEscapedSQLString( sql, value.toString() );
+		}
+	}
+	
+	public static void appendEscapedSQLString( StringBuilder sb, String sqlString )
+	{
+		sb.append( '\'' );
+		if ( sqlString.indexOf( '\'' ) != -1 )
+		{
+			int length = sqlString.length();
+			for ( int i = 0; i < length; i++ )
 			{
-				f.getParentFile().mkdirs();
+				char c = sqlString.charAt( i );
+				if ( c == '\'' )
+				{
+					sb.append( '\'' );
+				}
+				sb.append( c );
 			}
 		}
-
-		return connect( driverName, url + db );
+		else
+			sb.append( sqlString );
+		sb.append( '\'' );
 	}
 }

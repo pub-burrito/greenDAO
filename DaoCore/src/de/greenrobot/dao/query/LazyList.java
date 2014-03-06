@@ -149,8 +149,9 @@ public class LazyList<E> implements List<E>, Closeable {
         lock = new ReentrantLock();
     }
 
-    /** Loads the remaining entities (if any) that were not loaded before. Applies to cached lazy lists only. */
-    public void loadRemaining() {
+    /** Loads the remaining entities (if any) that were not loaded before. Applies to cached lazy lists only. 
+     * @throws DaoException */
+    public void loadRemaining() throws DaoException {
         checkCached();
         int size = entities.size();
         for (int i = 0; i < size; i++) {
@@ -158,7 +159,7 @@ public class LazyList<E> implements List<E>, Closeable {
         }
     }
 
-    protected void checkCached() {
+    protected void checkCached() throws DaoException {
         if (entities == null) {
             throw new DaoException("This operation only works with cached lazy lists");
         }
@@ -226,13 +227,27 @@ public class LazyList<E> implements List<E>, Closeable {
 
     @Override
     public boolean contains(Object object) {
-        loadRemaining();
+        try
+		{
+			loadRemaining();
+		}
+		catch ( DaoException e )
+		{
+			e.printStackTrace();
+		}
         return entities.contains(object);
     }
 
     @Override
     public boolean containsAll(Collection<?> collection) {
-        loadRemaining();
+        try
+		{
+			loadRemaining();
+		}
+		catch ( DaoException e )
+		{
+			e.printStackTrace();
+		}
         return entities.containsAll(collection);
     }
 
@@ -286,7 +301,14 @@ public class LazyList<E> implements List<E>, Closeable {
 
     @Override
     public int indexOf(Object object) {
-        loadRemaining();
+        try
+		{
+			loadRemaining();
+		}
+		catch ( DaoException e )
+		{
+			e.printStackTrace();
+		}
         return entities.indexOf(object);
     }
 
@@ -302,7 +324,14 @@ public class LazyList<E> implements List<E>, Closeable {
 
     @Override
     public int lastIndexOf(Object object) {
-        loadRemaining();
+        try
+		{
+			loadRemaining();
+		}
+		catch ( DaoException e )
+		{
+			e.printStackTrace();
+		}
         return entities.lastIndexOf(object);
     }
 
@@ -353,7 +382,14 @@ public class LazyList<E> implements List<E>, Closeable {
 
     @Override
     public List<E> subList(int start, int end) {
-        checkCached();
+        try
+		{
+			checkCached();
+		}
+		catch ( DaoException e )
+		{
+			e.printStackTrace();
+		}
         for (int i = start; i < end; i++) {
             entities.get(i);
         }
@@ -362,13 +398,27 @@ public class LazyList<E> implements List<E>, Closeable {
 
     @Override
     public Object[] toArray() {
-        loadRemaining();
+        try
+		{
+			loadRemaining();
+		}
+		catch ( DaoException e )
+		{
+			e.printStackTrace();
+		}
         return entities.toArray();
     }
 
     @Override
     public <T> T[] toArray(T[] array) {
-        loadRemaining();
+        try
+		{
+			loadRemaining();
+		}
+		catch ( DaoException e )
+		{
+			e.printStackTrace();
+		}
         return entities.toArray(array);
     }
 

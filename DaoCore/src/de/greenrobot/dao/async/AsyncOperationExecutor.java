@@ -25,14 +25,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import de.greenrobot.dao.DaoException;
 import de.greenrobot.dao.DaoLog;
 import de.greenrobot.dao.query.Query;
 
-class AsyncOperationExecutor implements Runnable, Handler.Callback {
+class AsyncOperationExecutor implements Runnable {
 
     private static ExecutorService executorService = Executors.newCachedThreadPool();
 
@@ -40,13 +37,11 @@ class AsyncOperationExecutor implements Runnable, Handler.Callback {
     private volatile boolean executorRunning;
     private volatile int maxOperationCountToMerge;
     private volatile AsyncOperationListener listener;
-    private volatile AsyncOperationListener listenerMainThread;
     private volatile int waitForMergeMillis;
 
     private int countOperationsEnqueued;
     private int countOperationsCompleted;
 
-    private Handler handlerMainThread;
     private int lastSequenceNumber;
 
     AsyncOperationExecutor() {
@@ -91,14 +86,6 @@ class AsyncOperationExecutor implements Runnable, Handler.Callback {
         this.listener = listener;
     }
 
-    public AsyncOperationListener getListenerMainThread() {
-        return listenerMainThread;
-    }
-
-    public void setListenerMainThread(AsyncOperationListener listenerMainThread) {
-        this.listenerMainThread = listenerMainThread;
-    }
-
     public synchronized boolean isCompleted() {
         return countOperationsEnqueued == countOperationsCompleted;
     }
@@ -106,8 +93,9 @@ class AsyncOperationExecutor implements Runnable, Handler.Callback {
     /**
      * Waits until all enqueued operations are complete. If the thread gets interrupted, any
      * {@link InterruptedException} will be rethrown as a {@link DaoException}.
+     * @throws DaoException 
      */
-    public synchronized void waitForCompletion() {
+    public synchronized void waitForCompletion() throws DaoException {
         while (!isCompleted()) {
             try {
                 wait();
@@ -122,8 +110,9 @@ class AsyncOperationExecutor implements Runnable, Handler.Callback {
      * gets interrupted, any {@link InterruptedException} will be rethrown as a {@link DaoException}.
      * 
      * @return true if operations completed in the given time frame.
+     * @throws DaoException 
      */
-    public synchronized boolean waitForCompletion(int maxMillis) {
+    public synchronized boolean waitForCompletion(int maxMillis) throws DaoException {
         if (!isCompleted()) {
             try {
                 wait(maxMillis);
@@ -240,13 +229,6 @@ class AsyncOperationExecutor implements Runnable, Handler.Callback {
         AsyncOperationListener listenerToCall = listener;
         if (listenerToCall != null) {
             listenerToCall.onAsyncOperationCompleted(operation);
-        }
-        if (listenerMainThread != null) {
-            if (handlerMainThread == null) {
-                handlerMainThread = new Handler(Looper.getMainLooper(), this);
-            }
-            Message msg = handlerMainThread.obtainMessage(1, operation);
-            handlerMainThread.sendMessage(msg);
         }
         synchronized (this) {
             countOperationsCompleted++;
@@ -370,14 +352,4 @@ class AsyncOperationExecutor implements Runnable, Handler.Callback {
         	connection.setAutoCommit( true );
         }
     }
-
-    @Override
-    public boolean handleMessage(Message msg) {
-        AsyncOperationListener listenerToCall = listenerMainThread;
-        if (listenerToCall != null) {
-            listenerToCall.onAsyncOperationCompleted((AsyncOperation) msg.obj);
-        }
-        return false;
-    }
-
 }

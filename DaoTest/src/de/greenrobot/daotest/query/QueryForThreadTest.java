@@ -37,7 +37,7 @@ public class QueryForThreadTest extends TestEntityTestBase {
 
     private Query<TestEntity> queryFromOtherThread;
 
-    public void testGetForCurrentThread_SameInstance() {
+    public void testGetForCurrentThread_SameInstance() throws DaoException {
         Query<TestEntity> query = dao.queryBuilder().build();
         assertSame(query, query.forCurrentThread());
     }
@@ -85,7 +85,7 @@ public class QueryForThreadTest extends TestEntityTestBase {
         assertEquals(1, map.size());
     }
 
-    public void testBuildQueryDoesntLeak() {
+    public void testBuildQueryDoesntLeak() throws DaoException {
         QueryBuilder<TestEntity> builder = dao.queryBuilder().where(Properties.SimpleInteger.eq("dummy"));
         for (int i = 0; i < LEAK_TEST_ITERATIONS; i++) {
             builder.build();
@@ -158,10 +158,17 @@ public class QueryForThreadTest extends TestEntityTestBase {
 
             @Override
             public void run() {
-                QueryBuilder<TestEntity> builder = dao.queryBuilder();
-                builder.where(Properties.SimpleInteger.eq(getSimpleInteger(1)));
-                builder.limit(10).offset(20);
-                queryFromOtherThread = builder.build();
+                try
+				{
+                	QueryBuilder<TestEntity> builder = dao.queryBuilder();
+                	builder.where(Properties.SimpleInteger.eq(getSimpleInteger(1)));
+                	builder.limit(10).offset(20);
+					queryFromOtherThread = builder.build();
+				}
+				catch ( DaoException e )
+				{
+					e.printStackTrace();
+				}
             }
         };
         thread.start();

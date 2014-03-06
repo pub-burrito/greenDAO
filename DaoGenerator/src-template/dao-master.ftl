@@ -26,6 +26,7 @@ import java.sql.ResultSet;
 import de.greenrobot.platform.java.util.JDBCUtils;
 
 import de.greenrobot.dao.AbstractDaoMaster;
+import de.greenrobot.dao.DaoException;
 import de.greenrobot.dao.identityscope.IdentityScopeType;
 
 <#list schema.entities as entity>
@@ -81,6 +82,8 @@ public class DaoMaster extends AbstractDaoMaster {
 			return this.connection;    	
     	}
     	
+		public void onOpen( Connection connection ) throws SQLException {} // not mandatory
+
     	public abstract void onCreate(Connection connection) throws SQLException;
 
     	public void onUpgrade(Connection connection, int oldVersion, int newVersion) throws SQLException {} // not mandatory
@@ -127,7 +130,7 @@ public class DaoMaster extends AbstractDaoMaster {
         }
     }
     
-    public DaoMaster(Connection connection) {
+    public DaoMaster(Connection connection) throws DaoException {
         super(connection, SCHEMA_VERSION);
 <#list schema.entities as entity>
         registerDaoClass(${entity.classNameDao}.class);

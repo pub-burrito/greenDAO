@@ -20,6 +20,7 @@ package de.greenrobot.daotest.query;
 import java.sql.SQLException;
 import java.util.List;
 
+import de.greenrobot.dao.DaoException;
 import de.greenrobot.dao.query.Query;
 import de.greenrobot.dao.query.QueryBuilder;
 import de.greenrobot.daotest.TestEntity;
@@ -81,7 +82,7 @@ public class QueryLimitOffsetTest extends TestEntityTestBase {
         assertEquals(getSimpleInteger(6), result.get(2).getSimpleInteger().intValue());
     }
     
-    public void testQueryBuilderOffsetWithoutLimit() {
+    public void testQueryBuilderOffsetWithoutLimit() throws DaoException {
         try{
             dao.queryBuilder().offset(7).orderAsc(Properties.SimpleInt).build();
             fail("Offset may not be set alone");
@@ -90,7 +91,7 @@ public class QueryLimitOffsetTest extends TestEntityTestBase {
         }
     }
     
-    public void testQueryLimitAndSetParameter() {
+    public void testQueryLimitAndSetParameter() throws DaoException {
         Query<TestEntity> query = dao.queryBuilder().limit(5).offset(1).build();
         try{
             query.setParameter(0, null);
@@ -100,7 +101,7 @@ public class QueryLimitOffsetTest extends TestEntityTestBase {
         }
     }
     
-    public void testQueryUnsetLimit() {
+    public void testQueryUnsetLimit() throws DaoException {
         Query<TestEntity> query = dao.queryBuilder().build();
         try{
             query.setLimit(1);
@@ -110,7 +111,7 @@ public class QueryLimitOffsetTest extends TestEntityTestBase {
         }
     } 
 
-    public void testQueryUnsetOffset() {
+    public void testQueryUnsetOffset() throws DaoException {
         Query<TestEntity> query = dao.queryBuilder().limit(1).build();
         try{
             query.setOffset(1);

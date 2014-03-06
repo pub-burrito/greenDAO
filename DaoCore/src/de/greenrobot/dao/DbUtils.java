@@ -24,9 +24,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-
 /** Database utils, for example to execute SQL scripts */
 // TODO add unit tests
 public class DbUtils {
@@ -41,8 +38,8 @@ public class DbUtils {
      * @return number of statements executed.
      * @throws SQLException 
      */
-    public static int executeSqlScript(Context context, Connection connection, String assetFilename) throws IOException, SQLException {
-        return executeSqlScript(context, connection, assetFilename, true);
+    public static int executeSqlScript(Connection connection, InputStream in) throws IOException, SQLException {
+        return executeSqlScript(connection, in, true);
     }
 
     /**
@@ -54,18 +51,23 @@ public class DbUtils {
      * @return number of statements executed.
      * @throws SQLException 
      */
-    public static int executeSqlScript(Context context, Connection connection, String assetFilename, boolean transactional)
-            throws IOException, SQLException {
-        byte[] bytes = readAsset(context, assetFilename);
-        String sql = new String(bytes, "UTF-8");
-        String[] lines = sql.split(";(\\s)*[\n\r]");
-        int count;
-        if (transactional) {
-            count = executeSqlStatementsInTx(connection, lines);
-        } else {
-            count = executeSqlStatements(connection, lines);
+    public static int executeSqlScript(Connection connection, InputStream in, boolean transactional) throws IOException, SQLException {
+    	int count = 0;
+    	
+        try {
+        	byte[] bytes = readAllBytes(in);
+        	String sql = new String(bytes, "UTF-8");
+        	String[] lines = sql.split(";(\\s)*[\n\r]");
+        	if (transactional) {
+        		count = executeSqlStatementsInTx(connection, lines);
+        	} else {
+        		count = executeSqlStatements(connection, lines);
+        	}
+        	DaoLog.i("Executed " + count + " statements from SQL script");
+        } finally {
+            in.close();
         }
-        DaoLog.i("Executed " + count + " statements from SQL script '" + assetFilename + "'");
+        
         return count;
     }
 
@@ -121,15 +123,6 @@ public class DbUtils {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         copyAllBytes(in, out);
         return out.toByteArray();
-    }
-
-    public static byte[] readAsset(Context context, String filename) throws IOException {
-        InputStream in = context.getResources().getAssets().open(filename);
-        try {
-            return readAllBytes(in);
-        } finally {
-            in.close();
-        }
     }
 
     public static void logTableDump(Connection connection, String tablename) {

@@ -78,7 +78,7 @@ public class TreeEntity {
         return parent;
     }
 
-    public void setParent(TreeEntity parent) {
+    public void setParent(TreeEntity parent) throws DaoException {
         synchronized (this) {
             this.parent = parent;
             parentId = parent == null ? null : parent.getId();

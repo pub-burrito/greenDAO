@@ -63,8 +63,9 @@ abstract class AbstractQuery<T> {
 
     /**
      * Sets the parameter (0 based) using the position in which it was added during building the query.
+     * @throws DaoException 
      */
-    public void setParameter(int index, Object parameter) {
+    public void setParameter(int index, Object parameter) throws DaoException {
         checkThread();
         if (parameter != null) {
             parameters[index] = parameter.toString();
@@ -73,7 +74,7 @@ abstract class AbstractQuery<T> {
         }
     }
 
-    protected void checkThread() {
+    protected void checkThread() throws DaoException {
         if (Thread.currentThread() != ownerThread) {
             throw new DaoException(
                     "Method may be called only in owner thread, use forCurrentThread to get an instance for this thread");

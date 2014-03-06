@@ -24,10 +24,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import android.database.DatabaseUtils;
 import de.greenrobot.dao.AbstractDao;
 import de.greenrobot.dao.Property;
 import de.greenrobot.dao.internal.SqlUtils;
+import de.greenrobot.platform.java.util.JDBCUtils;
 
 /**
  * Default tests for single-PK entities.
@@ -285,7 +285,7 @@ public abstract class AbstractDaoTestSinglePk<D extends AbstractDao<T, K>, T, K>
 
             assertEquals(1, dao.getPkColumns().length);
             builder.append(dao.getPkColumns()[0]).append("=");
-            DatabaseUtils.appendValueToSql(builder, pk);
+            JDBCUtils.appendValueToSql(builder, pk);
         }
 
         String select = builder.toString();

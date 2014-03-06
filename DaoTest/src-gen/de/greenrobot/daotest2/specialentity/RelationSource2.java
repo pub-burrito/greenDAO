@@ -90,7 +90,7 @@ public class RelationSource2 {
         return toOneTarget2;
     }
 
-    public void setToOneTarget2(ToOneTarget2 toOneTarget2) {
+    public void setToOneTarget2(ToOneTarget2 toOneTarget2) throws DaoException {
         synchronized (this) {
             this.toOneTarget2 = toOneTarget2;
             toOneId = toOneTarget2 == null ? null : toOneTarget2.getId();

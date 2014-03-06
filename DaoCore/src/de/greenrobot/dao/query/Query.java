@@ -84,8 +84,9 @@ public class Query<T> extends AbstractQuery<T> {
 
     /**
      * Sets the parameter (0 based) using the position in which it was added during building the query.
+     * @throws DaoException 
      */
-    public void setParameter(int index, Object parameter) {
+    public void setParameter(int index, Object parameter) throws DaoException {
         if (index >= 0 && (index == limitPosition || index == offsetPosition)) {
             throw new IllegalArgumentException("Illegal parameter index: " + index);
         }
@@ -95,8 +96,9 @@ public class Query<T> extends AbstractQuery<T> {
     /**
      * Sets the limit of the maximum number of results returned by this Query. {@link QueryBuilder#limit(int)} must have
      * been called on the QueryBuilder that created this Query object.
+     * @throws DaoException 
      */
-    public void setLimit(int limit) {
+    public void setLimit(int limit) throws DaoException {
         checkThread();
         if (limitPosition == -1) {
             throw new IllegalStateException("Limit must be set with QueryBuilder before it can be used here");
@@ -107,8 +109,9 @@ public class Query<T> extends AbstractQuery<T> {
     /**
      * Sets the offset for results returned by this Query. {@link QueryBuilder#offset(int)} must have been called on the
      * QueryBuilder that created this Query object.
+     * @throws DaoException 
      */
-    public void setOffset(int offset) {
+    public void setOffset(int offset) throws DaoException {
         checkThread();
         if (offsetPosition == -1) {
             throw new IllegalStateException("Offset must be set with QueryBuilder before it can be used here");

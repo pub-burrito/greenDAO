@@ -115,7 +115,7 @@ public class RelationEntity {
         return parent;
     }
 
-    public void setParent(RelationEntity parent) {
+    public void setParent(RelationEntity parent) throws DaoException {
         synchronized (this) {
             this.parent = parent;
             parentId = parent == null ? null : parent.getId();
@@ -140,7 +140,7 @@ public class RelationEntity {
         return testEntity;
     }
 
-    public void setTestEntity(TestEntity testEntity) {
+    public void setTestEntity(TestEntity testEntity) throws DaoException {
         synchronized (this) {
             this.testEntity = testEntity;
             testId = testEntity == null ? null : testEntity.getId();
@@ -165,7 +165,7 @@ public class RelationEntity {
         return testNotNull;
     }
 
-    public void setTestNotNull(TestEntity testNotNull) {
+    public void setTestNotNull(TestEntity testNotNull) throws DaoException {
         if (testNotNull == null) {
             throw new DaoException("To-one property 'testIdNotNull' has not-null constraint; cannot set to-one to null");
         }
@@ -194,7 +194,7 @@ public class RelationEntity {
         return testWithoutProperty;
     }
 
-    public void setTestWithoutProperty(TestEntity testWithoutProperty) {
+    public void setTestWithoutProperty(TestEntity testWithoutProperty) throws DaoException {
         synchronized (this) {
             this.testWithoutProperty = testWithoutProperty;
             testWithoutProperty__refreshed = true;

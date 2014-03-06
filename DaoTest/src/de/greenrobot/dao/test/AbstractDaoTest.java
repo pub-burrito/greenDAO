@@ -17,8 +17,8 @@
 package de.greenrobot.dao.test;
 
 import java.lang.reflect.Method;
+import java.sql.Connection;
 
-import android.database.sqlite.SQLiteDatabase;
 import de.greenrobot.dao.AbstractDao;
 import de.greenrobot.dao.DaoLog;
 import de.greenrobot.dao.InternalUnitTestDaoAccess;
@@ -73,7 +73,7 @@ public abstract class AbstractDaoTest<D extends AbstractDao<T, K>, T, K> extends
 
     protected void setUpTableForDao() throws Exception {
         try {
-            Method createTableMethod = daoClass.getMethod("createTable", SQLiteDatabase.class, boolean.class);
+            Method createTableMethod = daoClass.getMethod("createTable", Connection.class, boolean.class);
             createTableMethod.invoke(null, connection, false);
         } catch (NoSuchMethodException e) {
             DaoLog.i("No createTable method");

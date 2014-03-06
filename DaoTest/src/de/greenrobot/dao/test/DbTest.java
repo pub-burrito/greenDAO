@@ -40,7 +40,9 @@ import de.greenrobot.platform.java.util.JDBCUtils;
  */
 public abstract class DbTest extends AndroidTestCase {
 
-    public static final String DB_NAME = "greendao-unittest-db.temp";
+    public static final String DB_NAME = "greendao-unittest-db.temp";	
+    public static final String DB_DRIVER_NAME = "org.sqldroid.SQLDroidDriver";
+	public static final String DB_CONNECTION_STRING = "jdbc:sqlite:/data/data/de.greenrobot.daotest/databases/" + DB_NAME;
 
     protected final Random random;
     protected final boolean inMemory;
@@ -64,7 +66,8 @@ public abstract class DbTest extends AndroidTestCase {
     }
 
     /** Returns a prepared application with the onCreate method already called. */
-    public <T extends Application> T createApplication(Class<T> appClass) {
+    @SuppressWarnings( "unchecked" )
+	public <T extends Application> T createApplication(Class<T> appClass) {
         assertNull("Application already created", application);
         T app;
         try {
@@ -85,7 +88,8 @@ public abstract class DbTest extends AndroidTestCase {
     }
 
     /** Gets the previously created application. */
-    public <T extends Application> T getApplication() {
+    @SuppressWarnings( "unchecked" )
+	public <T extends Application> T getApplication() {
         assertNotNull("Application not yet created", application);
         return (T) application;
     }
@@ -93,14 +97,10 @@ public abstract class DbTest extends AndroidTestCase {
     /** May be overriden by sub classes to set up a different db. 
      * @throws SQLException */
     protected Connection createConnection() throws SQLException {
-//        if (inMemory) {
-//            return SQLiteDatabase.create(null);
-//        } else {
-//            getContext().deleteDatabase(DB_NAME);
-//            return getContext().openOrCreateDatabase(DB_NAME, 0, null);
-//        }
-        
-    	return JDBCUtils.connect( DB_NAME );
+    	if (connection == null) {
+    		connection = JDBCUtils.connect( DB_DRIVER_NAME, DB_CONNECTION_STRING );
+    	}
+    	return connection;
     }
 
     @Override

@@ -3,6 +3,7 @@ package de.greenrobot.daotest.async;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import de.greenrobot.dao.DaoException;
 import de.greenrobot.dao.async.AsyncOperation;
 import de.greenrobot.dao.async.AsyncOperationListener;
 import de.greenrobot.dao.async.AsyncSession;
@@ -28,7 +29,7 @@ public abstract class AbstractAsyncTest extends AbstractDaoSessionTest<DaoMaster
         completedOperations = new CopyOnWriteArrayList<AsyncOperation>();
     }
 
-    public void assertWaitForCompletion1Sec() {
+    public void assertWaitForCompletion1Sec() throws DaoException {
         assertTrue(asyncSession.waitForCompletion(1000));
         assertTrue(asyncSession.isCompleted());
     }

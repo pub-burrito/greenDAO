@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.util.concurrent.Callable;
 
 import android.os.Looper;
+import de.greenrobot.dao.DaoException;
 import de.greenrobot.dao.async.AsyncDaoException;
 import de.greenrobot.dao.async.AsyncOperation;
 import de.greenrobot.dao.async.AsyncOperationListener;
@@ -14,14 +15,14 @@ public class BasicAsyncTest extends AbstractAsyncTest {
     Thread txThread;
     boolean testListenerMainThread_done;
 
-    public void testSequenceNumber() {
+    public void testSequenceNumber() throws DaoException {
         AsyncOperation op1 = asyncSession.count(SimpleEntity.class);
         assertEquals(1, op1.getSequenceNumber());
         AsyncOperation op2 = asyncSession.count(SimpleEntity.class);
         assertEquals(2, op2.getSequenceNumber());
     }
 
-    public void testWaitForCompletionNoOps() {
+    public void testWaitForCompletionNoOps() throws DaoException {
         assertTrue(asyncSession.isCompleted());
         assertTrue(asyncSession.waitForCompletion(1));
         asyncSession.waitForCompletion();
@@ -96,19 +97,19 @@ public class BasicAsyncTest extends AbstractAsyncTest {
         assertNotNull(operation.getThrowable());
     }
 
-    public void testAsyncOperationWaitMillis() {
+    public void testAsyncOperationWaitMillis() throws DaoException {
         AsyncOperation operation = asyncSession.insert(new SimpleEntity());
         assertTrue(asyncSession.waitForCompletion(1000));
         assertSingleOperationCompleted(operation);
     }
 
-    public void testAsyncOperationWait() {
+    public void testAsyncOperationWait() throws DaoException {
         AsyncOperation operation = asyncSession.insert(new SimpleEntity());
         asyncSession.waitForCompletion();
         assertSingleOperationCompleted(operation);
     }
 
-    public void testAsyncRunInTx() {
+    public void testAsyncRunInTx() throws DaoException {
         AsyncOperation operation = asyncSession.runInTx(new Runnable() {
 
             @Override
@@ -122,7 +123,7 @@ public class BasicAsyncTest extends AbstractAsyncTest {
         assertFalse(Thread.currentThread().equals(txThread));
     }
 
-    public void testAsynCallInTx() {
+    public void testAsynCallInTx() throws DaoException {
         AsyncOperation operation = asyncSession.callInTx(new Callable<String>() {
 
             @Override
@@ -136,7 +137,7 @@ public class BasicAsyncTest extends AbstractAsyncTest {
         assertFalse(Thread.currentThread().equals(txThread));
     }
 
-    public void testListenerMainThread() throws InterruptedException {
+    public void testListenerMainThread() throws InterruptedException, DaoException {
         AsyncOperationListener listener = new AsyncOperationListener() {
             @Override
             public synchronized void onAsyncOperationCompleted(AsyncOperation operation) {
@@ -145,7 +146,6 @@ public class BasicAsyncTest extends AbstractAsyncTest {
                 notifyAll();
             }
         };
-        asyncSession.setListenerMainThread(listener);
         asyncSession.insert(new SimpleEntity());
         assertWaitForCompletion1Sec();
         while (!testListenerMainThread_done) {

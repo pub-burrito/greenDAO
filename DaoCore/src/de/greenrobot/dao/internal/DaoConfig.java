@@ -50,7 +50,7 @@ public final class DaoConfig implements Cloneable {
 
     private IdentityScope<?, ?> identityScope;
 
-    public DaoConfig(Connection connection, Class<? extends AbstractDao<?, ?>> daoClass) {
+    public DaoConfig(Connection connection, Class<? extends AbstractDao<?, ?>> daoClass) throws DaoException {
         this.connection = connection;
         try {
             this.tablename = (String) daoClass.getField("TABLENAME").get(null);
@@ -96,7 +96,7 @@ public final class DaoConfig implements Cloneable {
     }
 
     private static Property[] reflectProperties(Class<? extends AbstractDao<?, ?>> daoClass)
-            throws ClassNotFoundException, IllegalArgumentException, IllegalAccessException {
+            throws ClassNotFoundException, IllegalArgumentException, IllegalAccessException, DaoException {
         Class<?> propertiesClass = Class.forName(daoClass.getName() + "$Properties");
         Field[] fields = propertiesClass.getDeclaredFields();
 

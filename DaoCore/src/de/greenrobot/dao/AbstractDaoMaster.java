@@ -40,7 +40,7 @@ public abstract class AbstractDaoMaster {
         daoConfigMap = new HashMap<Class<? extends AbstractDao<?, ?>>, DaoConfig>();
     }
 
-    protected void registerDaoClass(Class<? extends AbstractDao<?, ?>> daoClass) {
+    protected void registerDaoClass(Class<? extends AbstractDao<?, ?>> daoClass) throws DaoException {
         DaoConfig daoConfig = new DaoConfig(connection, daoClass);
         daoConfigMap.put(daoClass, daoConfig);
     }

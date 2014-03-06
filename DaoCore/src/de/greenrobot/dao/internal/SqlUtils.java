@@ -93,8 +93,9 @@ public class SqlUtils {
         return builder.toString();
     }
 
-    /** Creates an select for given columns with a trailing space */
-    public static String createSqlSelect(String tablename, String tableAlias, String[] columns) {
+    /** Creates an select for given columns with a trailing space 
+     * @throws DaoException */
+    public static String createSqlSelect(String tablename, String tableAlias, String[] columns) throws DaoException {
         StringBuilder builder = new StringBuilder("SELECT ");
         if (tableAlias == null || tableAlias.length() < 0) {
             throw new DaoException("Table alias required");

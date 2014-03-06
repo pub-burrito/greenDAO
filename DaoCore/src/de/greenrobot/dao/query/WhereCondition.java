@@ -70,7 +70,7 @@ public interface WhereCondition {
 
     public static class PropertyCondition extends AbstractCondition {
 
-        private static Object checkValueForType(Property property, Object value) {
+        private static Object checkValueForType(Property property, Object value) throws DaoException {
             if (value != null && value.getClass().isArray()) {
                 throw new DaoException("Illegal value: found array, but simple object required");
             }
@@ -107,7 +107,7 @@ public interface WhereCondition {
             return value;
         }
 
-        private static Object[] checkValuesForType(Property property, Object[] values) {
+        private static Object[] checkValuesForType(Property property, Object[] values) throws DaoException {
             for (int i = 0; i < values.length; i++) {
                 values[i] = checkValueForType(property, values[i]);
             }
@@ -122,13 +122,13 @@ public interface WhereCondition {
             this.op = op;
         }
 
-        public PropertyCondition(Property property, String op, Object value) {
+        public PropertyCondition(Property property, String op, Object value) throws DaoException {
             super(checkValueForType(property, value));
             this.property = property;
             this.op = op;
         }
 
-        public PropertyCondition(Property property, String op, Object[] values) {
+        public PropertyCondition(Property property, String op, Object[] values) throws DaoException {
             super(checkValuesForType(property, values));
             this.property = property;
             this.op = op;

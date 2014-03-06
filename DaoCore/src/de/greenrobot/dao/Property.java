@@ -42,68 +42,80 @@ public class Property {
         this.columnName = columnName;
     }
 
-    /** Creates an "equal ('=')" condition  for this property. */
-    public WhereCondition eq(Object value) {
+    /** Creates an "equal ('=')" condition  for this property. 
+     * @throws DaoException */
+    public WhereCondition eq(Object value) throws DaoException {
         return new PropertyCondition(this, "=?", value);
     }
 
-    /** Creates an "not equal ('<>')" condition  for this property. */
-    public WhereCondition notEq(Object value) {
+    /** Creates an "not equal ('<>')" condition  for this property. 
+     * @throws DaoException */
+    public WhereCondition notEq(Object value) throws DaoException {
         return new PropertyCondition(this, "<>?", value);
     }
 
-    /** Creates an "LIKE" condition  for this property. */
-    public WhereCondition like(String value) {
+    /** Creates an "LIKE" condition  for this property. 
+     * @throws DaoException */
+    public WhereCondition like(String value) throws DaoException {
         return new PropertyCondition(this, " LIKE ?", value);
     }
 
-    /** Creates an "BETWEEN ... AND ..." condition  for this property. */
-    public WhereCondition between(Object value1, Object value2) {
+    /** Creates an "BETWEEN ... AND ..." condition  for this property. 
+     * @throws DaoException */
+    public WhereCondition between(Object value1, Object value2) throws DaoException {
         Object[] values = { value1, value2 };
         return new PropertyCondition(this, " BETWEEN ? AND ?", values);
     }
 
-    /** Creates an "IN (..., ..., ...)" condition  for this property. */
-    public WhereCondition in(Object... inValues) {
+    /** Creates an "IN (..., ..., ...)" condition  for this property. 
+     * @throws DaoException */
+    public WhereCondition in(Object... inValues) throws DaoException {
         StringBuilder condition = new StringBuilder(" IN (");
         SqlUtils.appendPlaceholders(condition, inValues.length).append(')');
         return new PropertyCondition(this, condition.toString(), inValues);
     }
 
-    /** Creates an "IN (..., ..., ...)" condition  for this property. */
-    public WhereCondition in(Collection<?> inValues) {
+    /** Creates an "IN (..., ..., ...)" condition  for this property. 
+     * @throws DaoException */
+    public WhereCondition in(Collection<?> inValues) throws DaoException {
         return in(inValues.toArray());
     }
 
-    /** Creates an "NOT IN (..., ..., ...)" condition  for this property. */
-    public WhereCondition notIn(Object... notInValues) {
+    /** Creates an "NOT IN (..., ..., ...)" condition  for this property. 
+     * @throws DaoException */
+    public WhereCondition notIn(Object... notInValues) throws DaoException {
         StringBuilder condition = new StringBuilder(" NOT IN (");
         SqlUtils.appendPlaceholders(condition, notInValues.length).append(')');
         return new PropertyCondition(this, condition.toString(), notInValues);
     }
 
-    /** Creates an "NOT IN (..., ..., ...)" condition  for this property. */
-    public WhereCondition notIn(Collection<?> notInValues) {
+    /** Creates an "NOT IN (..., ..., ...)" condition  for this property. 
+     * @throws DaoException */
+    public WhereCondition notIn(Collection<?> notInValues) throws DaoException {
         return notIn(notInValues.toArray());
     }
 
-    /** Creates an "greater than ('>')" condition  for this property. */
-    public WhereCondition gt(Object value) {
+    /** Creates an "greater than ('>')" condition  for this property. 
+     * @throws DaoException */
+    public WhereCondition gt(Object value) throws DaoException {
         return new PropertyCondition(this, ">?", value);
     }
 
-    /** Creates an "less than ('<')" condition  for this property. */
-    public WhereCondition lt(Object value) {
+    /** Creates an "less than ('<')" condition  for this property. 
+     * @throws DaoException */
+    public WhereCondition lt(Object value) throws DaoException {
         return new PropertyCondition(this, "<?", value);
     }
 
-    /** Creates an "greater or equal ('>=')" condition  for this property. */
-    public WhereCondition ge(Object value) {
+    /** Creates an "greater or equal ('>=')" condition  for this property. 
+     * @throws DaoException */
+    public WhereCondition ge(Object value) throws DaoException {
         return new PropertyCondition(this, ">=?", value);
     }
 
-    /** Creates an "less or equal ('<=')" condition  for this property. */
-    public WhereCondition le(Object value) {
+    /** Creates an "less or equal ('<=')" condition  for this property. 
+     * @throws DaoException */
+    public WhereCondition le(Object value) throws DaoException {
         return new PropertyCondition(this, "<=?", value);
     }
 

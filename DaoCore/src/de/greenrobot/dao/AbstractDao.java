@@ -174,8 +174,9 @@ public abstract class AbstractDao<T, K> {
         return loadAllAndCloseCursor(resultSet);
     }
 
-    /** Detaches an entity from the identity scope (session). Subsequent query results won't return this object. */
-    public boolean detach(T entity) {
+    /** Detaches an entity from the identity scope (session). Subsequent query results won't return this object. 
+     * @throws DaoException */
+    public boolean detach(T entity) throws DaoException {
         if (identityScope != null) {
             K key = getKeyVerified(entity);
             return identityScope.detach(key, entity);
@@ -479,8 +480,9 @@ public abstract class AbstractDao<T, K> {
     /**
      * Creates a repeatable {@link Query} object based on the given raw SQL where you can pass any WHERE clause and
      * arguments.
+     * @throws DaoException 
      */
-    public Query<T> queryRawCreate(String where, Object... selectionArg) {
+    public Query<T> queryRawCreate(String where, Object... selectionArg) throws DaoException {
         List<Object> argList = Arrays.asList(selectionArg);
         return queryRawCreateListArgs(where, argList);
     }
@@ -488,8 +490,9 @@ public abstract class AbstractDao<T, K> {
     /**
      * Creates a repeatable {@link Query} object based on the given raw SQL where you can pass any WHERE clause and
      * arguments.
+     * @throws DaoException 
      */
-    public Query<T> queryRawCreateListArgs(String where, Collection<Object> selectionArg) {
+    public Query<T> queryRawCreateListArgs(String where, Collection<Object> selectionArg) throws DaoException {
         return Query.internalCreate(this, statements.getSelectAll() + where, selectionArg.toArray());
     }
 
@@ -772,7 +775,7 @@ public abstract class AbstractDao<T, K> {
         updateInTx(Arrays.asList(entities));
     }
 
-    protected void assertSinglePk() {
+    protected void assertSinglePk() throws DaoException {
         if (config.pkColumns.length != 1) {
             throw new DaoException(this + " (" + config.tablename + ") does not have a single-column primary key");
         }
@@ -794,8 +797,9 @@ public abstract class AbstractDao<T, K> {
 //        return DatabaseUtils.queryNumEntries(db, '\'' + config.tablename + '\'');
     }
 
-    /** See {@link #getKey(Object)}, but guarantees that the returned key is never null (throws if null). */
-    protected K getKeyVerified(T entity) {
+    /** See {@link #getKey(Object)}, but guarantees that the returned key is never null (throws if null). 
+     * @throws DaoException */
+    protected K getKeyVerified(T entity) throws DaoException {
         K key = getKey(entity);
         if (key == null) {
             if (entity == null) {

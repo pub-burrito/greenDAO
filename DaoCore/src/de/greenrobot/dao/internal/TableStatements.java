@@ -19,6 +19,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import de.greenrobot.dao.DaoException;
+
 /** Helper class to create SQL statements for specific tables (used by greenDAO internally). */
 public class TableStatements {
     private final Connection connection;
@@ -75,16 +77,18 @@ public class TableStatements {
         return updateStatement;
     }
 
-    /** ends with an space to simplify appending to this string. */
-    public String getSelectAll() {
+    /** ends with an space to simplify appending to this string. 
+     * @throws DaoException */
+    public String getSelectAll() throws DaoException {
         if (selectAll == null) {
             selectAll = SqlUtils.createSqlSelect(tablename, "T", allColumns);
         }
         return selectAll;
     }
 
-    /** ends with an space to simplify appending to this string. */
-    public String getSelectKeys() {
+    /** ends with an space to simplify appending to this string. 
+     * @throws DaoException */
+    public String getSelectKeys() throws DaoException {
         if (selectKeys == null) {
             selectKeys = SqlUtils.createSqlSelect(tablename, "T", pkColumns);
         }
@@ -92,7 +96,7 @@ public class TableStatements {
     }
 
     // TODO precompile
-    public String getSelectByKey() {
+    public String getSelectByKey() throws DaoException {
         if (selectByKey == null) {
             StringBuilder builder = new StringBuilder(getSelectAll());
             builder.append("WHERE ");
@@ -102,7 +106,7 @@ public class TableStatements {
         return selectByKey;
     }
 
-    public String getSelectByRowId() {
+    public String getSelectByRowId() throws DaoException {
         if (selectByRowId == null) {
             selectByRowId = getSelectAll() + "WHERE ROWID=?";
         }

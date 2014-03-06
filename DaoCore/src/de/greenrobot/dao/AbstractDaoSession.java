@@ -129,14 +129,15 @@ public class AbstractDaoSession {
         return dao.queryRaw(where, selectionArgs);
     }
 
-    /** Convenient call for {@link AbstractDao#queryBuilder()}. */
-    public <T> QueryBuilder<T> queryBuilder(Class<T> entityClass) {
+    /** Convenient call for {@link AbstractDao#queryBuilder()}. 
+     * @throws DaoException */
+    public <T> QueryBuilder<T> queryBuilder(Class<T> entityClass) throws DaoException {
         @SuppressWarnings("unchecked")
         AbstractDao<T, ?> dao = (AbstractDao<T, ?>) getDao(entityClass);
         return dao.queryBuilder();
     }
 
-    public AbstractDao<?, ?> getDao(Class<? extends Object> entityClass) {
+    public AbstractDao<?, ?> getDao(Class<? extends Object> entityClass) throws DaoException {
         AbstractDao<?, ?> dao = entityToDao.get(entityClass);
         if (dao == null) {
             throw new DaoException("No DAO registered for " + entityClass);
@@ -183,8 +184,9 @@ public class AbstractDaoSession {
     /**
      * Like {@link #callInTx(Callable)} but does not require Exception handling (rethrows an Exception as a runtime
      * DaoException).
+     * @throws DaoException 
      */
-    public <V> V callInTxNoException(Callable<V> callable) {
+    public <V> V callInTxNoException(Callable<V> callable) throws DaoException {
     	V result = null;
     	try {
 	    	connection.setAutoCommit( false );

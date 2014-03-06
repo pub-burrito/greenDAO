@@ -52,14 +52,6 @@ public class AsyncSession {
         executor.setListener(listener);
     }
 
-    public AsyncOperationListener getListenerMainThread() {
-        return executor.getListenerMainThread();
-    }
-
-    public void setListenerMainThread(AsyncOperationListener listenerMainThread) {
-        executor.setListenerMainThread(listenerMainThread);
-    }
-
     public boolean isCompleted() {
         return executor.isCompleted();
     }
@@ -67,8 +59,9 @@ public class AsyncSession {
     /**
      * Waits until all enqueued operations are complete. If the thread gets interrupted, any
      * {@link InterruptedException} will be rethrown as a {@link DaoException}.
+     * @throws DaoException 
      */
-    public void waitForCompletion() {
+    public void waitForCompletion() throws DaoException {
         executor.waitForCompletion();
     }
 
@@ -77,148 +70,177 @@ public class AsyncSession {
      * gets interrupted, any {@link InterruptedException} will be rethrown as a {@link DaoException}.
      * 
      * @return true if operations completed in the given time frame.
+     * @throws DaoException 
      */
-    public boolean waitForCompletion(int maxMillis) {
+    public boolean waitForCompletion(int maxMillis) throws DaoException {
         return executor.waitForCompletion(maxMillis);
     }
 
-    /** Asynchronous version of {@link AbstractDao#insert(Object)}. */
-    public AsyncOperation insert(Object entity) {
+    /** Asynchronous version of {@link AbstractDao#insert(Object)}. 
+     * @throws DaoException */
+    public AsyncOperation insert(Object entity) throws DaoException {
         return insert(entity, 0);
     }
 
-    /** Asynchronous version of {@link AbstractDao#insert(Object)}. */
-    public AsyncOperation insert(Object entity, int flags) {
+    /** Asynchronous version of {@link AbstractDao#insert(Object)}. 
+     * @throws DaoException */
+    public AsyncOperation insert(Object entity, int flags) throws DaoException {
         return enqueueEntityOperation(OperationType.Insert, entity, flags);
     }
 
-    /** Asynchronous version of {@link AbstractDao#insertInTx(Object...)}. */
-    public <E> AsyncOperation insertInTx(Class<E> entityClass, E... entities) {
+    /** Asynchronous version of {@link AbstractDao#insertInTx(Object...)}. 
+     * @throws DaoException */
+    public <E> AsyncOperation insertInTx(Class<E> entityClass, E... entities) throws DaoException {
         return insertInTx(entityClass, 0, entities);
     }
 
-    /** Asynchronous version of {@link AbstractDao#insertInTx(Object...)}. */
-    public <E> AsyncOperation insertInTx(Class<E> entityClass, int flags, E... entities) {
+    /** Asynchronous version of {@link AbstractDao#insertInTx(Object...)}. 
+     * @throws DaoException */
+    public <E> AsyncOperation insertInTx(Class<E> entityClass, int flags, E... entities) throws DaoException {
         return enqueEntityOperation(OperationType.InsertInTxArray, entityClass, entities, flags);
     }
 
-    /** Asynchronous version of {@link AbstractDao#insertInTx(Iterable)}. */
-    public <E> AsyncOperation insertInTx(Class<E> entityClass, Iterable<E> entities) {
+    /** Asynchronous version of {@link AbstractDao#insertInTx(Iterable)}. 
+     * @throws DaoException */
+    public <E> AsyncOperation insertInTx(Class<E> entityClass, Iterable<E> entities) throws DaoException {
         return insertInTx(entityClass, entities, 0);
     }
 
-    /** Asynchronous version of {@link AbstractDao#insertInTx(Iterable)}. */
-    public <E> AsyncOperation insertInTx(Class<E> entityClass, Iterable<E> entities, int flags) {
+    /** Asynchronous version of {@link AbstractDao#insertInTx(Iterable)}. 
+     * @throws DaoException */
+    public <E> AsyncOperation insertInTx(Class<E> entityClass, Iterable<E> entities, int flags) throws DaoException {
         return enqueEntityOperation(OperationType.InsertInTxIterable, entityClass, entities, flags);
     }
 
-    /** Asynchronous version of {@link AbstractDao#insertOrReplace(Object)}. */
-    public AsyncOperation insertOrReplace(Object entity) {
+    /** Asynchronous version of {@link AbstractDao#insertOrReplace(Object)}. 
+     * @throws DaoException */
+    public AsyncOperation insertOrReplace(Object entity) throws DaoException {
         return insertOrReplace(entity, 0);
     }
 
-    /** Asynchronous version of {@link AbstractDao#insertOrReplace(Object)}. */
-    public AsyncOperation insertOrReplace(Object entity, int flags) {
+    /** Asynchronous version of {@link AbstractDao#insertOrReplace(Object)}. 
+     * @throws DaoException */
+    public AsyncOperation insertOrReplace(Object entity, int flags) throws DaoException {
         return enqueueEntityOperation(OperationType.InsertOrReplace, entity, flags);
     }
 
-    /** Asynchronous version of {@link AbstractDao#insertOrReplaceInTx(Object...)}. */
-    public <E> AsyncOperation insertOrReplaceInTx(Class<E> entityClass, E... entities) {
+    /** Asynchronous version of {@link AbstractDao#insertOrReplaceInTx(Object...)}. 
+     * @throws DaoException */
+    public <E> AsyncOperation insertOrReplaceInTx(Class<E> entityClass, E... entities) throws DaoException {
         return insertOrReplaceInTx(entityClass, 0, entities);
     }
 
-    /** Asynchronous version of {@link AbstractDao#insertOrReplaceInTx(Object...)}. */
-    public <E> AsyncOperation insertOrReplaceInTx(Class<E> entityClass, int flags, E... entities) {
+    /** Asynchronous version of {@link AbstractDao#insertOrReplaceInTx(Object...)}. 
+     * @throws DaoException */
+    public <E> AsyncOperation insertOrReplaceInTx(Class<E> entityClass, int flags, E... entities) throws DaoException {
         return enqueEntityOperation(OperationType.InsertOrReplaceInTxArray, entityClass, entities, flags);
     }
 
-    /** Asynchronous version of {@link AbstractDao#insertOrReplaceInTx(Iterable)}. */
-    public <E> AsyncOperation insertOrReplaceInTx(Class<E> entityClass, Iterable<E> entities) {
+    /** Asynchronous version of {@link AbstractDao#insertOrReplaceInTx(Iterable)}. 
+     * @throws DaoException */
+    public <E> AsyncOperation insertOrReplaceInTx(Class<E> entityClass, Iterable<E> entities) throws DaoException {
         return insertOrReplaceInTx(entityClass, entities, 0);
     }
 
-    /** Asynchronous version of {@link AbstractDao#insertOrReplaceInTx(Iterable)}. */
-    public <E> AsyncOperation insertOrReplaceInTx(Class<E> entityClass, Iterable<E> entities, int flags) {
+    /** Asynchronous version of {@link AbstractDao#insertOrReplaceInTx(Iterable)}. 
+     * @throws DaoException */
+    public <E> AsyncOperation insertOrReplaceInTx(Class<E> entityClass, Iterable<E> entities, int flags) throws DaoException {
         return enqueEntityOperation(OperationType.InsertOrReplaceInTxIterable, entityClass, entities, flags);
     }
 
-    /** Asynchronous version of {@link AbstractDao#update(Object)}. */
-    public AsyncOperation update(Object entity) {
+    /** Asynchronous version of {@link AbstractDao#update(Object)}. 
+     * @throws DaoException */
+    public AsyncOperation update(Object entity) throws DaoException {
         return update(entity, 0);
     }
 
-    /** Asynchronous version of {@link AbstractDao#update(Object)}. */
-    public AsyncOperation update(Object entity, int flags) {
+    /** Asynchronous version of {@link AbstractDao#update(Object)}. 
+     * @throws DaoException */
+    public AsyncOperation update(Object entity, int flags) throws DaoException {
         return enqueueEntityOperation(OperationType.Update, entity, flags);
     }
 
-    /** Asynchronous version of {@link AbstractDao#updateInTx(Object...)}. */
-    public <E> AsyncOperation updateInTx(Class<E> entityClass, E... entities) {
+    /** Asynchronous version of {@link AbstractDao#updateInTx(Object...)}. 
+     * @throws DaoException */
+    public <E> AsyncOperation updateInTx(Class<E> entityClass, E... entities) throws DaoException {
         return updateInTx(entityClass, 0, entities);
     }
 
-    /** Asynchronous version of {@link AbstractDao#updateInTx(Object...)}. */
-    public <E> AsyncOperation updateInTx(Class<E> entityClass, int flags, E... entities) {
+    /** Asynchronous version of {@link AbstractDao#updateInTx(Object...)}. 
+     * @throws DaoException */
+    public <E> AsyncOperation updateInTx(Class<E> entityClass, int flags, E... entities) throws DaoException {
         return enqueEntityOperation(OperationType.UpdateInTxArray, entityClass, entities, flags);
     }
 
-    /** Asynchronous version of {@link AbstractDao#updateInTx(Iterable)}. */
-    public <E> AsyncOperation updateInTx(Class<E> entityClass, Iterable<E> entities) {
+    /** Asynchronous version of {@link AbstractDao#updateInTx(Iterable)}. 
+     * @throws DaoException */
+    public <E> AsyncOperation updateInTx(Class<E> entityClass, Iterable<E> entities) throws DaoException {
         return updateInTx(entityClass, entities, 0);
     }
 
-    /** Asynchronous version of {@link AbstractDao#updateInTx(Iterable)}. */
-    public <E> AsyncOperation updateInTx(Class<E> entityClass, Iterable<E> entities, int flags) {
+    /** Asynchronous version of {@link AbstractDao#updateInTx(Iterable)}. 
+     * @throws DaoException */
+    public <E> AsyncOperation updateInTx(Class<E> entityClass, Iterable<E> entities, int flags) throws DaoException {
         return enqueEntityOperation(OperationType.UpdateInTxIterable, entityClass, entities, flags);
     }
 
-    /** Asynchronous version of {@link AbstractDao#delete(Object)}. */
-    public AsyncOperation delete(Object entity) {
+    /** Asynchronous version of {@link AbstractDao#delete(Object)}. 
+     * @throws DaoException */
+    public AsyncOperation delete(Object entity) throws DaoException {
         return delete(entity, 0);
     }
 
-    /** Asynchronous version of {@link AbstractDao#delete(Object)}. */
-    public AsyncOperation delete(Object entity, int flags) {
+    /** Asynchronous version of {@link AbstractDao#delete(Object)}. 
+     * @throws DaoException */
+    public AsyncOperation delete(Object entity, int flags) throws DaoException {
         return enqueueEntityOperation(OperationType.Delete, entity, flags);
     }
 
-    /** Asynchronous version of {@link AbstractDao#deleteByKey(Object)}. */
-    public AsyncOperation deleteByKey(Object key) {
+    /** Asynchronous version of {@link AbstractDao#deleteByKey(Object)}. 
+     * @throws DaoException */
+    public AsyncOperation deleteByKey(Object key) throws DaoException {
         return deleteByKey(key, 0);
     }
 
-    /** Asynchronous version of {@link AbstractDao#deleteByKey(Object)}. */
-    public AsyncOperation deleteByKey(Object key, int flags) {
+    /** Asynchronous version of {@link AbstractDao#deleteByKey(Object)}. 
+     * @throws DaoException */
+    public AsyncOperation deleteByKey(Object key, int flags) throws DaoException {
         return enqueueEntityOperation(OperationType.DeleteByKey, key, flags);
     }
 
-    /** Asynchronous version of {@link AbstractDao#deleteInTx(Object...)}. */
-    public <E> AsyncOperation deleteInTx(Class<E> entityClass, E... entities) {
+    /** Asynchronous version of {@link AbstractDao#deleteInTx(Object...)}. 
+     * @throws DaoException */
+    public <E> AsyncOperation deleteInTx(Class<E> entityClass, E... entities) throws DaoException {
         return deleteInTx(entityClass, 0, entities);
     }
 
-    /** Asynchronous version of {@link AbstractDao#deleteInTx(Object...)}. */
-    public <E> AsyncOperation deleteInTx(Class<E> entityClass, int flags, E... entities) {
+    /** Asynchronous version of {@link AbstractDao#deleteInTx(Object...)}. 
+     * @throws DaoException */
+    public <E> AsyncOperation deleteInTx(Class<E> entityClass, int flags, E... entities) throws DaoException {
         return enqueEntityOperation(OperationType.DeleteInTxArray, entityClass, entities, flags);
     }
 
-    /** Asynchronous version of {@link AbstractDao#deleteInTx(Iterable)}. */
-    public <E> AsyncOperation deleteInTx(Class<E> entityClass, Iterable<E> entities) {
+    /** Asynchronous version of {@link AbstractDao#deleteInTx(Iterable)}. 
+     * @throws DaoException */
+    public <E> AsyncOperation deleteInTx(Class<E> entityClass, Iterable<E> entities) throws DaoException {
         return deleteInTx(entityClass, entities, 0);
     }
 
-    /** Asynchronous version of {@link AbstractDao#deleteInTx(Iterable)}. */
-    public <E> AsyncOperation deleteInTx(Class<E> entityClass, Iterable<E> entities, int flags) {
+    /** Asynchronous version of {@link AbstractDao#deleteInTx(Iterable)}. 
+     * @throws DaoException */
+    public <E> AsyncOperation deleteInTx(Class<E> entityClass, Iterable<E> entities, int flags) throws DaoException {
         return enqueEntityOperation(OperationType.DeleteInTxIterable, entityClass, entities, flags);
     }
 
-    /** Asynchronous version of {@link AbstractDao#deleteAll()}. */
-    public <E> AsyncOperation deleteAll(Class<E> entityClass) {
+    /** Asynchronous version of {@link AbstractDao#deleteAll()}. 
+     * @throws DaoException */
+    public <E> AsyncOperation deleteAll(Class<E> entityClass) throws DaoException {
         return deleteAll(entityClass, 0);
     }
 
-    /** Asynchronous version of {@link AbstractDao#deleteAll()}. */
-    public <E> AsyncOperation deleteAll(Class<E> entityClass, int flags) {
+    /** Asynchronous version of {@link AbstractDao#deleteAll()}. 
+     * @throws DaoException */
+    public <E> AsyncOperation deleteAll(Class<E> entityClass, int flags) throws DaoException {
         return enqueEntityOperation(OperationType.DeleteAll, entityClass, null, flags);
     }
 
@@ -262,43 +284,51 @@ public class AsyncSession {
         return enqueueDatabaseOperation(OperationType.QueryUnique, query, flags);
     }
 
-    /** Asynchronous version of {@link AbstractDao#load(Object)}. */
-    public AsyncOperation load(Class<?> entityClass, Object key) {
+    /** Asynchronous version of {@link AbstractDao#load(Object)}. 
+     * @throws DaoException */
+    public AsyncOperation load(Class<?> entityClass, Object key) throws DaoException {
         return load(entityClass, key, 0);
     }
 
-    /** Asynchronous version of {@link AbstractDao#load(Object)}. */
-    public AsyncOperation load(Class<?> entityClass, Object key, int flags) {
+    /** Asynchronous version of {@link AbstractDao#load(Object)}. 
+     * @throws DaoException */
+    public AsyncOperation load(Class<?> entityClass, Object key, int flags) throws DaoException {
         return enqueEntityOperation(OperationType.Load, entityClass, key, flags);
     }
 
-    /** Asynchronous version of {@link AbstractDao#loadAll()}. */
-    public AsyncOperation loadAll(Class<?> entityClass) {
+    /** Asynchronous version of {@link AbstractDao#loadAll()}. 
+     * @throws DaoException */
+    public AsyncOperation loadAll(Class<?> entityClass) throws DaoException {
         return loadAll(entityClass, 0);
     }
 
-    /** Asynchronous version of {@link AbstractDao#loadAll()}. */
-    public AsyncOperation loadAll(Class<?> entityClass, int flags) {
+    /** Asynchronous version of {@link AbstractDao#loadAll()}. 
+     * @throws DaoException */
+    public AsyncOperation loadAll(Class<?> entityClass, int flags) throws DaoException {
         return enqueEntityOperation(OperationType.LoadAll, entityClass, null, flags);
     }
 
-    /** Asynchronous version of {@link AbstractDao#count()}. */
-    public AsyncOperation count(Class<?> entityClass) {
+    /** Asynchronous version of {@link AbstractDao#count()}. 
+     * @throws DaoException */
+    public AsyncOperation count(Class<?> entityClass) throws DaoException {
         return count(entityClass, 0);
     }
 
-    /** Asynchronous version of {@link AbstractDao#count()}. */
-    public AsyncOperation count(Class<?> entityClass, int flags) {
+    /** Asynchronous version of {@link AbstractDao#count()}. 
+     * @throws DaoException */
+    public AsyncOperation count(Class<?> entityClass, int flags) throws DaoException {
         return enqueEntityOperation(OperationType.Count, entityClass, null, flags);
     }
 
-    /** Asynchronous version of {@link AbstractDao#refresh(Object)}. */
-    public AsyncOperation refresh(Object entity) {
+    /** Asynchronous version of {@link AbstractDao#refresh(Object)}. 
+     * @throws DaoException */
+    public AsyncOperation refresh(Object entity) throws DaoException {
         return refresh(entity, 0);
     }
 
-    /** Asynchronous version of {@link AbstractDao#refresh(Object)}. */
-    public AsyncOperation refresh(Object entity, int flags) {
+    /** Asynchronous version of {@link AbstractDao#refresh(Object)}. 
+     * @throws DaoException */
+    public AsyncOperation refresh(Object entity, int flags) throws DaoException {
         return enqueueEntityOperation(OperationType.Refresh, entity, flags);
     }
 
@@ -308,11 +338,11 @@ public class AsyncSession {
         return operation;
     }
 
-    private AsyncOperation enqueueEntityOperation(OperationType type, Object entity, int flags) {
+    private AsyncOperation enqueueEntityOperation(OperationType type, Object entity, int flags) throws DaoException {
         return enqueEntityOperation(type, entity.getClass(), entity, flags);
     }
 
-    private <E> AsyncOperation enqueEntityOperation(OperationType type, Class<E> entityClass, Object param, int flags) {
+    private <E> AsyncOperation enqueEntityOperation(OperationType type, Class<E> entityClass, Object param, int flags) throws DaoException {
         AbstractDao<?, ?> dao = daoSession.getDao(entityClass);
         AsyncOperation operation = new AsyncOperation(type, dao, param, flags);
         executor.enqueue(operation);
