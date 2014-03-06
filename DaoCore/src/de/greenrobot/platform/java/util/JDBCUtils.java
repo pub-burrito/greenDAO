@@ -106,21 +106,8 @@ public class JDBCUtils
 		return count;
 	}
 	
-	public static Connection connect( String db ) throws SQLException
+	public static Connection connect( String driverName, String connectionString ) throws SQLException
 	{
-		// setup
-		File f = new File( DB_DIRECTORY+db );
-		if ( f.exists() )
-		{
-			f.delete();
-		}
-		else
-		{
-			if ( null != f.getParent() )
-			{
-				f.getParentFile().mkdirs();
-			}
-		}
 		// Loads and registers the JDBC driver
 		try
 		{
@@ -143,7 +130,26 @@ public class JDBCUtils
 			e.printStackTrace();
 		}
 		
-		Log.i("JDBCUtils", "connecting: "+url+db);
-		return DriverManager.getConnection( url + db );
+		Log.i("JDBCUtils", "connecting: "+connectionString);
+		return DriverManager.getConnection( connectionString );
+	}
+	
+	public static Connection connect( String db ) throws SQLException
+	{
+		// setup
+		File f = new File( DB_DIRECTORY+db );
+		if ( f.exists() )
+		{
+			f.delete();
+		}
+		else
+		{
+			if ( null != f.getParent() )
+			{
+				f.getParentFile().mkdirs();
+			}
+		}
+
+		return connect( driverName, url + db );
 	}
 }

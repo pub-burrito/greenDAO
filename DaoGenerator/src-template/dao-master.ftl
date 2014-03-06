@@ -21,6 +21,9 @@ package ${schema.defaultJavaPackageDao};
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.ResultSet;
+
+import de.greenrobot.platform.java.util.JDBCUtils;
 
 import de.greenrobot.dao.AbstractDaoMaster;
 import de.greenrobot.dao.identityscope.IdentityScopeType;
@@ -52,6 +55,76 @@ public class DaoMaster extends AbstractDaoMaster {
         ${entity.classNameDao}.dropTable(connection, ifExists);
 </#if>
 </#list>
+    }
+    
+    public static abstract class AbstractConnectionManager {
+    
+    	private String driverName;
+    	private String connectionString;
+    	private Connection connection;
+    	
+    	public AbstractConnectionManager(String driverName, String connectionString) {
+    		this.driverName = driverName;
+    		this.connectionString = connectionString;
+    		try {
+	    		onCreate();
+	    	} catch (SQLException e) {
+	    		throw new RuntimeException("Unable to manage this connection", e);
+	    	}
+    	}
+    	
+    	// TODO connection pooling
+    	public Connection getConnection() throws SQLException {
+    		if (this.connection == null) {
+		    	this.connection = JDBCUtils.connect(driverName, connectionString);
+			}
+			return this.connection;    	
+    	}
+    	
+    	public abstract void onCreate(Connection connection) throws SQLException;
+
+    	public void onUpgrade(Connection connection, int oldVersion, int newVersion) throws SQLException {} // not mandatory
+    	
+    	private void onCreate() throws SQLException {
+    		Connection connection = getConnection();
+    		if (isBigBang(connection)) {
+    			onCreate(connection);
+    		}
+    	}
+    	
+    	private boolean isBigBang(Connection connection) throws SQLException {
+    		ResultSet resultSet = connection.getMetaData().getCatalogs();
+    		boolean result = !resultSet.next();
+    		resultSet.close();
+    		return result;
+    	}
+    }
+    
+    public static abstract class ConnectionManager extends AbstractConnectionManager {
+
+        public ConnectionManager(String driverName, String connectionString) {
+            super(driverName, connectionString);
+        }
+
+        @Override
+        public void onCreate(Connection connection) throws SQLException {
+            //Log.i("greenDAO", "Creating tables for schema version " + SCHEMA_VERSION);
+            createAllTables(connection, false);
+        }
+    }
+    
+    /** WARNING: Drops all table on Upgrade! Use only during development. */
+    public static class DevConnectionManager extends ConnectionManager {
+        public DevConnectionManager(String driverName, String connectionString) {
+            super(driverName, connectionString);
+        }
+
+        @Override
+        public void onUpgrade(Connection connection, int oldVersion, int newVersion) throws SQLException {
+            //Log.i("greenDAO", "Upgrading schema from version " + oldVersion + " to " + newVersion + " by dropping all tables");
+            dropAllTables(connection, true);
+            onCreate(connection);
+        }
     }
     
     public DaoMaster(Connection connection) {

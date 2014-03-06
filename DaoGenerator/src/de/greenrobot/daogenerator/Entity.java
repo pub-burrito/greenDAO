@@ -461,7 +461,7 @@ public class Entity {
             pkProperty = propertiesPk.get(0);
             pkType = schema.mapToJavaTypeNullable(pkProperty.getPropertyType());
         } else {
-            pkType = "Long"; // this used to be Void but Void is not a Long as expected by the super type AbstractDao<SqliteMaster, Long>
+            pkType = "Long"; // this used to be Void
         }
 
         propertiesColumns = new ArrayList<Property>(properties);
