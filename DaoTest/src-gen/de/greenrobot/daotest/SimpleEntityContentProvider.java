@@ -1,7 +1,5 @@
 package de.greenrobot.daotest;
 
-import java.sql.Connection;
-
 import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -12,7 +10,6 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 
 import de.greenrobot.dao.DaoLog;
-import de.greenrobot.platform.android.util.SQLiteUtil;
 
 import de.greenrobot.daotest.SimpleEntityDao;
 
@@ -24,7 +21,7 @@ import de.greenrobot.daotest.SimpleEntityDao;
             android:authorities="de.greenrobot.daotest.provider"/>
     */
 
-    public class SimpleEntityContentProvider extends ContentProvider {
+public class SimpleEntityContentProvider extends ContentProvider {
 
     public static final String AUTHORITY = "de.greenrobot.daotest.provider";
     public static final String BASE_PATH = "";
@@ -53,7 +50,7 @@ import de.greenrobot.daotest.SimpleEntityDao;
     * This must be set from outside, it's recommended to do this inside your Application object.
     * Subject to change (static isn't nice).
     */
-    public static Connection connection;
+    public static SQLiteDatabase db;
 
     @Override
     public boolean onCreate() {
@@ -65,10 +62,10 @@ import de.greenrobot.daotest.SimpleEntityDao;
     }
 
     protected SQLiteDatabase getDatabase() {
-    	if(connection == null) {
-    		throw new IllegalStateException("Connection must be set during content provider is active");
+    	if(db == null) {
+    		db = getContext().openOrCreateDatabase( "greendao-unittest-db.temp", 0, null );
     	}
-    	return SQLiteUtil.from(connection, getContext());
+    	return db;
     }
 
     @Override

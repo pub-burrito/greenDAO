@@ -36,12 +36,6 @@ public class SimpleEntityContentProviderTest extends AbstractDaoSessionTest<DaoM
         super(DaoMaster.class);
     }
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        SimpleEntityContentProvider.connection = connection;
-    }
-
     public void testQuery() throws SQLException {
         SimpleEntity entity = new SimpleEntity();
         entity.setSimpleString("hello");

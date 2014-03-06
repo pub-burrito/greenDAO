@@ -73,16 +73,16 @@ public class CountQueryThreadLocalTest extends TestEntityTestBase {
 
             @Override
             public void run() {
-                QueryBuilder<TestEntity> builder = dao.queryBuilder();
                 try
 				{
+                	QueryBuilder<TestEntity> builder = dao.queryBuilder();
 					builder.where(Properties.SimpleInteger.eq(getSimpleInteger(1)));
+					queryFromOtherThread = builder.buildCount();
 				}
 				catch ( DaoException e )
 				{
 					e.printStackTrace();
 				}
-                queryFromOtherThread = builder.buildCount();
             }
         };
         thread.start();
