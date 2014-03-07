@@ -1,3 +1,3 @@
-./java-home.sh
+. java-home.sh
 
 gradle clean build uploadArchives
