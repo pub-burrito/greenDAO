@@ -63,7 +63,6 @@ public abstract class AbstractConnectionManager
 		if ( isOpen( connection ) )
 		{
 			DatabaseMetaData metadata = connection.getMetaData();
-			metadata.getDatabaseMajorVersion()
 			String[] types = { "TABLE" };
 			ResultSet resultSet = metadata.getTables( null, null, "%", types );
 			result = resultSet.next();
@@ -72,7 +71,7 @@ public abstract class AbstractConnectionManager
 		return result;
 	}
 	
-	// FIXME must return the current version from the database not the newVersion
+	// FIXME this will only work on SQLite because it makes use of PRAGMA
 	private int getCurrentVersion( Connection connection )
 	{
 		int version = newVersion;
@@ -91,6 +90,7 @@ public abstract class AbstractConnectionManager
 		return version;
 	}
 	
+	// FIXME this will only work on SQLite because it makes use of PRAGMA
 	private void setCurrentVersion( Connection connection, int version )
 	{
 		try
