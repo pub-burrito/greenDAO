@@ -33,7 +33,7 @@ public class DbUtils {
     }
 
     /**
-     * Calls {@link #executeSqlScript(Context, SQLiteDatabase, String, boolean)} with transactional set to true.
+     * Calls {@link #executeSqlScript(Connection, String, boolean)} with transactional set to true.
      * 
      * @return number of statements executed.
      * @throws SQLException 
