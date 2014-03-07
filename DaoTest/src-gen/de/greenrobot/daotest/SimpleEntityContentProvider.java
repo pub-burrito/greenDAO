@@ -8,7 +8,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+
 import de.greenrobot.dao.DaoLog;
+
+import de.greenrobot.daotest.SimpleEntityDao;
 
 /* Copy this code snippet into your AndroidManifest.xml inside the
 <application> element:
