@@ -132,7 +132,7 @@ public class DaoGenerator {
     protected File toFileForceExists(String filename) throws IOException {
         File file = new File(filename);
         if (!file.exists()) {
-            throw new IOException(filename
+            throw new IOException(file
                     + " does not exist. This check is to prevent accidental file generation into a wrong path.");
         }
         return file;
