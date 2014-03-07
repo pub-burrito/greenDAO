@@ -1,4 +1,4 @@
-package de.greenrobot.platform.java.util;
+package de.greenrobot.dao.internal;
 
 import java.sql.Connection;
 import java.sql.Driver;

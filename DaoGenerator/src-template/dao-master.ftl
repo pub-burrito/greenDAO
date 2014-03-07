@@ -23,7 +23,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.ResultSet;
 
-import de.greenrobot.platform.java.util.JDBCUtils;
+import de.greenrobot.dao.internal.JDBCUtils;
 
 import de.greenrobot.dao.AbstractDaoMaster;
 import de.greenrobot.dao.DaoException;
