@@ -98,7 +98,7 @@ uploadArchives {
             repository(url: preferedRepo, id: preferedRepoId) {
               authentication(userName: username, password: password)
             }
-            pom.groupId = "${group}"
+            pom.groupId = "de.greenrobot"
             pom.artifactId = "${rootProject.name}"
             pom.version = "${version}"
             
