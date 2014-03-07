@@ -2,10 +2,8 @@ package de.greenrobot.daotest2.dao;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.ResultSet;
 
-import de.greenrobot.dao.internal.JDBCUtils;
-
+import de.greenrobot.dao.AbstractConnectionManager;
 import de.greenrobot.dao.AbstractDaoMaster;
 import de.greenrobot.dao.DaoException;
 import de.greenrobot.dao.identityscope.IdentityScopeType;
@@ -38,55 +36,10 @@ public class DaoMaster extends AbstractDaoMaster {
         RelationSource2Dao.dropTable(connection, ifExists);
     }
     
-    public static abstract class AbstractConnectionManager {
-    
-    	private String driverName;
-    	private String connectionString;
-    	private Connection connection;
-    	
-    	public AbstractConnectionManager(String driverName, String connectionString) {
-    		this.driverName = driverName;
-    		this.connectionString = connectionString;
-    		try {
-	    		onCreate();
-	    	} catch (SQLException e) {
-	    		throw new RuntimeException("Unable to manage this connection", e);
-	    	}
-    	}
-    	
-    	// TODO connection pooling
-    	public Connection getConnection() throws SQLException {
-    		if (this.connection == null) {
-		    	this.connection = JDBCUtils.connect(driverName, connectionString);
-			}
-			return this.connection;    	
-    	}
-    	
-		public void onOpen( Connection connection ) throws SQLException {} // not mandatory
-
-    	public abstract void onCreate(Connection connection) throws SQLException;
-
-    	public void onUpgrade(Connection connection, int oldVersion, int newVersion) throws SQLException {} // not mandatory
-    	
-    	private void onCreate() throws SQLException {
-    		Connection connection = getConnection();
-    		if (isBigBang(connection)) {
-    			onCreate(connection);
-    		}
-    	}
-    	
-    	private boolean isBigBang(Connection connection) throws SQLException {
-    		ResultSet resultSet = connection.getMetaData().getCatalogs();
-    		boolean result = !resultSet.next();
-    		resultSet.close();
-    		return result;
-    	}
-    }
-    
     public static abstract class ConnectionManager extends AbstractConnectionManager {
 
         public ConnectionManager(String driverName, String connectionString) {
-            super(driverName, connectionString);
+            super(driverName, connectionString, SCHEMA_VERSION);
         }
 
         @Override

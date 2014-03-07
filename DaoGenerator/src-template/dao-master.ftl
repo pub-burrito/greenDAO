@@ -21,10 +21,8 @@ package ${schema.defaultJavaPackageDao};
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.ResultSet;
 
-import de.greenrobot.dao.internal.JDBCUtils;
-
+import de.greenrobot.dao.AbstractConnectionManager;
 import de.greenrobot.dao.AbstractDaoMaster;
 import de.greenrobot.dao.DaoException;
 import de.greenrobot.dao.identityscope.IdentityScopeType;
@@ -61,7 +59,7 @@ public class DaoMaster extends AbstractDaoMaster {
     public static abstract class ConnectionManager extends AbstractConnectionManager {
 
         public ConnectionManager(String driverName, String connectionString) {
-            super(driverName, connectionString);
+            super(driverName, connectionString, SCHEMA_VERSION);
         }
 
         @Override
