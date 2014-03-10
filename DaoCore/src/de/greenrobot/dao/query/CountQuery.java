@@ -46,7 +46,8 @@ public class CountQuery<T> extends AbstractQuery<T> {
         PreparedStatement statement = connection.prepareStatement( sql );
         for ( int i = 0; i < parameters.length; i++ )
 		{
-			statement.setString( i, parameters[i] );
+        	int index = i + 1;
+			statement.setString( index, parameters[i] );
 		}
 		ResultSet cursor = statement.executeQuery();
         try {
