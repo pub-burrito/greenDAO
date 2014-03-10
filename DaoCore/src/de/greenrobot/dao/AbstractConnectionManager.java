@@ -95,7 +95,7 @@ public abstract class AbstractConnectionManager
 	{
 		try
 		{
-			JDBCUtils.execute( connection, String.format( "PRAGMA user_version = %s", version ) );
+			JDBCUtils.execute( connection, "PRAGMA user_version = ?", version );
 			this.newVersion = version;
 		}
 		catch ( SQLException e )
