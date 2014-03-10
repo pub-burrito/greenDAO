@@ -90,7 +90,7 @@ public abstract class AbstractConnectionManager
 		return version;
 	}
 	
-	// FIXME this will only work on SQLite because it makes use of PRAGMA
+	// FIXME Only work on SQLite because it makes use of PRAGMA
 	private void setCurrentVersion( Connection connection, int version )
 	{
 		try
