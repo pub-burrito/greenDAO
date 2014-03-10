@@ -26,8 +26,8 @@ import java.util.Set;
 
 import de.greenrobot.dao.AbstractDao;
 import de.greenrobot.dao.Property;
+import de.greenrobot.dao.internal.JDBCUtils;
 import de.greenrobot.dao.internal.SqlUtils;
-import de.greenrobot.platform.java.util.JDBCUtils;
 
 /**
  * Default tests for single-PK entities.

@@ -34,7 +34,7 @@ import java.sql.SQLException;
 import java.sql.Connection;
 </#if>
 
-import de.greenrobot.platform.java.util.JDBCUtils;
+import de.greenrobot.dao.internal.JDBCUtils;
 
 import de.greenrobot.dao.AbstractDao;
 import de.greenrobot.dao.Property;

@@ -1,6 +1,7 @@
-package de.greenrobot.platform.java.util;
+package de.greenrobot.dao.internal;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -19,7 +20,9 @@ public class JDBCUtils
 		PreparedStatement statement = connection.prepareStatement( sql );
 		for ( int i = 0; i < parameters.length; i++ )
 		{
-			statement.setObject( i, parameters[i] );
+			int index = i + 1;
+			Object parameter = parameters[i];
+			setStatement( statement, index, parameter );
 		}
 		ResultSet result = statement.executeQuery();
 		statement.close();
@@ -36,11 +39,45 @@ public class JDBCUtils
 		PreparedStatement statement = connection.prepareStatement( sql );
 		for ( int i = 0; i < parameters.length; i++ )
 		{
-			statement.setObject( i, parameters[i] );
+			int index = i + 1;
+			Object parameter = parameters[i];
+			setStatement( statement, index, parameter );
 		}
 		boolean result = statement.execute();
 		statement.close();
 		return result;
+	}
+	
+	public static void setStatement( PreparedStatement statement, int index, Object parameter ) throws SQLException
+	{
+		if ( parameter instanceof String )
+		{
+			statement.setString( index, (String) parameter );
+		}
+		else if ( parameter instanceof Integer )
+		{
+			statement.setInt( index, (Integer) parameter );
+		}
+		else if ( parameter instanceof Long )
+		{
+			statement.setLong( index, (Long) parameter );
+		} 
+		else if ( parameter instanceof Float )
+		{
+			statement.setFloat( index, (Float) parameter );
+		} 
+		else if ( parameter instanceof Date )
+		{
+			statement.setDate( index, (Date) parameter );
+		} 
+		else if ( parameter instanceof byte[] )
+		{
+			statement.setBytes( index, (byte[]) parameter );
+		} 
+		else
+		{
+			statement.setObject( index, parameter );
+		}
 	}
 	
 	public static boolean transaction( Connection connection, String sql ) throws SQLException

@@ -28,12 +28,13 @@ import java.sql.SQLException;
 // TODO add unit tests
 public class DbUtils {
 
+	// FIXME Only work on SQLite because it makes use of PRAGMA
     public static void vacuum(Connection connection) throws SQLException {
         connection.prepareStatement("VACUUM").execute();
     }
 
     /**
-     * Calls {@link #executeSqlScript(Context, SQLiteDatabase, String, boolean)} with transactional set to true.
+     * Calls {@link #executeSqlScript(Connection, String, boolean)} with transactional set to true.
      * 
      * @return number of statements executed.
      * @throws SQLException 

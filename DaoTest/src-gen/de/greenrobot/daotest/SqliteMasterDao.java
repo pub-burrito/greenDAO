@@ -4,7 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import de.greenrobot.platform.java.util.JDBCUtils;
+import de.greenrobot.dao.internal.JDBCUtils;
 
 import de.greenrobot.dao.AbstractDao;
 import de.greenrobot.dao.Property;

@@ -28,10 +28,10 @@ import java.util.List;
 import de.greenrobot.dao.identityscope.IdentityScope;
 import de.greenrobot.dao.identityscope.IdentityScopeLong;
 import de.greenrobot.dao.internal.DaoConfig;
+import de.greenrobot.dao.internal.JDBCUtils;
 import de.greenrobot.dao.internal.TableStatements;
 import de.greenrobot.dao.query.Query;
 import de.greenrobot.dao.query.QueryBuilder;
-import de.greenrobot.platform.java.util.JDBCUtils;
 
 /**
  * Base class for all DAOs: Implements entity operations like insert, load, delete, and query.
