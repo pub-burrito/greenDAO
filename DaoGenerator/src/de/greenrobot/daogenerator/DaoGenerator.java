@@ -72,8 +72,7 @@ public class DaoGenerator {
 
     private Pattern compilePattern(String sectionName) {
         int flags = Pattern.DOTALL | Pattern.MULTILINE;
-        return Pattern.compile(".*^\\s*?//\\s*?KEEP " + sectionName + ".*?\n(.*?)^\\s*// KEEP " + sectionName
-                + " END.*?\n", flags);
+        return Pattern.compile(".*^\\s*?//\\s*?KEEP " + sectionName + ".*?[\r\n]+(.*?)^\\s*// KEEP " + sectionName + " END.*?[\r\n]+", flags);
     }
 
     /** Generates all entities and DAOs for the given schema. */
