@@ -25,7 +25,7 @@ public class JDBCUtils
 			setStatement( statement, index, parameter );
 		}
 		ResultSet result = statement.executeQuery();
-		statement.close();
+		//statement.close();
 		return result;
 	}
 	
@@ -44,7 +44,7 @@ public class JDBCUtils
 			setStatement( statement, index, parameter );
 		}
 		boolean result = statement.execute();
-		statement.close();
+		//statement.close();
 		return result;
 	}
 	
