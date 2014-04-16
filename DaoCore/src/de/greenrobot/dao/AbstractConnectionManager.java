@@ -80,12 +80,12 @@ public abstract class AbstractConnectionManager
 			ResultSet resultSet = JDBCUtils.query( connection, "PRAGMA user_version" );
 			if ( resultSet.next() )
 			{
-				version = resultSet.getInt( 1 );
+				version = resultSet.getInt( "user_version" );
 			}
 		}
 		catch ( SQLException e )
 		{
-			e.printStackTrace();
+			throw new RuntimeException( e );
 		}
 		return version;
 	}
@@ -100,7 +100,7 @@ public abstract class AbstractConnectionManager
 		}
 		catch ( SQLException e )
 		{
-			e.printStackTrace();
+			throw new RuntimeException( e );
 		}
 	}
 
