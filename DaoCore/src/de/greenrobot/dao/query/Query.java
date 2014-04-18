@@ -146,7 +146,8 @@ public class Query<T> extends AbstractQuery<T> {
         PreparedStatement statement = connection.prepareStatement( sql );
         for ( int i = 0; i < parameters.length; i++ )
 		{
-			statement.setString( i, parameters[i] );
+        	int index = i + 1;
+			statement.setString( index, parameters[i] );
 		}
         ResultSet resultSet = statement.executeQuery();
         return new LazyList<T>(daoAccess, resultSet, true);
@@ -163,7 +164,8 @@ public class Query<T> extends AbstractQuery<T> {
         PreparedStatement statement = connection.prepareStatement( sql );
         for ( int i = 0; i < parameters.length; i++ )
 		{
-			statement.setString( i, parameters[i] );
+        	int index = i + 1;
+			statement.setString( index, parameters[i] );
 		}
         ResultSet resultSet = statement.executeQuery();
         return new LazyList<T>(daoAccess, resultSet, false);
@@ -192,7 +194,8 @@ public class Query<T> extends AbstractQuery<T> {
         PreparedStatement statement = connection.prepareStatement( sql );
         for ( int i = 0; i < parameters.length; i++ )
 		{
-			statement.setString( i, parameters[i] );
+        	int index = i + 1;
+			statement.setString( index, parameters[i] );
 		}
         ResultSet resultSet = statement.executeQuery();
         return daoAccess.loadUniqueAndCloseCursor(resultSet);

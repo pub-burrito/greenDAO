@@ -142,7 +142,7 @@ public abstract class AbstractDao<T, K> {
     public T loadByRowId(long rowId) throws SQLException {
         String sql = statements.getSelectByRowId();
         PreparedStatement statement = connection.prepareStatement( sql );
-        statement.setString( 0, Long.toString(rowId) );
+        statement.setString( 1, Long.toString(rowId) );
         ResultSet resultSet = statement.executeQuery();
         return loadUniqueAndCloseCursor(resultSet);
     }
@@ -646,7 +646,7 @@ public abstract class AbstractDao<T, K> {
         K key = getKeyVerified(entity);
         String sql = statements.getSelectByKey();
         PreparedStatement statement = connection.prepareStatement( sql );
-        statement.setString( 0, key.toString() );
+        statement.setString( 1, key.toString() );
         ResultSet resultSet = statement.executeQuery();
         try {
             boolean available = resultSet.next();
