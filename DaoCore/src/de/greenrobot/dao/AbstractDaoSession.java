@@ -151,12 +151,19 @@ public class AbstractDaoSession {
      */
     public void runInTx(Runnable runnable) throws SQLException {
     	connection.setAutoCommit( false );
+    	
         try {
             runnable.run();
-            connection.commit();
+        	if ( !connection.getAutoCommit() ) //FIXME: HACK: happens if the operation inside the runnable already reset this back to true 
+        	{
+        		connection.commit();
+        	}
         } catch(SQLException e) {
-        	connection.rollback();
         	e.printStackTrace();
+        	if ( !connection.getAutoCommit() ) //FIXME: HACK: happens if the operation inside the runnable already reset this back to true 
+        	{
+        		connection.rollback();
+        	}
         } finally {
         	connection.setAutoCommit( true );
         }

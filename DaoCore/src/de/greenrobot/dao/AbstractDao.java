@@ -54,6 +54,7 @@ import de.greenrobot.dao.query.QueryBuilder;
  * 
  * 3.) identityScope
  */
+//FIXME: Find all cases of non-inTX methods that call connection.setAutoCommit( false ); and make it conditional (or hide details inside the driver), ie: setting auto commit to false on a connection that already has it to false just creates a nested transaction that when committed doesn't do anything and lets the parent transaction handle it)
 public abstract class AbstractDao<T, K> {
     protected final Connection connection;
     protected final DaoConfig config;
