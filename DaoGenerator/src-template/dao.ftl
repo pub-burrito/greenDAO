@@ -76,7 +76,7 @@ public class ${entity.classNameDao} extends AbstractDao<${entity.className}, ${e
     */
     public static class Properties {
 <#list entity.propertiesColumns as property>
-        public final static Property ${property.propertyName?cap_first} = new Property(${property_index}, ${property.javaType}.class, "${property.propertyName}", ${property.primaryKey?string}, "${property.columnName}");
+        public final static Property ${property.propertyName?cap_first} = new Property(${property_index + 1}, ${property.javaType}.class, "${property.propertyName}", ${property.primaryKey?string}, "${property.columnName}");
 </#list>
     };
 
@@ -104,7 +104,7 @@ public class ${entity.classNameDao} extends AbstractDao<${entity.className}, ${e
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         JDBCUtils.execute( connection, "CREATE TABLE " + constraint + "'${entity.tableName}' (" + //
 <#list entity.propertiesColumns as property>
-                "'${property.columnName}' ${property.columnType}<#if property.constraints??> ${property.constraints} </#if><#if property_has_next>," +<#else>);");</#if> // ${property_index}: ${property.propertyName}
+                "'${property.columnName}' ${property.columnType}<#if property.constraints??> ${property.constraints} </#if><#if property_has_next>," +<#else>);");</#if> // ${property_index + 1}: ${property.propertyName}
 </#list>
 <#if entity.indexes?has_content >
         // Add Indexes
@@ -190,7 +190,7 @@ as property>${property.columnName}<#if property_has_next>,</#if></#list>);");
         int index = 1;
 <#list entity.properties as property>
 <#if !property.notNull>
-        if (!cursor.isNull(offset + ${property_index})) {
+        if (!cursor.isNull(offset + ${property_index + 1})) {
     </#if>        builder.set${property.propertyName?cap_first}(resultSet.get${toCursorType[property.propertyType]}(offset + index));
 <#if !property.notNull>
         }
@@ -201,12 +201,11 @@ as property>${property.columnName}<#if property_has_next>,</#if></#list>);");
 <#--
 ############################## readEntity non-protobuff, constructor ############################## 
 -->
-		int index = 1;
         ${entity.className} entity = new ${entity.className}(
 <#list entity.properties as property>
-            <#if !property.notNull>JDBCUtils.isNull(resultSet, offset + index) ? null : </#if><#if
+            <#if !property.notNull>JDBCUtils.isNull(resultSet, offset + ${property_index + 1}) ? null : </#if><#if
             property.propertyType == "Byte">(byte) </#if><#if
-            property.propertyType == "Date">new java.util.Date(</#if>resultSet.get${toCursorType[property.propertyType]}(offset + index++)<#if
+            property.propertyType == "Date">new java.util.Date(</#if>resultSet.get${toCursorType[property.propertyType]}(offset + ${property_index + 1})<#if
             property.propertyType == "Boolean"> != 0</#if><#if
             property.propertyType == "Date">)</#if><#if property_has_next>,</#if> // ${property.propertyName}
 </#list>        
@@ -228,11 +227,10 @@ as property>${property.columnName}<#if property_has_next>,</#if></#list>);");
 <#if entity.protobuf>
         throw new UnsupportedOperationException("Protobuf objects cannot be modified");
 <#else> 
-		int index = 1;
 <#list entity.properties as property>
-        entity.set${property.propertyName?cap_first}(<#if !property.notNull>JDBCUtils.isNull(resultSet, offset + index) ? null : </#if><#if
+        entity.set${property.propertyName?cap_first}(<#if !property.notNull>JDBCUtils.isNull(resultSet, offset + ${property_index + 1}) ? null : </#if><#if
             property.propertyType == "Byte">(byte) </#if><#if
-            property.propertyType == "Date">new java.util.Date(</#if>resultSet.get${toCursorType[property.propertyType]}(offset + index++)<#if
+            property.propertyType == "Date">new java.util.Date(</#if>resultSet.get${toCursorType[property.propertyType]}(offset + ${property_index + 1})<#if
             property.propertyType == "Boolean"> != 0</#if><#if
             property.propertyType == "Date">)</#if>);
 </#list>

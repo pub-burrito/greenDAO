@@ -29,6 +29,7 @@ import de.greenrobot.dao.query.WhereCondition.PropertyCondition;
  */
 public class Property {
     public final int ordinal;
+    public final int ordinalZeroBased;
     public final Class<?> type;
     public final String name;
     public final boolean primaryKey;
@@ -36,6 +37,7 @@ public class Property {
 
     public Property(int ordinal, Class<?> type, String name, boolean primaryKey, String columnName) {
         this.ordinal = ordinal;
+        this.ordinalZeroBased = ordinal - 1;
         this.type = type;
         this.name = name;
         this.primaryKey = primaryKey;
