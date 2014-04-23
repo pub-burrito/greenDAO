@@ -279,7 +279,8 @@ public abstract class AbstractDao<T, K> {
                     for (T entity : entities) {
                         bindValues(stmt, entity);
                         if (setPrimaryKey) {
-                            long rowId = stmt.executeUpdate();
+                        	stmt.executeUpdate();
+                            long rowId = getGeneratedKey( stmt );
                             updateKeyAfterInsertAndAttach(entity, rowId, false);
                         } else {
                             stmt.execute();
@@ -327,7 +328,8 @@ public abstract class AbstractDao<T, K> {
         try {
             synchronized (stmt) {
                 bindValues(stmt, entity);
-                rowId = stmt.executeUpdate();
+                stmt.executeUpdate();
+                rowId = getGeneratedKey( stmt );
                 connection.commit();
             }
         } catch (SQLException e) {
@@ -355,7 +357,8 @@ public abstract class AbstractDao<T, K> {
         try {
             synchronized (stmt) {
                 bindValues(stmt, entity);
-                rowId = stmt.executeUpdate();
+                stmt.executeUpdate();
+                rowId = getGeneratedKey( stmt );
             }
             connection.commit();
         } catch (SQLException e) {
@@ -368,6 +371,20 @@ public abstract class AbstractDao<T, K> {
         return rowId;
     }
 
+    protected long getGeneratedKey( PreparedStatement stmt ) throws SQLException
+    {
+        ResultSet rs = stmt.getGeneratedKeys();
+        
+		if ( rs.next() )
+		{
+			return rs.getLong( 1 );
+		}
+		else 
+		{
+			return 0;
+		}
+    }
+    
     protected void updateKeyAfterInsertAndAttach(T entity, long rowId, boolean lock) {
         if (rowId != -1) {
             K key = updateKeyAfterInsert(entity, rowId);
