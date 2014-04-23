@@ -18,6 +18,7 @@ package de.greenrobot.dao.internal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import de.greenrobot.dao.DaoException;
 
@@ -48,16 +49,25 @@ public class TableStatements {
     public PreparedStatement getInsertStatement() throws SQLException {
         if (insertStatement == null) {
             String sql = SqlUtils.createSqlInsert("INSERT INTO ", tablename, allColumns);
-            insertStatement = connection.prepareStatement( sql );
+            insertStatement = connection.prepareStatement( sql, Statement.RETURN_GENERATED_KEYS );
         }
+        
+        insertStatement.clearParameters();
+
         return insertStatement;
     }
 
     public PreparedStatement getInsertOrReplaceStatement() throws SQLException {
         if (insertOrReplaceStatement == null) {
             String sql = SqlUtils.createSqlInsert("INSERT OR REPLACE INTO ", tablename, allColumns);
-            insertOrReplaceStatement = connection.prepareStatement(sql);
+            insertOrReplaceStatement = connection.prepareStatement( sql, Statement.RETURN_GENERATED_KEYS );
         }
+        
+        if ( insertOrReplaceStatement != null )
+        {
+        	insertOrReplaceStatement.clearParameters();
+        }
+        
         return insertOrReplaceStatement;
     }
 
@@ -66,6 +76,12 @@ public class TableStatements {
             String sql = SqlUtils.createSqlDelete(tablename, pkColumns);
             deleteStatement = connection.prepareStatement(sql);
         }
+        
+        if ( deleteStatement != null )
+        {
+        	deleteStatement.clearParameters();
+        }
+        
         return deleteStatement;
     }
 
@@ -74,6 +90,12 @@ public class TableStatements {
             String sql = SqlUtils.createSqlUpdate(tablename, allColumns, pkColumns);
             updateStatement = connection.prepareStatement(sql);
         }
+        
+        if ( updateStatement != null )
+        {
+        	updateStatement.clearParameters();
+        }
+        
         return updateStatement;
     }
 
