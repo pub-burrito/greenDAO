@@ -58,7 +58,7 @@ public class CountQuery<T> extends AbstractQuery<T> {
             } else if (cursor.getFetchSize() != 1) {
                 throw new DaoException("Unexpected column count: " + cursor.getMetaData().getColumnCount());
             }
-            return cursor.getLong(0);
+            return cursor.getLong(1);
         } finally {
             cursor.close();
         }
